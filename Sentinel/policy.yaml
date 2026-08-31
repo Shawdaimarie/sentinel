@@ -1,0 +1,38 @@
+# Sentinel policy.
+#
+# This file is the only place operational boundaries are declared. Every agent
+# action is evaluated against it before execution; there is no code path that
+# bypasses the evaluation. The default decision is deny.
+
+version: 1
+
+defaults:
+  decision: deny
+
+agents:
+  crawler:
+    purpose: Retrieve public pages from the monitored domain and extract claims.
+    allowed_actions: [http.get]
+    allowed_domains: [essentialdigitalsolution.com]
+    max_actions_per_run: 50
+
+  verifier:
+    purpose: Determine whether each extracted claim is supported by a source record.
+    allowed_actions: [http.get, llm.complete]
+    allowed_domains: [essentialdigitalsolution.com]
+    max_actions_per_run: 200
+
+  prober:
+    purpose: Probe critical controls and record their observed state.
+    allowed_actions: [http.get, http.head]
+    allowed_domains: [essentialdigitalsolution.com]
+    max_actions_per_run: 20
+    thresholds:
+      max_latency_ms: 2000
+      expected_status: [200, 301, 302]
+
+  reporter:
+    purpose: Compile findings into an auditable report.
+    allowed_actions: [fs.write]
+    allowed_paths: [reports/]
+    max_actions_per_run: 5
