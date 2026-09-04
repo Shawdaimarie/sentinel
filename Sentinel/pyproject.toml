@@ -27,6 +27,7 @@ dev = [
 [project.scripts]
 sentinel = "sentinel.cli:main"
 sentinel-eval = "sentinel.eval_cli:main"
+sentinel-code-review = "sentinel.code_review_cli:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
