@@ -70,14 +70,14 @@ def _optional_text(value: object, context: str) -> str:
 def _domain(value: str) -> ValueDomain:
     if value not in DOMAINS:
         raise ValueError(f"unknown domain {value!r}; expected one of: {', '.join(DOMAINS)}")
-    return cast(ValueDomain, value)
+    return value
 
 
 def _asset_type(value: str) -> AssetType:
     if value not in ASSET_TYPES:
         expected = ", ".join(ASSET_TYPES)
         raise ValueError(f"unknown asset type {value!r}; expected one of: {expected}")
-    return cast(AssetType, value)
+    return value
 
 
 def item_from_mapping(raw: Mapping[str, object]) -> ValueRouteItem:
@@ -140,7 +140,11 @@ def decision_record(decision: ValueRouteDecision) -> dict[str, object]:
     }
 
 
-def result_payload(decisions: Sequence[ValueRouteDecision], *, min_score: float) -> dict[str, object]:
+def result_payload(
+    decisions: Sequence[ValueRouteDecision],
+    *,
+    min_score: float,
+) -> dict[str, object]:
     """Build a deterministic report payload for route decisions."""
 
     rejected = [decision.item.id for decision in decisions if decision.lane == "reject"]
