@@ -1,0 +1,52 @@
+name: Deployment Capsules
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/deployment-capsules.yml"
+      - "Sentinel/examples/deployment_capsules.json"
+      - "Sentinel/src/sentinel/capsule.py"
+      - "Sentinel/src/sentinel/capsule_cli.py"
+      - "Sentinel/tests/test_capsule.py"
+      - "Sentinel/tests/test_capsule_cli.py"
+      - "Sentinel/docs/DEPLOYMENT_CAPSULES.md"
+      - "Sentinel/docs/OWNERSHIP_AND_PUBLIC_PROOF_BOUNDARY.md"
+      - "Sentinel/pyproject.toml"
+
+permissions:
+  contents: read
+
+jobs:
+  capsules:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    defaults:
+      run:
+        working-directory: Sentinel
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: Sentinel/pyproject.toml
+      - name: Install Sentinel
+        run: |
+          python -m pip install --upgrade pip "setuptools>=83" wheel
+          python -m pip install -e ".[dev]"
+      - name: Build deployment capsule manifests
+        run: |
+          sentinel-capsule \
+            --capsules examples/deployment_capsules.json \
+            --root . \
+            --json-out reports/capsules/deployment_capsules.json \
+            --markdown-out reports/capsules/deployment_capsules.md \
+            --min-score 0.68
+      - name: Upload deployment capsule evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: sentinel-deployment-capsules
+          path: |
+            Sentinel/reports/capsules/
