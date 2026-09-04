@@ -55,6 +55,8 @@ Sentinel is a working reference implementation of a stricter pattern:
  portable spec + vectors ──> Python verifier
                          ├─> TypeScript verifier ──> identical final digest
                          └─> Go verifier
+
+ code-agent response ──> rubric dimensions ──> score + decision label
 ```
 
 Detailed component design is in [`ARCHITECTURE.md`](ARCHITECTURE.md). Security
@@ -155,6 +157,39 @@ The command returns nonzero when the suite threshold fails, required pass rate
 fails, safety rate fails, or the candidate introduces an unacceptable paired
 regression.
 
+## Coding-agent review scorer
+
+`sentinel.code_review` converts human rubric dimensions into deterministic
+accept, accept-with-edits, needs-human-design, or reject decisions. It is meant
+for AI-generated code review, coding-agent calibration, and model-evaluation
+work where fluency is not enough.
+
+The review dimensions are:
+
+- requirement fit;
+- correctness;
+- security;
+- maintainability;
+- verification; and
+- communication.
+
+Security remains a hard gate. A superficially high score cannot rescue an
+unsafe answer that exposes secrets, bypasses authorization, runs destructive
+commands, or introduces uncontrolled side effects.
+
+See:
+
+- [`docs/CODING_AGENT_REVIEW_RUBRIC.md`](docs/CODING_AGENT_REVIEW_RUBRIC.md)
+  for the human review protocol;
+- [`docs/SECURE_AGENTIC_DELIVERY_PLAYBOOK.md`](docs/SECURE_AGENTIC_DELIVERY_PLAYBOOK.md)
+  for backend, frontend, policy, audit, and review boundaries;
+- [`docs/AI_ENGINEERING_VALUE_SCORECARD.md`](docs/AI_ENGINEERING_VALUE_SCORECARD.md)
+  for business-facing evidence and role-fit mapping; and
+- [`examples/code_review_cases.jsonl`](examples/code_review_cases.jsonl) for
+  starter review cases.
+
+## Evaluation documentation
+
 See:
 
 - [`docs/EVALUATION.md`](docs/EVALUATION.md) for the protocol;
@@ -226,6 +261,7 @@ src/sentinel/
   cli.py                        operational CLI
   evaluation.py                 deterministic evaluation engine
   eval_cli.py                   release-gate CLI
+  code_review.py                deterministic coding-agent review scorer
   agents/
     base.py                     evaluate → log → execute
     crawler.py                  claim extraction
@@ -237,7 +273,7 @@ examples/                       cases, baseline runs, candidate runs, reports
 spec/                           portable audit profile and normative vectors
 verifiers/                      Python, TypeScript, and Go implementations
 schemas/                        JSON Schema contracts
-docs/                           protocol, crosswalk, and case study
+docs/                           protocol, crosswalk, case study, review assets
 ```
 
 ## Development
