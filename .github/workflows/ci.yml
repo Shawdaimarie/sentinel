@@ -1,0 +1,70 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  quality-and-evaluation:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.12"]
+    defaults:
+      run:
+        working-directory: Sentinel
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+          cache-dependency-path: Sentinel/pyproject.toml
+      - name: Install package and quality tools
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e ".[dev]" pip-audit
+      - name: Lint
+        run: ruff check src tests
+      - name: Type check
+        run: mypy src
+      - name: Test
+        run: pytest -q
+      - name: Dependency audit
+        run: pip-audit
+      - name: Deterministic agent release gate
+        run: |
+          sentinel-eval \
+            --cases examples/eval_cases.jsonl \
+            --runs examples/eval_runs.jsonl \
+            --baseline-runs examples/baseline_runs.jsonl \
+            --report reports/evaluation.md \
+            --json-out reports/evaluation.json \
+            --comparison-json reports/comparison.json \
+            --min-score 0.90
+      - name: Upload evaluation evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sentinel-evaluation-python-${{ matrix.python-version }}
+          path: |
+            Sentinel/reports/evaluation.md
+            Sentinel/reports/evaluation.json
+            Sentinel/reports/comparison.json
+
+  container-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - name: Build non-root image
+        uses: docker/build-push-action@v6
+        with:
+          context: Sentinel
+          push: false
+          tags: sentinel-eval:ci
