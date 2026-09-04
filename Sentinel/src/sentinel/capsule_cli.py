@@ -14,10 +14,11 @@ from sentinel.capsule import (
     VISIBILITIES,
     CapsuleAsset,
     CapsuleAssetType,
+    CapsuleManifest,
     CapsuleVisibility,
     DeploymentCapsule,
-    capsule_manifest_payload,
     build_capsule_manifests,
+    capsule_manifest_payload,
 )
 
 
@@ -137,18 +138,16 @@ def load_capsules(path: Path) -> list[DeploymentCapsule]:
 
 
 def result_payload(
-    manifests: Sequence[object],
+    manifests: Sequence[CapsuleManifest],
     *,
     min_score: float,
 ) -> dict[str, object]:
     """Build a report payload for capsule manifests."""
 
     manifest_payloads = [capsule_manifest_payload(manifest) for manifest in manifests]
-    blocked = [str(item["id"]) for item in manifest_payloads if item["status"] == "blocked"]
+    blocked = [manifest.capsule.id for manifest in manifests if manifest.status == "blocked"]
     below_threshold = [
-        str(item["id"])
-        for item in manifest_payloads
-        if isinstance(item["score"], (int, float)) and float(item["score"]) < min_score
+        manifest.capsule.id for manifest in manifests if manifest.score < min_score
     ]
     return {
         "schema_version": "sentinel.deployment_capsule_report.v1",
@@ -160,10 +159,9 @@ def result_payload(
     }
 
 
-def markdown_report(manifests: Sequence[object], *, min_score: float) -> str:
+def markdown_report(manifests: Sequence[CapsuleManifest], *, min_score: float) -> str:
     """Render deployment capsule manifests as Markdown."""
 
-    rows = [capsule_manifest_payload(manifest) for manifest in manifests]
     lines = [
         "# Sentinel Deployment Capsule Report",
         "",
@@ -172,33 +170,30 @@ def markdown_report(manifests: Sequence[object], *, min_score: float) -> str:
         "| Capsule | Visibility | Score | Status | External signal | Manifest SHA-256 |",
         "|---|---|---:|---|---:|---|",
     ]
-    for item in rows:
-        external_signal = "yes" if item["status"] == "ready" and item["visibility"] == "public_proof" else "no"
+    for manifest in manifests:
+        external_signal = "yes" if manifest.ready_for_external_signal else "no"
         lines.append(
             "| {title} | {visibility} | {score:.4f} | {status} | {signal} | `{sha}` |".format(
-                title=item["title"],
-                visibility=item["visibility"],
-                score=float(item["score"]),
-                status=item["status"],
+                title=manifest.capsule.title,
+                visibility=manifest.capsule.visibility,
+                score=manifest.score,
+                status=manifest.status,
                 signal=external_signal,
-                sha=item["manifest_sha256"],
+                sha=manifest.manifest_sha256,
             )
         )
     lines.append("")
-    for item in rows:
-        lines.append(f"## {item['id']}")
+    for manifest in manifests:
+        lines.append(f"## {manifest.capsule.id}")
         lines.append("")
-        blockers = item["blockers"]
-        if isinstance(blockers, list) and blockers:
+        if manifest.blockers:
             lines.append("Blockers:")
-            for blocker in blockers:
+            for blocker in manifest.blockers:
                 lines.append(f"- {blocker}")
             lines.append("")
-        next_actions = item["next_actions"]
         lines.append("Next actions:")
-        if isinstance(next_actions, list):
-            for action in next_actions:
-                lines.append(f"- {action}")
+        for action in manifest.next_actions:
+            lines.append(f"- {action}")
         lines.append("")
     return "\n".join(lines)
 
@@ -242,7 +237,8 @@ def main(argv: Sequence[str] | None = None) -> int:
 
     if args.markdown_out is not None:
         args.markdown_out.parent.mkdir(parents=True, exist_ok=True)
-        args.markdown_out.write_text(markdown_report(manifests, min_score=args.min_score), encoding="utf-8")
+        report = markdown_report(manifests, min_score=args.min_score)
+        args.markdown_out.write_text(report, encoding="utf-8")
 
     return 0 if payload["passed"] is True else 1
 
