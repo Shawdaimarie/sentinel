@@ -126,7 +126,7 @@ class CapsuleManifest:
 
 
 def _validate_score(score: float, field: str) -> None:
-    if isinstance(score, bool) or score < 0.0 or score > 1.0:
+    if score < 0.0 or score > 1.0:
         raise ValueError(f"{field} must be in [0.0, 1.0]; got {score!r}")
 
 
