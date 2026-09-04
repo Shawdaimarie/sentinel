@@ -1,0 +1,68 @@
+[
+  {
+    "id": "sentinel-public-proof",
+    "title": "Sentinel public engineering proof capsule",
+    "owner": "Shawdai Marie",
+    "visibility": "public_proof",
+    "license_expression": "Apache-2.0 for repository code; reserved materials excluded",
+    "summary": "Public proof capsule for governed agent execution, deterministic evaluation, automation, value routing, and trust communication.",
+    "assets": [
+      {
+        "path": "README.md",
+        "asset_type": "documentation",
+        "required": true,
+        "description": "Primary reviewer-facing project surface."
+      },
+      {
+        "path": "docs/VALUE_ROUTE_GATEWAY.md",
+        "asset_type": "documentation",
+        "required": true,
+        "description": "Shows how work is routed by value, evidence, security, deployability, and rights clarity."
+      },
+      {
+        "path": "docs/OWNERSHIP_AND_PUBLIC_PROOF_BOUNDARY.md",
+        "asset_type": "documentation",
+        "required": true,
+        "description": "Separates public proof from private delivery, identity-sensitive, and commercial materials."
+      },
+      {
+        "path": "docs/TRUST_AND_COMMUNICATION_STANDARD.md",
+        "asset_type": "documentation",
+        "required": true,
+        "description": "Defines the safest-yes communication standard."
+      }
+    ],
+    "value_score": 0.96,
+    "evidence_score": 0.94,
+    "security_score": 0.93,
+    "deployability_score": 0.88,
+    "rights_score": 0.89,
+    "public_distribution": true,
+    "includes_sensitive_data": false,
+    "requires_client_terms": false
+  },
+  {
+    "id": "client-delivery-template-hold",
+    "title": "Private client delivery template capsule",
+    "owner": "Shawdai Marie",
+    "visibility": "private_delivery",
+    "license_expression": "Private commercial terms required before client reuse",
+    "summary": "A reserved template lane for future paid delivery assets that should remain separate from public proof.",
+    "assets": [
+      {
+        "path": "docs/OWNERSHIP_AND_PUBLIC_PROOF_BOUNDARY.md",
+        "asset_type": "delivery_template",
+        "required": true,
+        "description": "Boundary document used to prevent public proof from exposing private commercial delivery details."
+      }
+    ],
+    "value_score": 0.86,
+    "evidence_score": 0.82,
+    "security_score": 0.91,
+    "deployability_score": 0.70,
+    "rights_score": 0.83,
+    "public_distribution": false,
+    "includes_sensitive_data": false,
+    "requires_client_terms": true
+  }
+]
