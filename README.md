@@ -88,6 +88,23 @@ and the [OWASP AI Agent Security guidance](https://cheatsheetseries.owasp.org/ch
 See the [`NIST AI RMF crosswalk`](Sentinel/docs/NIST_AI_RMF_CROSSWALK.md) for the
 project's concrete mapping.
 
+## Reviewer path
+
+A technical reviewer can assess the project without relying on résumé claims:
+
+1. Read the [`architecture`](Sentinel/ARCHITECTURE.md) and
+   [`security model`](Sentinel/SECURITY.md).
+2. Inspect the [`policy engine`](Sentinel/src/sentinel/policy.py),
+   [`audit chain`](Sentinel/src/sentinel/audit.py), and
+   [`evaluation engine`](Sentinel/src/sentinel/evaluation.py).
+3. Review the [`evaluation protocol`](Sentinel/docs/EVALUATION.md),
+   [`illustrative evidence report`](Sentinel/examples/reports/evaluation.md),
+   and [`NIST AI RMF crosswalk`](Sentinel/docs/NIST_AI_RMF_CROSSWALK.md).
+4. Verify the [`portable audit specification`](Sentinel/spec/SPEC.md) through
+   the independent [`Python, TypeScript, and Go implementations`](Sentinel/verifiers/).
+5. Inspect the [CI and CodeQL history](https://github.com/Shawdaimarie/sentinel/actions)
+   and reproduce the commands locally.
+
 ## Repository map
 
 ```text
@@ -102,6 +119,17 @@ Sentinel/
   Dockerfile                 non-root runtime image
 .github/workflows/ci.yml      quality, security, evaluation, polyglot, container gates
 ```
+
+## Governance and roadmap
+
+- Report vulnerabilities through the root [`security policy`](SECURITY.md).
+- Review ownership of security and runtime boundaries in
+  [`.github/CODEOWNERS`](.github/CODEOWNERS).
+- Use the structured bug or engineering-proposal forms for public issues.
+- See the [`technical roadmap`](Sentinel/docs/ROADMAP.md) for planned trace
+  ingestion, longitudinal evaluation, external audit anchoring, and calibrated
+  human review.
+- Cite the software using [`CITATION.cff`](CITATION.cff).
 
 ## Scope
 

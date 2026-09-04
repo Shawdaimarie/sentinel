@@ -1,0 +1,83 @@
+name: Bug report
+description: Report a reproducible defect in Sentinel's runtime, evaluator, verifier, or documentation.
+title: "bug: "
+labels: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for helping improve Sentinel. Do not report security vulnerabilities here; use the private security-advisory link in SECURITY.md.
+  - type: dropdown
+    id: component
+    attributes:
+      label: Component
+      options:
+        - Policy engine
+        - Audit log
+        - Governed HTTP boundary
+        - Operational agents
+        - Evaluation harness
+        - Portable audit specification
+        - Python verifier
+        - TypeScript verifier
+        - Go verifier
+        - CI or container build
+        - Documentation
+        - Other
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Version or commit
+      description: Release, branch, or full commit SHA where the issue occurs.
+      placeholder: v0.2.1 or 88868eb...
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: Operating system, runtime versions, install method, and relevant configuration. Remove secrets.
+      placeholder: Ubuntu 24.04; Python 3.12; package installed with pip; unkeyed audit mode
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Minimal reproduction
+      description: Provide the smallest commands, fixture, or code sample that reproduces the defect.
+      render: shell
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: observed
+    attributes:
+      label: Observed behavior
+      description: Include exact errors or output after removing secrets and personal information.
+    validations:
+      required: true
+  - type: textarea
+    id: impact
+    attributes:
+      label: Engineering or risk impact
+      description: Explain whether this affects correctness, safety, audit integrity, portability, reliability, cost, or usability.
+    validations:
+      required: true
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Submission checks
+      options:
+        - label: I searched existing issues and pull requests for this defect.
+          required: true
+        - label: I removed credentials, personal information, client data, and proprietary artifacts.
+          required: true
+        - label: This is not a vulnerability requiring private disclosure.
+          required: true

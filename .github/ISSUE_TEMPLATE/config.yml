@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Report a security vulnerability privately
+    url: https://github.com/Shawdaimarie/sentinel/security/advisories/new
+    about: Do not disclose suspected vulnerabilities in a public issue.
+  - name: Read the architecture and trust boundaries
+    url: https://github.com/Shawdaimarie/sentinel/tree/main/Sentinel
+    about: Review the implementation, security model, evaluation protocol, and portable specification before opening an issue.
