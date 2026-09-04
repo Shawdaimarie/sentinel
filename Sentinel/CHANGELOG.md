@@ -8,12 +8,31 @@ All notable changes to this project are documented here. The format follows
 
 ### Added
 
+- Benefit-gated `sentinel-automation` runner for executing only allowlisted,
+  high-value stability tasks from a JSON catalog.
+- Default stability catalog covering linting, strict typing, tests, dependency
+  audit, deterministic agent release gating, and coding-agent scorecard output.
+- Scheduled and manually dispatchable `Stability Automation` GitHub Actions
+  workflow that uploads JSON, Markdown, and evaluation evidence.
+- Automation refinement documentation describing quality, security, evaluation,
+  observability, portfolio, and governance layers.
+- Tests for catalog loading, command allowlisting, shell-token rejection,
+  benefit-threshold skips, duplicate task rejection, manual-task boundaries,
+  report payloads, and Markdown output.
+- `make automation` target for running the full benefit-gated stability suite.
 - Deterministic coding-agent review scorer for converting rubric dimension scores into reproducible accept, accept-with-edits, needs-human-design, and reject decisions.
 - Tests for strong accepts, security hard rejects, missing or duplicate dimensions, safety-aware comparisons, and margin-based ties.
 - Coding-agent review cases for safe refactors, unsafe shell interpolation, and missing-test API outputs.
 - Coding-agent review rubric for assessing AI-generated code across requirement fit, correctness, security, maintainability, verification, and communication.
 - Secure agentic delivery playbook for separating model suggestion from executable action across backend, frontend, policy, evaluation, audit, and human-review boundaries.
 - AI engineering value scorecard for translating governed-agent and model-evaluation work into business-facing evidence for applied AI, software engineering, developer-tooling, and internal-efficiency roles.
+
+### Changed
+
+- Package version advanced to `0.4.0`.
+- Project positioning now includes benefit-gated automation and repeatable
+  stability reporting in addition to governed execution, deterministic
+  evaluation, code-review scoring, and trace normalization.
 
 ## [0.3.0] - 2026-09-04
 
