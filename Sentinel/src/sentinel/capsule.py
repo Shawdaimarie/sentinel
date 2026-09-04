@@ -235,13 +235,13 @@ def _status(score: float, blockers: Sequence[str]) -> CapsuleStatus:
 def _next_actions(status: CapsuleStatus, capsule: DeploymentCapsule) -> tuple[str, ...]:
     if status == "ready" and capsule.visibility == "public_proof":
         return (
-            "Use as public professional proof with README, tests, limits, and attribution visible.",
-            "Keep private delivery details, credentials, and client-specific material out of the capsule.",
+            "Use as public proof with README, tests, limits, and attribution visible.",
+            "Keep private delivery details and credentials out of the capsule.",
         )
     if status == "ready":
         return (
-            "Use as a private delivery reference after written scope and commercial terms are agreed.",
-            "Preserve hashes, owner attribution, and handoff notes before implementation work starts.",
+            "Use privately after written scope and commercial terms are agreed.",
+            "Preserve hashes, owner attribution, and handoff notes before work starts.",
         )
     if status == "review":
         return (
