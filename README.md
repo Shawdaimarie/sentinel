@@ -1,34 +1,67 @@
 # Sentinel
 
-**Governed agent execution and deterministic evaluation for high-consequence AI workflows.**
+**Governed AI-agent execution, deterministic evaluation, and production-trace normalization.**
 
 [![CI](https://github.com/Shawdaimarie/sentinel/actions/workflows/ci.yml/badge.svg)](https://github.com/Shawdaimarie/sentinel/actions/workflows/ci.yml)
+[![Trace import](https://github.com/Shawdaimarie/sentinel/actions/workflows/trace-import.yml/badge.svg)](https://github.com/Shawdaimarie/sentinel/actions/workflows/trace-import.yml)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-3776AB)](https://www.python.org/)
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue)](LICENSE)
 
-Sentinel is a reference implementation for teams that need AI agents to be
-**observable, bounded, testable, and reviewable** before they affect business
-systems. It combines a deny-by-default policy engine, pre-execution audit
-logging, governed network access, a deterministic evaluation harness, and a
-portable audit-chain specification independently verified in Python,
-TypeScript, and Go.
+Sentinel is a reference platform for teams that need tool-using AI systems to be
+**bounded, observable, testable, and reviewable** before those systems affect
+operational infrastructure. It combines:
+
+- deny-by-default policy enforcement;
+- pre-execution audit decisions;
+- governed network access;
+- deterministic correctness, safety, grounding, latency, and cost evaluation;
+- paired baseline regression gates;
+- independently verifiable audit chains in Python, TypeScript, and Go; and
+- offline OpenTelemetry trace normalization into strict evaluation records.
 
 The implementation lives in [`Sentinel/`](Sentinel/).
 
-## Engineering signal
+## Engineering evidence
 
-| Capability | Concrete evidence |
+| Capability | Inspectable evidence |
 |---|---|
-| Agent governance | Every action is evaluated against declarative policy before dispatch |
-| Audit integrity | Append-only SHA-256 or HMAC-SHA256 chain with downgrade detection |
-| Portable verification | Language-neutral profile, normative vectors, and independent Python, TypeScript, and Go verifiers |
-| Network containment | Every redirect hop is re-evaluated; private and non-HTTP targets are denied |
-| Evaluation engineering | Versioned JSONL cases, deterministic scoring, slice analysis, and hard safety gates |
-| Release discipline | Paired baseline comparison and CI failure on unacceptable regressions |
-| Software quality | Strict types, unit/security tests, dependency audit, CodeQL, and a non-root container build |
-| Reproducibility | Input SHA-256 fingerprints, machine-readable reports, and cross-language digest agreement |
+| Agent governance | Every proposed action is evaluated before dispatch |
+| Audit integrity | SHA-256/HMAC-SHA256 chain with sequence and downgrade checks |
+| Production trace bridge | OTLP JSON becomes strict `AgentRun` JSONL plus a provenance manifest |
+| Trace safety | Malformed IDs, cycles, ambiguous roots, and invented completeness fail closed |
+| Sensitive-data handling | Configurable redaction and bounded unknown-provider metadata |
+| Evaluation engineering | Versioned cases, hard safety gates, slices, and baseline comparison |
+| Portable verification | Independent Python, TypeScript, and Go implementations share vectors |
+| Delivery discipline | Python 3.11/3.12, Ruff, strict mypy, pytest, `pip-audit`, CodeQL, Docker |
 
-## Quick start
+## Trace-to-evaluation quick start
+
+```bash
+cd Sentinel
+python -m pip install -e ".[dev]"
+
+sentinel-import-otel \
+  --input examples/otel/agent_trace.json \
+  --output reports/otel-agent-runs.jsonl \
+  --manifest reports/otel-import-manifest.json
+
+sentinel-eval \
+  --cases examples/otel/eval_case.jsonl \
+  --runs reports/otel-agent-runs.jsonl \
+  --report reports/otel-evaluation.md \
+  --json-out reports/otel-evaluation.json \
+  --min-score 0.90
+```
+
+The `AgentRun` output remains provider-neutral and validates against the
+existing schema. Trace topology, retry attempts, bounded metadata, completeness
+markers, and source/configuration SHA-256 fingerprints are retained in a
+separate manifest so the evaluator contract does not become vendor-specific.
+
+Read the [trace-import protocol](Sentinel/docs/TRACE_IMPORT.md) and inspect the
+[versioned OTLP fixture](Sentinel/examples/otel/agent_trace.json).
+
+## Governed evaluation quick start
 
 ```bash
 cd Sentinel
@@ -48,95 +81,70 @@ sentinel-eval \
   --min-score 0.90
 ```
 
-Verify the portable audit vectors without trusting the main package:
+## Architecture
 
-```bash
-python verifiers/python/verify.py --log spec/vectors/unkeyed.jsonl
+```text
+OTLP JSON export ──> topology + identifier validation ──> redaction
+       │                                                   │
+       └───────────────────────────────────────────────────┤
+                                                           ▼
+                                       strict AgentRun JSONL + manifest
+                                                           │
+versioned cases ───────────────────────────────────────────┤
+                                                           ▼
+                                           deterministic evaluator
+                                                           │
+                                     hard safety + regression release gate
 
-cd verifiers/typescript
-tsc -p tsconfig.json
-node dist/verifier.js --log ../../spec/vectors/unkeyed.jsonl
-
-cd ../go
-go run . --log ../../spec/vectors/unkeyed.jsonl
+agent proposal ──> deny-by-default policy ──> audit decision ──> execute/deny
+                                              │
+                                              ▼
+                         portable SHA-256/HMAC-SHA256 verification
 ```
-
-Or run the evaluation gate in a container:
-
-```bash
-docker build -t sentinel-eval Sentinel
-docker run --rm \
-  -v "$PWD/Sentinel/examples:/workspace/examples:ro" \
-  -v "$PWD/Sentinel/reports:/workspace/reports" \
-  sentinel-eval \
-  --cases examples/eval_cases.jsonl \
-  --runs examples/eval_runs.jsonl \
-  --report reports/evaluation.md \
-  --json-out reports/evaluation.json
-```
-
-## Why this repository exists
-
-Reliable AI deployment is not just a model-selection problem. It is a systems
-problem involving permissions, evidence, failure behavior, cost boundaries,
-human approval, regression detection, and an audit trail that survives review.
-Sentinel treats those properties as executable engineering constraints.
-
-The project is informed by the [NIST AI Risk Management Framework](https://www.nist.gov/itl/ai-risk-management-framework),
-the [NIST Generative AI Profile](https://www.nist.gov/publications/artificial-intelligence-risk-management-framework-generative-artificial-intelligence),
-and the [OWASP AI Agent Security guidance](https://cheatsheetseries.owasp.org/cheatsheets/AI_Agent_Security_Cheat_Sheet.html).
-See the [`NIST AI RMF crosswalk`](Sentinel/docs/NIST_AI_RMF_CROSSWALK.md) for the
-project's concrete mapping.
 
 ## Reviewer path
 
-A technical reviewer can assess the project without relying on résumé claims:
+A technical reviewer can evaluate the work without relying on résumé language:
 
-1. Read the [`architecture`](Sentinel/ARCHITECTURE.md) and
-   [`security model`](Sentinel/SECURITY.md).
-2. Inspect the [`policy engine`](Sentinel/src/sentinel/policy.py),
-   [`audit chain`](Sentinel/src/sentinel/audit.py), and
-   [`evaluation engine`](Sentinel/src/sentinel/evaluation.py).
-3. Review the [`evaluation protocol`](Sentinel/docs/EVALUATION.md),
-   [`illustrative evidence report`](Sentinel/examples/reports/evaluation.md),
-   and [`NIST AI RMF crosswalk`](Sentinel/docs/NIST_AI_RMF_CROSSWALK.md).
-4. Verify the [`portable audit specification`](Sentinel/spec/SPEC.md) through
-   the independent [`Python, TypeScript, and Go implementations`](Sentinel/verifiers/).
-5. Inspect the [CI and CodeQL history](https://github.com/Shawdaimarie/sentinel/actions)
-   and reproduce the commands locally.
+1. Read the [architecture](Sentinel/ARCHITECTURE.md),
+   [security model](Sentinel/SECURITY.md), and
+   [trace-import protocol](Sentinel/docs/TRACE_IMPORT.md).
+2. Inspect the [policy engine](Sentinel/src/sentinel/policy.py),
+   [audit chain](Sentinel/src/sentinel/audit.py),
+   [evaluation engine](Sentinel/src/sentinel/evaluation.py), and
+   [OTLP importer](Sentinel/src/sentinel/trace_import.py).
+3. Run the [unit and security tests](Sentinel/tests/) and the
+   [trace-import workflow](.github/workflows/trace-import.yml).
+4. Review the [example evaluation evidence](Sentinel/examples/reports/) and
+   [OTLP fixture evidence](Sentinel/examples/otel/).
+5. Verify the [portable audit specification](Sentinel/spec/SPEC.md) with the
+   independent [Python, TypeScript, and Go verifiers](Sentinel/verifiers/).
 
-## Repository map
+## Why this work matters
 
-```text
-Sentinel/
-  src/sentinel/              governed agents, policy, audit, HTTP, evaluation
-  tests/                     unit, security, evaluation, and conformance tests
-  examples/                  versioned cases, candidate runs, baseline runs
-  spec/                      portable audit-chain profile and normative vectors
-  verifiers/                 independent Python, TypeScript, and Go verifiers
-  schemas/                   generated JSON contracts
-  docs/                      architecture, evaluation protocol, case study
-  Dockerfile                 non-root runtime image
-.github/workflows/ci.yml      quality, security, evaluation, polyglot, container gates
-```
+Agent reliability is a systems problem, not only a model-selection problem.
+Permissions, trace completeness, evidence quality, failure behavior, latency,
+cost, human approval, and audit integrity all affect whether an AI workflow can
+be trusted with broader operational authority. Sentinel makes those properties
+explicit and testable.
 
-## Governance and roadmap
+The project is informed by the
+[NIST AI Risk Management Framework](https://www.nist.gov/itl/ai-risk-management-framework),
+its [Generative AI Profile](https://www.nist.gov/publications/artificial-intelligence-risk-management-framework-generative-artificial-intelligence),
+and the
+[OWASP AI Agent Security guidance](https://cheatsheetseries.owasp.org/cheatsheets/AI_Agent_Security_Cheat_Sheet.html).
 
-- Report vulnerabilities through the root [`security policy`](SECURITY.md).
-- Review ownership of security and runtime boundaries in
-  [`.github/CODEOWNERS`](.github/CODEOWNERS).
-- Use the structured bug or engineering-proposal forms for public issues.
-- See the [`technical roadmap`](Sentinel/docs/ROADMAP.md) for planned trace
-  ingestion, longitudinal evaluation, external audit anchoring, and calibrated
-  human review.
-- Cite the software using [`CITATION.cff`](CITATION.cff).
+## Scope and limits
 
-## Scope
+Sentinel is a reference implementation, not an AI certification and not a
+claim of universal safety. The OTLP importer supports an explicit subset of
+semantic conventions and never treats absent telemetry as evidence of success.
+A retained hash chain detects alteration of retained records; it does not prove
+that a log is complete. Consequential deployments still require domain-specific
+cases, repeated trials, calibrated human review, external digest anchoring,
+production identity and secrets management, monitoring, and independent
+security assessment.
 
-Sentinel is a reference implementation, not a certification and not a claim
-that an AI system is universally safe. The evaluation harness measures only the
-observable assertions encoded in its versioned cases. A portable hash chain
-makes alteration of retained records detectable; it does not establish that a
-log is complete. Consequential deployment requires domain-specific cases,
-repeated trials, human review, external digest anchoring, operational
-monitoring, and independent security assessment.
+## License
+
+Apache-2.0. See [`LICENSE`](LICENSE).

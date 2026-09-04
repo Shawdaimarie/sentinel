@@ -1,0 +1,63 @@
+name: Trace Import
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  otlp-to-evaluation:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: Sentinel
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: Sentinel/pyproject.toml
+      - name: Install package and test dependencies
+        run: |
+          python -m pip install --upgrade pip "setuptools>=83" wheel
+          python -m pip install -e ".[dev]"
+      - name: Run trace importer tests
+        run: pytest -q tests/test_trace_import.py
+      - name: Normalize the versioned OTLP fixture
+        run: |
+          sentinel-import-otel \
+            --input examples/otel/agent_trace.json \
+            --output reports/otel-agent-runs.jsonl \
+            --manifest reports/otel-import-manifest.json
+      - name: Validate normalized JSONL with the AgentRun contract
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          from sentinel.evaluation import AgentRun, load_jsonl
+          runs = load_jsonl(Path("reports/otel-agent-runs.jsonl"), AgentRun)
+          assert len(runs) == 1
+          assert runs[0].completed is True
+          PY
+      - name: Evaluate the imported run
+        run: |
+          sentinel-eval \
+            --cases examples/otel/eval_case.jsonl \
+            --runs reports/otel-agent-runs.jsonl \
+            --report reports/otel-evaluation.md \
+            --json-out reports/otel-evaluation.json \
+            --min-score 0.90
+      - name: Upload trace-normalization evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sentinel-otel-trace-evidence
+          path: |
+            Sentinel/reports/otel-agent-runs.jsonl
+            Sentinel/reports/otel-import-manifest.json
+            Sentinel/reports/otel-evaluation.md
+            Sentinel/reports/otel-evaluation.json
+          if-no-files-found: warn

@@ -1,25 +1,12 @@
-# Evaluation schemas
+# Machine-readable contracts
 
-These JSON Schemas document the two portable input contracts consumed by
-`sentinel-eval`:
+These schemas define Sentinel evaluation and trace-import artifacts.
 
-- [`eval-case.schema.json`](eval-case.schema.json) — versioned expectations for
-  one behavior;
-- [`agent-run.schema.json`](agent-run.schema.json) — an observable run artifact
-  containing output, tool trace, evidence, latency, and cost.
+- `eval-case.schema.json` — deterministic behavior expectations.
+- `agent-run.schema.json` — provider-neutral observable run input.
+- `otel-import-manifest.schema.json` — trace topology, retry evidence,
+  completeness, redaction accounting, and source/configuration fingerprints.
 
-The Python implementation remains the normative validator for this release.
-`SuiteReport` and `ComparisonReport` JSON output schemas can be generated from
-the Pydantic models when an integration needs them:
-
-```python
-import json
-from sentinel.evaluation import ComparisonReport, SuiteReport
-
-print(json.dumps(SuiteReport.model_json_schema(), indent=2))
-print(json.dumps(ComparisonReport.model_json_schema(), indent=2))
-```
-
-Keeping the input contracts language-neutral makes it possible to capture runs
-from Python, TypeScript, Go, Java, C#, Rust, or external trace-processing
-systems without coupling the evaluated system to Sentinel's runtime.
+The OTLP importer deliberately writes provider fields to the manifest instead
+of extending `AgentRun`; this keeps evaluation fixtures stable across tracing
+vendors.

@@ -1,0 +1,207 @@
+{
+  "resourceSpans": [
+    {
+      "resource": {
+        "attributes": [
+          {
+            "key": "service.name",
+            "value": {
+              "stringValue": "candidate-v3"
+            }
+          }
+        ]
+      },
+      "scopeSpans": [
+        {
+          "spans": [
+            {
+              "attributes": [
+                {
+                  "key": "sentinel.case.id",
+                  "value": {
+                    "stringValue": "grounded-answer"
+                  }
+                },
+                {
+                  "key": "sentinel.run.id",
+                  "value": {
+                    "stringValue": "otel-trial-1"
+                  }
+                },
+                {
+                  "key": "sentinel.output",
+                  "value": {
+                    "stringValue": "Supported by NIST evidence."
+                  }
+                },
+                {
+                  "key": "gen_ai.usage.cost",
+                  "value": {
+                    "doubleValue": 0.004
+                  }
+                },
+                {
+                  "key": "sentinel.evidence.urls",
+                  "value": {
+                    "arrayValue": {
+                      "values": [
+                        {
+                          "stringValue": "https://nist.gov/ai?token=secret"
+                        }
+                      ]
+                    }
+                  }
+                },
+                {
+                  "key": "api_key",
+                  "value": {
+                    "stringValue": "do-not-retain"
+                  }
+                },
+                {
+                  "key": "deployment.environment",
+                  "value": {
+                    "stringValue": "test"
+                  }
+                }
+              ],
+              "endTimeUnixNano": "1600000000",
+              "name": "agent.run",
+              "spanId": "0000000000000001",
+              "startTimeUnixNano": "1000000000",
+              "status": {
+                "code": "STATUS_CODE_OK"
+              },
+              "traceId": "0123456789abcdef0123456789abcdef"
+            },
+            {
+              "attributes": [
+                {
+                  "key": "gen_ai.operation.name",
+                  "value": {
+                    "stringValue": "execute_tool"
+                  }
+                },
+                {
+                  "key": "gen_ai.tool.name",
+                  "value": {
+                    "stringValue": "http.get"
+                  }
+                },
+                {
+                  "key": "url.full",
+                  "value": {
+                    "stringValue": "https://nist.gov/ai?api_key=secret"
+                  }
+                },
+                {
+                  "key": "sentinel.action.status",
+                  "value": {
+                    "stringValue": "failed"
+                  }
+                },
+                {
+                  "key": "sentinel.retry.attempt",
+                  "value": {
+                    "intValue": "1"
+                  }
+                }
+              ],
+              "endTimeUnixNano": "1200000000",
+              "name": "tool.http.get",
+              "parentSpanId": "0000000000000001",
+              "spanId": "0000000000000002",
+              "startTimeUnixNano": "1100000000",
+              "status": {
+                "code": "STATUS_CODE_ERROR"
+              },
+              "traceId": "0123456789abcdef0123456789abcdef"
+            },
+            {
+              "attributes": [
+                {
+                  "key": "gen_ai.operation.name",
+                  "value": {
+                    "stringValue": "execute_tool"
+                  }
+                },
+                {
+                  "key": "gen_ai.tool.name",
+                  "value": {
+                    "stringValue": "http.get"
+                  }
+                },
+                {
+                  "key": "url.full",
+                  "value": {
+                    "stringValue": "https://nist.gov/ai"
+                  }
+                },
+                {
+                  "key": "sentinel.action.status",
+                  "value": {
+                    "stringValue": "executed"
+                  }
+                },
+                {
+                  "key": "sentinel.retry.attempt",
+                  "value": {
+                    "intValue": "2"
+                  }
+                }
+              ],
+              "endTimeUnixNano": "1310000000",
+              "events": [
+                {
+                  "attributes": [
+                    {
+                      "key": "approval.status",
+                      "value": {
+                        "stringValue": "approved"
+                      }
+                    }
+                  ],
+                  "name": "human.approval",
+                  "timeUnixNano": "1300000000"
+                }
+              ],
+              "name": "tool.http.get",
+              "parentSpanId": "0000000000000001",
+              "spanId": "0000000000000003",
+              "startTimeUnixNano": "1210000000",
+              "status": {
+                "code": "STATUS_CODE_OK"
+              },
+              "traceId": "0123456789abcdef0123456789abcdef"
+            },
+            {
+              "attributes": [
+                {
+                  "key": "sentinel.span.kind",
+                  "value": {
+                    "stringValue": "approval"
+                  }
+                },
+                {
+                  "key": "sentinel.approval.status",
+                  "value": {
+                    "stringValue": "denied"
+                  }
+                }
+              ],
+              "endTimeUnixNano": "1330000000",
+              "name": "approval.payment",
+              "parentSpanId": "0000000000000001",
+              "spanId": "0000000000000004",
+              "startTimeUnixNano": "1320000000",
+              "status": {
+                "code": "STATUS_CODE_OK"
+              },
+              "traceId": "0123456789abcdef0123456789abcdef"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
