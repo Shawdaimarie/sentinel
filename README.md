@@ -9,9 +9,9 @@
 Sentinel is a reference implementation for teams that need AI agents to be
 **observable, bounded, testable, and reviewable** before they affect business
 systems. It combines a deny-by-default policy engine, pre-execution audit
-logging, governed network access, and a deterministic evaluation harness that
-can block releases when correctness, safety, grounding, tool-use, or efficiency
-regress.
+logging, governed network access, a deterministic evaluation harness, and a
+portable audit-chain specification independently verified in Python,
+TypeScript, and Go.
 
 The implementation lives in [`Sentinel/`](Sentinel/).
 
@@ -21,11 +21,12 @@ The implementation lives in [`Sentinel/`](Sentinel/).
 |---|---|
 | Agent governance | Every action is evaluated against declarative policy before dispatch |
 | Audit integrity | Append-only SHA-256 or HMAC-SHA256 chain with downgrade detection |
+| Portable verification | Language-neutral profile, normative vectors, and independent Python, TypeScript, and Go verifiers |
 | Network containment | Every redirect hop is re-evaluated; private and non-HTTP targets are denied |
 | Evaluation engineering | Versioned JSONL cases, deterministic scoring, slice analysis, and hard safety gates |
 | Release discipline | Paired baseline comparison and CI failure on unacceptable regressions |
-| Software quality | Strict types, unit/security tests, dependency audit, CodeQL-ready workflow, container build |
-| Reproducibility | Input SHA-256 fingerprints and machine-readable JSON reports |
+| Software quality | Strict types, unit/security tests, dependency audit, CodeQL, and a non-root container build |
+| Reproducibility | Input SHA-256 fingerprints, machine-readable reports, and cross-language digest agreement |
 
 ## Quick start
 
@@ -45,6 +46,19 @@ sentinel-eval \
   --json-out reports/evaluation.json \
   --comparison-json reports/comparison.json \
   --min-score 0.90
+```
+
+Verify the portable audit vectors without trusting the main package:
+
+```bash
+python verifiers/python/verify.py --log spec/vectors/unkeyed.jsonl
+
+cd verifiers/typescript
+tsc -p tsconfig.json
+node dist/verifier.js --log ../../spec/vectors/unkeyed.jsonl
+
+cd ../go
+go run . --log ../../spec/vectors/unkeyed.jsonl
 ```
 
 Or run the evaluation gate in a container:
@@ -79,18 +93,22 @@ project's concrete mapping.
 ```text
 Sentinel/
   src/sentinel/              governed agents, policy, audit, HTTP, evaluation
-  tests/                     unit, security, and evaluation tests
+  tests/                     unit, security, evaluation, and conformance tests
   examples/                  versioned cases, candidate runs, baseline runs
+  spec/                      portable audit-chain profile and normative vectors
+  verifiers/                 independent Python, TypeScript, and Go verifiers
   schemas/                   generated JSON contracts
   docs/                      architecture, evaluation protocol, case study
   Dockerfile                 non-root runtime image
-.github/workflows/ci.yml      quality, security, evaluation, and container gates
+.github/workflows/ci.yml      quality, security, evaluation, polyglot, container gates
 ```
 
 ## Scope
 
 Sentinel is a reference implementation, not a certification and not a claim
 that an AI system is universally safe. The evaluation harness measures only the
-observable assertions encoded in its versioned cases. Consequential deployment
-requires domain-specific cases, repeated trials, human review, operational
+observable assertions encoded in its versioned cases. A portable hash chain
+makes alteration of retained records detectable; it does not establish that a
+log is complete. Consequential deployment requires domain-specific cases,
+repeated trials, human review, external digest anchoring, operational
 monitoring, and independent security assessment.
