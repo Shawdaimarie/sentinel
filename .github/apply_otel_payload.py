@@ -13,6 +13,7 @@ ROOT = Path(__file__).resolve().parents[1]
 PARTS = ROOT / ".github" / "otel-bootstrap"
 EXPECTED_B64_SHA256 = "22ca2055cd44759aac6712f10101093f41aae8538fd1d71831fedae2851b9080"
 EXPECTED_ARCHIVE_SHA256 = "1e22670fbc21295a2647fa07abbce6803c4cb43667b103e82b8f8e64521c5fc4"
+DEFERRED_WORKFLOW = ".github/workflows/trace-import.yml"
 
 
 def digest(data: bytes) -> str:
@@ -39,25 +40,25 @@ def main() -> None:
     if digest(archive) != EXPECTED_ARCHIVE_SHA256:
         raise RuntimeError("decoded archive fingerprint mismatch")
 
+    applied = 0
     with tarfile.open(fileobj=io.BytesIO(archive), mode="r:gz") as bundle:
         members = bundle.getmembers()
         for member in members:
             if not member.isfile():
                 raise ValueError(f"archive contains unsupported member: {member.name!r}")
+            if member.name == DEFERRED_WORKFLOW:
+                continue
             target = safe_destination(member.name)
             target.parent.mkdir(parents=True, exist_ok=True)
             source = bundle.extractfile(member)
             if source is None:
                 raise RuntimeError(f"cannot read archive member: {member.name!r}")
             target.write_bytes(source.read())
+            applied += 1
 
     shutil.rmtree(PARTS)
     Path(__file__).unlink()
-    workflow = ROOT / ".github" / "workflows" / "bootstrap-otel.yml"
-    if workflow.exists():
-        workflow.unlink()
-
-    print(f"Applied {len(members)} verified files from the OTLP feature payload")
+    print(f"Applied {applied} verified source files; CI workflow installation deferred")
 
 
 if __name__ == "__main__":
