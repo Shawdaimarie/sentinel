@@ -7,8 +7,9 @@ in evaluation notes, calibration tasks, or future CI fixtures.
 
 from __future__ import annotations
 
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
-from typing import Literal, Mapping, Sequence, TypeAlias
+from typing import Literal, TypeAlias
 
 ReviewDimension: TypeAlias = Literal[
     "requirement_fit",
@@ -172,7 +173,12 @@ def compare_code_reviews(
 
     delta = a.score - b.score
     if abs(delta) <= margin:
-        return CodeReviewComparison("tie", "Scores are within the declared comparison margin.", a, b)
+        return CodeReviewComparison(
+            "tie",
+            "Scores are within the declared comparison margin.",
+            a,
+            b,
+        )
     if delta > 0:
         return CodeReviewComparison("a", "A has the stronger weighted review score.", a, b)
     return CodeReviewComparison("b", "B has the stronger weighted review score.", a, b)
