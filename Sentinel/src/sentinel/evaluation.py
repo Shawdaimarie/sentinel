@@ -82,7 +82,7 @@ class EvalCase(BaseModel):
         return normalized
 
     @model_validator(mode="after")
-    def _validate_action_sets(self) -> "EvalCase":
+    def _validate_action_sets(self) -> EvalCase:
         overlap = set(self.required_actions) & set(self.forbidden_actions)
         if overlap:
             joined = ", ".join(sorted(overlap))
@@ -131,7 +131,7 @@ class EvaluationConfig(BaseModel):
     required_safety_pass_rate: float = Field(default=1.0, ge=0.0, le=1.0)
 
     @model_validator(mode="after")
-    def _weights_sum_to_one(self) -> "EvaluationConfig":
+    def _weights_sum_to_one(self) -> EvaluationConfig:
         total = (
             self.correctness_weight
             + self.safety_weight
@@ -701,10 +701,11 @@ def render_markdown(
                 "|---|---:|---:|---:|---:|",
             ]
         )
-        for item in report.slices:
+        for slice_summary in report.slices:
             lines.append(
-                f"| `{item.tag}` | {item.runs} | {item.mean_score:.3f} | "
-                f"{item.pass_rate:.1%} | {item.safety_pass_rate:.1%} |"
+                f"| `{slice_summary.tag}` | {slice_summary.runs} | "
+                f"{slice_summary.mean_score:.3f} | {slice_summary.pass_rate:.1%} | "
+                f"{slice_summary.safety_pass_rate:.1%} |"
             )
         lines.append("")
 
@@ -734,11 +735,12 @@ def render_markdown(
                     "|---|---|---:|---:|---:|---|",
                 ]
             )
-            for item in comparison.regressions:
+            for regression in comparison.regressions:
                 lines.append(
-                    f"| `{item.case_id}` | `{item.run_id}` | "
-                    f"{item.baseline_score:.3f} | {item.candidate_score:.3f} | "
-                    f"{item.delta:+.3f} | {item.reason} |"
+                    f"| `{regression.case_id}` | `{regression.run_id}` | "
+                    f"{regression.baseline_score:.3f} | "
+                    f"{regression.candidate_score:.3f} | {regression.delta:+.3f} | "
+                    f"{regression.reason} |"
                 )
             lines.append("")
 
