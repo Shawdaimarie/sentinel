@@ -37,6 +37,8 @@ ALLOWED_EXECUTABLES: frozenset[str] = frozenset(
         "sentinel-eval",
         "sentinel-code-review",
         "sentinel-import-otel",
+        "sentinel-value-router",
+        "sentinel-capsule",
     }
 )
 ALLOWED_PYTHON_MODULES: frozenset[str] = frozenset({"compileall"})
