@@ -1,0 +1,14 @@
+# Default ownership
+* @Shawdaimarie
+
+# Security and governance boundaries
+/SECURITY.md @Shawdaimarie
+/.github/workflows/ @Shawdaimarie
+/Sentinel/SECURITY.md @Shawdaimarie
+/Sentinel/policy.yaml @Shawdaimarie
+/Sentinel/spec/ @Shawdaimarie
+/Sentinel/verifiers/ @Shawdaimarie
+
+# Runtime and evaluation implementation
+/Sentinel/src/ @Shawdaimarie
+/Sentinel/tests/ @Shawdaimarie

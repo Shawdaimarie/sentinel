@@ -1,0 +1,72 @@
+name: Engineering proposal
+description: Propose a scoped capability, control, integration, evaluation, or documentation improvement.
+title: "proposal: "
+labels: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Strong proposals identify the user or operator need, the affected trust boundary, measurable acceptance criteria, and the smallest coherent implementation.
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem and user
+      description: Who experiences the problem, and what cannot be done reliably today?
+    validations:
+      required: true
+  - type: textarea
+    id: outcome
+    attributes:
+      label: Desired outcome
+      description: State the observable behavior or risk reduction rather than a preferred library.
+    validations:
+      required: true
+  - type: dropdown
+    id: boundary
+    attributes:
+      label: Primary boundary affected
+      options:
+        - Agent permissions and policy
+        - Audit integrity and provenance
+        - Network and untrusted-content isolation
+        - Evaluation quality and release gates
+        - Human oversight and approvals
+        - Reliability, latency, or cost
+        - Portable cross-language verification
+        - Build, supply chain, or deployment
+        - Documentation or developer experience
+        - No security boundary
+    validations:
+      required: true
+  - type: textarea
+    id: design
+    attributes:
+      label: Proposed design
+      description: Describe components, interfaces, data flow, failure behavior, and alternatives considered.
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      description: List tests, evaluation cases, metrics, or review evidence that would make the change complete.
+      placeholder: |
+        - New action is denied when undeclared
+        - Existing audit vectors remain valid
+        - Candidate introduces no safety or pass-to-fail regression
+        - Documentation states residual risk
+    validations:
+      required: true
+  - type: textarea
+    id: risks
+    attributes:
+      label: Risks and residual limitations
+      description: Identify new permissions, external calls, data handling, operational burden, or unsupported cases.
+    validations:
+      required: true
+  - type: checkboxes
+    id: contribution
+    attributes:
+      label: Contribution
+      options:
+        - label: I am willing to submit or review an implementation.

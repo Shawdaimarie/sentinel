@@ -1,0 +1,29 @@
+cff-version: 1.2.0
+message: "If you use Sentinel in research or engineering work, please cite this software."
+title: "Sentinel: Governed AI-Agent Execution and Deterministic Evaluation"
+type: software
+authors:
+  - family-names: "Marie"
+    given-names: "Shawdai"
+version: 0.2.1
+date-released: 2026-09-04
+url: "https://github.com/Shawdaimarie/sentinel"
+repository-code: "https://github.com/Shawdaimarie/sentinel"
+license: Apache-2.0
+keywords:
+  - artificial intelligence
+  - AI agents
+  - AI safety
+  - agent evaluation
+  - cybersecurity
+  - audit logging
+  - responsible AI
+  - NIST AI RMF
+  - Python
+  - TypeScript
+  - Go
+abstract: >-
+  Sentinel is a reference implementation for governed AI-agent execution,
+  deterministic behavioral evaluation, hard safety and regression gates, and
+  independently verifiable audit chains implemented across Python,
+  TypeScript, and Go.
