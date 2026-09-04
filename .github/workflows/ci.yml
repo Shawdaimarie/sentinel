@@ -88,6 +88,50 @@ jobs:
           test "${{ steps.audit.outcome }}" = "success"
           test "${{ steps.evaluation.outcome }}" = "success"
 
+  portable-audit-conformance:
+    name: Portable audit conformance
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.23.x"
+          cache-dependency-path: Sentinel/verifiers/go/go.mod
+      - name: Verify with independent Python implementation
+        working-directory: Sentinel
+        run: |
+          python -m unittest discover -s verifiers/python -p "test_*.py" -v
+          python verifiers/python/verify.py \
+            --log spec/vectors/unkeyed.jsonl
+          python verifiers/python/verify.py \
+            --log spec/vectors/keyed.jsonl \
+            --key sentinel-demo-key
+      - name: Compile and verify with TypeScript implementation
+        working-directory: Sentinel/verifiers/typescript
+        run: |
+          npm install --global typescript@5.8.3
+          tsc -p tsconfig.json
+          node dist/test.js
+          node dist/verifier.js \
+            --log ../../spec/vectors/unkeyed.jsonl
+          node dist/verifier.js \
+            --log ../../spec/vectors/keyed.jsonl \
+            --key sentinel-demo-key
+      - name: Test and verify with Go implementation
+        working-directory: Sentinel/verifiers/go
+        run: |
+          go test ./...
+          go run . --log ../../spec/vectors/unkeyed.jsonl
+          go run . \
+            --log ../../spec/vectors/keyed.jsonl \
+            --key sentinel-demo-key
+
   container-build:
     runs-on: ubuntu-latest
     defaults:
