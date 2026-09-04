@@ -135,14 +135,14 @@ def _task_layer(value: str) -> TaskLayer:
     )
     if value not in allowed:
         raise ValueError(f"unknown task layer {value!r}; expected one of {', '.join(allowed)}")
-    return cast(TaskLayer, value)
+    return value
 
 
 def _task_mode(value: str) -> TaskMode:
     allowed: tuple[TaskMode, ...] = ("automated", "manual")
     if value not in allowed:
         raise ValueError(f"unknown task mode {value!r}; expected one of {', '.join(allowed)}")
-    return cast(TaskMode, value)
+    return value
 
 
 def _validate_command(command: Sequence[str]) -> tuple[str, ...]:
@@ -156,10 +156,11 @@ def _validate_command(command: Sequence[str]) -> tuple[str, ...]:
         if any(token in arg for token in UNSAFE_ARGUMENT_TOKENS):
             raise ValueError(f"unsafe shell token in command argument: {arg!r}")
 
-    if executable == "python":
-        if len(command) < 3 or command[1] != "-m" or command[2] not in ALLOWED_PYTHON_MODULES:
-            allowed = ", ".join(sorted(ALLOWED_PYTHON_MODULES))
-            raise ValueError(f"python automation may only run allowlisted modules: {allowed}")
+    if executable == "python" and (
+        len(command) < 3 or command[1] != "-m" or command[2] not in ALLOWED_PYTHON_MODULES
+    ):
+        allowed = ", ".join(sorted(ALLOWED_PYTHON_MODULES))
+        raise ValueError(f"python automation may only run allowlisted modules: {allowed}")
 
     return tuple(command)
 
