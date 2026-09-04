@@ -101,5 +101,57 @@
       "reports/automation/code_review_scorecard.md"
     ],
     "timeout_seconds": 120
+  },
+  {
+    "id": "governance.value-route",
+    "title": "Value route gateway",
+    "layer": "governance",
+    "mode": "automated",
+    "required": true,
+    "benefit_score": 0.95,
+    "command": [
+      "sentinel-value-router",
+      "--items",
+      "examples/value_route_items.json",
+      "--json-out",
+      "reports/automation/value_routes.json",
+      "--markdown-out",
+      "reports/automation/value_routes.md",
+      "--min-score",
+      "0.70"
+    ],
+    "rationale": "Value-bearing work should be routed through evidence, security, deployability, and ownership clarity before reuse.",
+    "evidence_paths": [
+      "reports/automation/value_routes.json",
+      "reports/automation/value_routes.md"
+    ],
+    "timeout_seconds": 120
+  },
+  {
+    "id": "governance.deployment-capsules",
+    "title": "Deployment capsule manifest gate",
+    "layer": "governance",
+    "mode": "automated",
+    "required": true,
+    "benefit_score": 0.95,
+    "command": [
+      "sentinel-capsule",
+      "--capsules",
+      "examples/deployment_capsules.json",
+      "--root",
+      ".",
+      "--json-out",
+      "reports/automation/deployment_capsules.json",
+      "--markdown-out",
+      "reports/automation/deployment_capsules.md",
+      "--min-score",
+      "0.68"
+    ],
+    "rationale": "Public proof and private delivery assets need hashed manifests, ownership terms, and sensitive-data blockers.",
+    "evidence_paths": [
+      "reports/automation/deployment_capsules.json",
+      "reports/automation/deployment_capsules.md"
+    ],
+    "timeout_seconds": 120
   }
 ]
