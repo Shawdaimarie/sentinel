@@ -9,3 +9,5 @@ htmlcov/
 audit/
 reports/
 .env
+Sentinel/verifiers/typescript/dist/
+Sentinel/verifiers/go/sentinel-audit-verify
