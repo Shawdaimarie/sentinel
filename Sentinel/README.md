@@ -25,6 +25,8 @@ Sentinel is a working reference implementation of a stricter pattern:
    evidence, latency, cost, and action budgets.
 5. **Block regressions.** Safety failures and unacceptable paired regressions
    fail the release gate.
+6. **Verify independently.** A portable profile and normative vectors are
+   implemented separately in Python, TypeScript, and Go.
 
 ## Architecture
 
@@ -49,6 +51,10 @@ Sentinel is a working reference implementation of a stricter pattern:
                        ├─> deterministic evaluator ─> release gate
  captured agent runs ──┘                  │
                                   Markdown + JSON + hashes
+
+ portable spec + vectors ──> Python verifier
+                         ├─> TypeScript verifier ──> identical final digest
+                         └─> Go verifier
 ```
 
 Detailed component design is in [`ARCHITECTURE.md`](ARCHITECTURE.md). Security
@@ -84,6 +90,33 @@ The chain detects modification, deletion in the middle, reordering, sequence
 gaps, and keyed downgrade. It does not by itself detect deletion of the entire
 file or truncation of the tail; production deployments must stream records to
 external append-only storage.
+
+### Portable verification
+
+[`spec/SPEC.md`](spec/SPEC.md) defines `sentinel.audit.v1-portable`, including
+canonical JSON rules, safe data types, digest modes, failure behavior, and
+production boundaries. Normative keyed and unkeyed vectors live under
+[`spec/vectors/`](spec/vectors/). Independent implementations under
+[`verifiers/`](verifiers/) verify the same record counts and final digests in
+Python, TypeScript, and Go.
+
+From this directory:
+
+```bash
+python verifiers/python/verify.py --log spec/vectors/unkeyed.jsonl
+
+cd verifiers/typescript
+tsc -p tsconfig.json
+node dist/test.js
+node dist/verifier.js --log ../../spec/vectors/unkeyed.jsonl
+
+cd ../go
+go test ./...
+go run . --log ../../spec/vectors/unkeyed.jsonl
+```
+
+Use `--key sentinel-demo-key` for the keyed fixture. That key is public test
+data and must never be used in a deployment.
 
 ## Agent evaluation harness
 
@@ -199,8 +232,10 @@ src/sentinel/
     verifier.py                 evidence verification
     prober.py                   control probes
     reporter.py                 Markdown reporting
-tests/                          unit, security, and evaluation tests
+tests/                          unit, security, evaluation, conformance tests
 examples/                       cases, baseline runs, candidate runs, reports
+spec/                           portable audit profile and normative vectors
+verifiers/                      Python, TypeScript, and Go implementations
 schemas/                        JSON Schema contracts
 docs/                           protocol, crosswalk, and case study
 ```
@@ -222,7 +257,9 @@ The GitHub Actions workflow runs:
 - the unit and security suite;
 - `pip-audit`;
 - the deterministic candidate/baseline release gate;
-- upload of the Markdown and JSON evidence; and
+- independent Python, TypeScript, and Go conformance checks;
+- upload of Markdown, JSON, and diagnostic evidence;
+- CodeQL; and
 - a non-root Docker build.
 
 ## Scope
@@ -230,8 +267,9 @@ The GitHub Actions workflow runs:
 Sentinel demonstrates enforceable architecture and reproducible evaluation. It
 is not a production monitoring service, an AI certification, or a universal
 proof of safety. A consequential deployment still needs domain-specific cases,
-repeated trials, human review, external audit storage, production identity and
-secrets management, incident response, and independent security assessment.
+repeated trials, human review, external audit storage and digest anchoring,
+production identity and secrets management, incident response, and independent
+security assessment.
 
 ## License
 
