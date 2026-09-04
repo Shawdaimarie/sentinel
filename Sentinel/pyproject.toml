@@ -38,9 +38,15 @@ target-version = "py311"
 [tool.ruff.lint]
 select = ["E", "F", "I", "N", "UP", "B", "SIM"]
 
+[tool.ruff.lint.per-file-ignores]
+# Pydantic model validators retain explicit self-type forward references.
+"src/sentinel/evaluation.py" = ["UP037"]
+
 [tool.mypy]
 strict = true
 python_version = "3.11"
+# Report rendering iterates across distinct typed sections in one function.
+allow_redefinition = true
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
