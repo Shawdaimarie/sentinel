@@ -95,14 +95,23 @@ jobs:
         working-directory: Sentinel
     steps:
       - uses: actions/checkout@v4
-      - uses: docker/setup-buildx-action@v3
-      - name: Build non-root image
+      - name: Build non-root image with bounded registry retry
         id: build
         continue-on-error: true
         run: |
           set -o pipefail
-          docker build --progress=plain -t sentinel-eval:ci . \
-            2>&1 | tee container-build.log
+          : > container-build.log
+          for attempt in 1 2 3; do
+            echo "Container build attempt ${attempt}/3" | tee -a container-build.log
+            if docker build --progress=plain -t sentinel-eval:ci . \
+              2>&1 | tee -a container-build.log; then
+              exit 0
+            fi
+            if [ "${attempt}" -lt 3 ]; then
+              sleep $((attempt * 15))
+            fi
+          done
+          exit 1
       - name: Upload container diagnostics
         if: always()
         uses: actions/upload-artifact@v4
