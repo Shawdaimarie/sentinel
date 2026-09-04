@@ -1,0 +1,15 @@
+{
+  "files": {
+    "keyed.jsonl": {
+      "final_hash": "8409da90cd06f8bae23c4baf4008132b4d9c0f89464e58873889a12e43282901",
+      "records": 3
+    },
+    "unkeyed.jsonl": {
+      "final_hash": "88d6d38b29c7841de2ebe70d483091126a4f6f2784fa53d9ae33555b74d86d8d",
+      "records": 3
+    }
+  },
+  "genesis_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+  "keyed_fixture_key": "sentinel-demo-key",
+  "schema_version": "sentinel.audit.v1-portable"
+}
