@@ -1,0 +1,50 @@
+[
+  {
+    "id": "sentinel.public-proof",
+    "title": "Sentinel public proof layer",
+    "domain": "engineering",
+    "asset_type": "source_code",
+    "owner": "Shawdai Marie",
+    "value_score": 0.95,
+    "evidence_score": 0.94,
+    "security_score": 0.96,
+    "deployment_score": 0.90,
+    "rights_score": 0.92,
+    "contains_sensitive_data": false,
+    "requires_human_approval": false,
+    "external_distribution": true,
+    "notes": "Public engineering proof with tests, limits, CI, and documentation visible."
+  },
+  {
+    "id": "portfolio.case-study",
+    "title": "Portfolio case study evidence",
+    "domain": "portfolio",
+    "asset_type": "documentation",
+    "owner": "Shawdai Marie",
+    "value_score": 0.90,
+    "evidence_score": 0.88,
+    "security_score": 0.90,
+    "deployment_score": 0.84,
+    "rights_score": 0.89,
+    "contains_sensitive_data": false,
+    "requires_human_approval": false,
+    "external_distribution": true,
+    "notes": "Recruiter-facing proof that summarizes public work without exposing private data."
+  },
+  {
+    "id": "client.routing-template",
+    "title": "Private client routing template",
+    "domain": "client_delivery",
+    "asset_type": "client_workflow",
+    "owner": "Shawdai Marie",
+    "value_score": 0.91,
+    "evidence_score": 0.82,
+    "security_score": 0.86,
+    "deployment_score": 0.78,
+    "rights_score": 0.88,
+    "contains_sensitive_data": false,
+    "requires_human_approval": true,
+    "external_distribution": false,
+    "notes": "Commercial delivery pattern that should be reviewed before reuse with real clients."
+  }
+]
