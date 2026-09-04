@@ -8,6 +8,19 @@ All notable changes to this project are documented here. The format follows
 
 ### Added
 
+- Deployment capsule manifests for packaging public proof and private delivery
+  assets with SHA-256 file evidence, visibility, license expression, required
+  terms, blockers, next actions, and manifest digests.
+- `sentinel-capsule` CLI for building JSON and Markdown capsule reports from a
+  declared capsule catalog.
+- Deployment capsule examples for Sentinel public proof and private delivery
+  boundary cases.
+- Dedicated deployment-capsule workflow that uploads generated capsule evidence.
+- Capsule tests for ready public proof, sensitive-data blockers, non-public
+  distribution blockers, missing required assets, duplicate capsule IDs, unsafe
+  paths, and CLI output behavior.
+- Value-route and deployment-capsule gates inside the default stability
+  automation catalog.
 - Trust-readiness scorer for evaluating whether a proposal is clear, evidenced,
   principled, emotionally intelligent, and safe enough to say yes to.
 - Trust and communication standard defining evidence-before-confidence,
@@ -27,19 +40,28 @@ All notable changes to this project are documented here. The format follows
   benefit-threshold skips, duplicate task rejection, manual-task boundaries,
   report payloads, and Markdown output.
 - `make automation` target for running the full benefit-gated stability suite.
-- Deterministic coding-agent review scorer for converting rubric dimension scores into reproducible accept, accept-with-edits, needs-human-design, and reject decisions.
-- Tests for strong accepts, security hard rejects, missing or duplicate dimensions, safety-aware comparisons, and margin-based ties.
-- Coding-agent review cases for safe refactors, unsafe shell interpolation, and missing-test API outputs.
-- Coding-agent review rubric for assessing AI-generated code across requirement fit, correctness, security, maintainability, verification, and communication.
-- Secure agentic delivery playbook for separating model suggestion from executable action across backend, frontend, policy, evaluation, audit, and human-review boundaries.
-- AI engineering value scorecard for translating governed-agent and model-evaluation work into business-facing evidence for applied AI, software engineering, developer-tooling, and internal-efficiency roles.
+- Deterministic coding-agent review scorer for converting rubric dimension
+  scores into reproducible accept, accept-with-edits, needs-human-design, and
+  reject decisions.
+- Tests for strong accepts, security hard rejects, missing or duplicate
+  dimensions, safety-aware comparisons, and margin-based ties.
+- Coding-agent review cases for safe refactors, unsafe shell interpolation, and
+  missing-test API outputs.
+- Coding-agent review rubric for assessing AI-generated code across requirement
+  fit, correctness, security, maintainability, verification, and communication.
+- Secure agentic delivery playbook for separating model suggestion from
+  executable action across backend, frontend, policy, evaluation, audit, and
+  human-review boundaries.
+- AI engineering value scorecard for translating governed-agent and
+  model-evaluation work into business-facing evidence for applied AI, software
+  engineering, developer-tooling, and internal-efficiency roles.
 
 ### Changed
 
-- Package version advanced to `0.4.0`.
-- Project positioning now includes benefit-gated automation and repeatable
-  stability reporting in addition to governed execution, deterministic
-  evaluation, code-review scoring, and trace normalization.
+- Package version advanced to `0.6.0`.
+- Project positioning now includes deployment capsules in addition to governed
+  execution, deterministic evaluation, code-review scoring, trace normalization,
+  trust communication, benefit-gated automation, and value routing.
 
 ## [0.3.0] - 2026-09-04
 
