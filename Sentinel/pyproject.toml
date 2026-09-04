@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=68", "wheel"]
+requires = ["setuptools>=83", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -37,10 +37,6 @@ target-version = "py311"
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "N", "UP", "B", "SIM"]
-
-[tool.ruff.lint.per-file-ignores]
-# Pydantic model validators retain explicit self-type forward references.
-"src/sentinel/evaluation.py" = ["UP037"]
 
 [tool.mypy]
 strict = true
