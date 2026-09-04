@@ -1,0 +1,50 @@
+name: Value Route Gateway
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/value-route.yml"
+      - "Sentinel/src/sentinel/value_router.py"
+      - "Sentinel/src/sentinel/value_router_cli.py"
+      - "Sentinel/tests/test_value_router*.py"
+      - "Sentinel/examples/value_route_items.json"
+      - "Sentinel/docs/VALUE_ROUTE_GATEWAY.md"
+      - "Sentinel/docs/OWNERSHIP_AND_PUBLIC_PROOF_BOUNDARY.md"
+      - "Sentinel/pyproject.toml"
+
+permissions:
+  contents: read
+
+jobs:
+  route-value:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    defaults:
+      run:
+        working-directory: Sentinel
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: Sentinel/pyproject.toml
+      - name: Install Sentinel
+        run: |
+          python -m pip install --upgrade pip "setuptools>=83" wheel
+          python -m pip install -e ".[dev]"
+      - name: Route deployable value
+        run: |
+          sentinel-value-router \
+            --items examples/value_route_items.json \
+            --json-out reports/value-route/value_routes.json \
+            --markdown-out reports/value-route/value_routes.md \
+            --min-score 0.70
+      - name: Upload value route evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sentinel-value-route-gateway
+          path: Sentinel/reports/value-route/
