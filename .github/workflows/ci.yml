@@ -30,15 +30,35 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install -e ".[dev]" pip-audit
       - name: Lint
-        run: ruff check src tests
-      - name: Type check
-        run: mypy src
-      - name: Test
-        run: pytest -q
-      - name: Dependency audit
-        run: pip-audit
-      - name: Deterministic agent release gate
+        id: lint
+        continue-on-error: true
         run: |
+          mkdir -p reports/diagnostics
+          set -o pipefail
+          ruff check src tests 2>&1 | tee reports/diagnostics/ruff.txt
+      - name: Type check
+        id: typecheck
+        continue-on-error: true
+        run: |
+          set -o pipefail
+          mypy src 2>&1 | tee reports/diagnostics/mypy.txt
+      - name: Test
+        id: tests
+        continue-on-error: true
+        run: |
+          set -o pipefail
+          pytest -q 2>&1 | tee reports/diagnostics/pytest.txt
+      - name: Dependency audit
+        id: audit
+        continue-on-error: true
+        run: |
+          set -o pipefail
+          pip-audit 2>&1 | tee reports/diagnostics/pip-audit.txt
+      - name: Deterministic agent release gate
+        id: evaluation
+        continue-on-error: true
+        run: |
+          set -o pipefail
           sentinel-eval \
             --cases examples/eval_cases.jsonl \
             --runs examples/eval_runs.jsonl \
@@ -46,25 +66,50 @@ jobs:
             --report reports/evaluation.md \
             --json-out reports/evaluation.json \
             --comparison-json reports/comparison.json \
-            --min-score 0.90
-      - name: Upload evaluation evidence
+            --min-score 0.90 \
+            2>&1 | tee reports/diagnostics/evaluation.txt
+      - name: Upload verification evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: sentinel-evaluation-python-${{ matrix.python-version }}
+          name: sentinel-verification-python-${{ matrix.python-version }}
           path: |
+            Sentinel/reports/diagnostics/
             Sentinel/reports/evaluation.md
             Sentinel/reports/evaluation.json
             Sentinel/reports/comparison.json
+          if-no-files-found: warn
+      - name: Enforce quality gates
+        if: always()
+        run: |
+          test "${{ steps.lint.outcome }}" = "success"
+          test "${{ steps.typecheck.outcome }}" = "success"
+          test "${{ steps.tests.outcome }}" = "success"
+          test "${{ steps.audit.outcome }}" = "success"
+          test "${{ steps.evaluation.outcome }}" = "success"
 
   container-build:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: Sentinel
     steps:
       - uses: actions/checkout@v4
       - uses: docker/setup-buildx-action@v3
       - name: Build non-root image
-        uses: docker/build-push-action@v6
+        id: build
+        continue-on-error: true
+        run: |
+          set -o pipefail
+          docker build --progress=plain -t sentinel-eval:ci . \
+            2>&1 | tee container-build.log
+      - name: Upload container diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
         with:
-          context: Sentinel
-          push: false
-          tags: sentinel-eval:ci
+          name: sentinel-container-build
+          path: Sentinel/container-build.log
+          if-no-files-found: error
+      - name: Enforce container gate
+        if: always()
+        run: test "${{ steps.build.outcome }}" = "success"
