@@ -1,0 +1,53 @@
+name: Stability Automation
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "17 11 * * 1-5"
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/stability-automation.yml"
+      - "Sentinel/automation/**"
+      - "Sentinel/src/**"
+      - "Sentinel/tests/**"
+      - "Sentinel/examples/**"
+      - "Sentinel/docs/AUTOMATION.md"
+      - "Sentinel/pyproject.toml"
+
+permissions:
+  contents: read
+
+jobs:
+  stability:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    defaults:
+      run:
+        working-directory: Sentinel
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: Sentinel/pyproject.toml
+      - name: Install Sentinel and automation tools
+        run: |
+          python -m pip install --upgrade pip "setuptools>=83" wheel
+          python -m pip install -e ".[dev]" pip-audit
+      - name: Run benefit-gated stability automation
+        run: |
+          sentinel-automation \
+            --catalog automation/stability_tasks.json \
+            --execute \
+            --json-out reports/automation/stability.json \
+            --markdown-out reports/automation/stability.md \
+            --min-benefit-score 0.85
+      - name: Upload stability automation evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sentinel-stability-automation
+          path: |
+            Sentinel/reports/automation/
