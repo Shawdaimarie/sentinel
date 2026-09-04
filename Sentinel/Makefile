@@ -1,4 +1,4 @@
-.PHONY: install quality test import-otel evaluate compare automation docker
+.PHONY: install quality test import-otel evaluate compare automation value-route docker
 
 install:
 	python -m pip install -e ".[dev]"
@@ -7,7 +7,7 @@ quality:
 	ruff check src tests
 	mypy src
 
-# Security, trace-import, code-review, and automation tests are part of the default test suite.
+# Security, trace-import, code-review, value-routing, and automation tests are part of the default test suite.
 test:
 	pytest -q
 
@@ -48,6 +48,13 @@ automation:
 		--json-out reports/automation/stability.json \
 		--markdown-out reports/automation/stability.md \
 		--min-benefit-score 0.85
+
+value-route:
+	sentinel-value-router \
+		--items examples/value_route_items.json \
+		--json-out reports/value-route/value_routes.json \
+		--markdown-out reports/value-route/value_routes.md \
+		--min-score 0.70
 
 docker:
 	docker build -t sentinel-eval .
