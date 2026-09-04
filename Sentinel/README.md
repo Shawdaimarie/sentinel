@@ -1,12 +1,13 @@
 # Sentinel
 
-**Governed agent execution, deterministic evaluation, benefit-gated automation, and value routing for high-consequence AI workflows.**
+**Governed agent execution, deterministic evaluation, benefit-gated automation, value routing, and deployment capsules for high-consequence AI workflows.**
 
 Every proposed action is evaluated against policy. Every decision is logged
 before a side effect. Every release can be gated on versioned correctness,
 safety, grounding, tool-use, latency, and cost assertions. Every value-bearing
 work item can be routed through evidence, security, deployability, and ownership
-clarity before it is presented externally or scaled.
+clarity before it is presented externally or scaled. Every deployment capsule
+hashes its declared evidence and separates public proof from private delivery.
 
 ---
 
@@ -15,7 +16,8 @@ clarity before it is presented externally or scaled.
 Organizations increasingly connect language models to browsers, databases,
 files, communication systems, and operational APIs. A persuasive demo does not
 establish that those agents are bounded, auditable, grounded, efficient, safe
-under adversarial input, or worth scaling.
+under adversarial input, worth scaling, or protected against accidental leakage
+of private delivery value.
 
 Sentinel is a working reference implementation of a stricter pattern:
 
@@ -31,6 +33,8 @@ Sentinel is a working reference implementation of a stricter pattern:
    implemented separately in Python, TypeScript, and Go.
 7. **Route value.** Public proof, private delivery, and human-only decisions are
    separated before work is reused, automated, or distributed.
+8. **Package proof.** Deployment capsules hash evidence assets and record terms,
+   visibility, blockers, and next actions.
 
 ## Architecture
 
@@ -63,6 +67,8 @@ Sentinel is a working reference implementation of a stricter pattern:
  code-agent response ──> rubric dimensions ──> score + decision label
 
  work item ──> value route gateway ──> deployable / pilot / review / hold / reject
+
+ proof or delivery asset ──> deployment capsule ──> manifest + hashes + terms
 ```
 
 Detailed component design is in [`ARCHITECTURE.md`](ARCHITECTURE.md). Security
@@ -175,10 +181,36 @@ sentinel-value-router \
   --min-score 0.70
 ```
 
+## Deployment Capsules
+
+`sentinel-capsule` packages evidence for public proof or private delivery into a
+manifest with SHA-256 file hashes, visibility, license expression, required
+terms, blockers, next actions, and a manifest digest.
+
+Capsules are intentionally bounded:
+
+- public proof can contain source, docs, tests, examples, reports, and limits;
+- private delivery can remain reserved for commercial scopes and client work;
+- sensitive data, credentials, legal/identity material, and assessment answers
+  are blocked from public proof; and
+- license terms are treated honestly: they define permitted use, but they do not
+  physically prevent copying of a public file.
+
+```bash
+sentinel-capsule \
+  --capsules examples/deployment_capsules.json \
+  --root . \
+  --json-out reports/capsules/deployment_capsules.json \
+  --markdown-out reports/capsules/deployment_capsules.md \
+  --min-score 0.68
+```
+
 See:
 
 - [`docs/VALUE_ROUTE_GATEWAY.md`](docs/VALUE_ROUTE_GATEWAY.md) for the routing
   method;
+- [`docs/DEPLOYMENT_CAPSULES.md`](docs/DEPLOYMENT_CAPSULES.md) for protected
+  proof and delivery manifests;
 - [`docs/OWNERSHIP_AND_PUBLIC_PROOF_BOUNDARY.md`](docs/OWNERSHIP_AND_PUBLIC_PROOF_BOUNDARY.md)
   for the separation between public proof and private work;
 - [`docs/TRUST_AND_COMMUNICATION_STANDARD.md`](docs/TRUST_AND_COMMUNICATION_STANDARD.md)
@@ -196,8 +228,9 @@ Sentinel includes scheduled and manually dispatchable workflows for:
 - trace import;
 - CodeQL;
 - non-root container build;
-- benefit-gated stability automation; and
-- value-route report generation.
+- benefit-gated stability automation;
+- value-route report generation; and
+- deployment-capsule manifest generation.
 
 These workflows preserve a reviewer-visible trail of proof while keeping
 identity, legal, financial, account, and assessment work human-controlled.
@@ -215,9 +248,10 @@ src/sentinel/
   trust_readiness.py            safest-yes decision scoring
   automation.py                 benefit-gated stability task runner
   value_router.py               deployable value routing gateway
+  capsule.py                    deployment capsule manifests and hash evidence
   *_cli.py                      command-line interfaces
 tests/                          unit, security, evaluation, conformance tests
-examples/                       cases, baseline runs, candidate runs, route items
+examples/                       cases, baseline runs, route items, capsules
 spec/                           portable audit profile and normative vectors
 verifiers/                      Python, TypeScript, and Go implementations
 schemas/                        JSON Schema contracts
@@ -232,18 +266,20 @@ make quality
 make test
 make compare
 make automation
+make value-route
+make capsules
 make docker
 ```
 
 ## Scope
 
 Sentinel demonstrates enforceable architecture, reproducible evaluation, trust
-communication, benefit-gated automation, and deployable value routing. It is not
-a production monitoring service, an AI certification, a legal opinion, or a
-universal proof of safety. A consequential deployment still needs domain-specific
-cases, repeated trials, human review, external audit storage and digest
-anchoring, production identity and secrets management, incident response, and
-independent security assessment.
+communication, benefit-gated automation, deployable value routing, and protected
+capsule manifests. It is not a production monitoring service, an AI
+certification, a legal opinion, or a universal proof of safety. A consequential
+deployment still needs domain-specific cases, repeated trials, human review,
+external audit storage and digest anchoring, production identity and secrets
+management, incident response, and independent security assessment.
 
 ## License
 
