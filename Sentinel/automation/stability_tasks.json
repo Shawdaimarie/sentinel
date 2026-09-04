@@ -1,0 +1,105 @@
+[
+  {
+    "id": "quality.lint",
+    "title": "Lint source and tests",
+    "layer": "quality",
+    "mode": "automated",
+    "required": true,
+    "benefit_score": 0.96,
+    "command": ["ruff", "check", "src", "tests"],
+    "rationale": "Static linting blocks low-signal changes before they become reviewer or hiring-manager noise.",
+    "evidence_paths": ["reports/automation/stability.md"],
+    "timeout_seconds": 180
+  },
+  {
+    "id": "quality.typecheck",
+    "title": "Strict type check",
+    "layer": "quality",
+    "mode": "automated",
+    "required": true,
+    "benefit_score": 0.97,
+    "command": ["mypy", "src"],
+    "rationale": "Strict typing keeps backend and evaluation contracts inspectable under change.",
+    "evidence_paths": ["reports/automation/stability.md"],
+    "timeout_seconds": 180
+  },
+  {
+    "id": "quality.tests",
+    "title": "Run unit, security, evaluation, and automation tests",
+    "layer": "quality",
+    "mode": "automated",
+    "required": true,
+    "benefit_score": 0.98,
+    "command": ["pytest", "-q"],
+    "rationale": "A complete test suite is the minimum proof that refinement did not degrade the system.",
+    "evidence_paths": ["reports/automation/stability.md"],
+    "timeout_seconds": 240
+  },
+  {
+    "id": "security.dependency-audit",
+    "title": "Dependency vulnerability audit",
+    "layer": "security",
+    "mode": "automated",
+    "required": true,
+    "benefit_score": 0.94,
+    "command": ["pip-audit"],
+    "rationale": "Dependency risk must be surfaced before a project is used as professional proof.",
+    "evidence_paths": ["reports/automation/stability.md"],
+    "timeout_seconds": 180
+  },
+  {
+    "id": "evaluation.agent-release-gate",
+    "title": "Deterministic agent release gate",
+    "layer": "evaluation",
+    "mode": "automated",
+    "required": true,
+    "benefit_score": 0.99,
+    "command": [
+      "sentinel-eval",
+      "--cases",
+      "examples/eval_cases.jsonl",
+      "--runs",
+      "examples/eval_runs.jsonl",
+      "--baseline-runs",
+      "examples/baseline_runs.jsonl",
+      "--report",
+      "reports/automation/evaluation.md",
+      "--json-out",
+      "reports/automation/evaluation.json",
+      "--comparison-json",
+      "reports/automation/comparison.json",
+      "--min-score",
+      "0.90"
+    ],
+    "rationale": "Versioned behavior gates are the core evidence that agentic changes remain useful and safe.",
+    "evidence_paths": [
+      "reports/automation/evaluation.md",
+      "reports/automation/evaluation.json",
+      "reports/automation/comparison.json"
+    ],
+    "timeout_seconds": 180
+  },
+  {
+    "id": "evaluation.code-review-scorecard",
+    "title": "Coding-agent review scorecard",
+    "layer": "evaluation",
+    "mode": "automated",
+    "required": true,
+    "benefit_score": 0.96,
+    "command": [
+      "sentinel-code-review",
+      "--cases",
+      "examples/code_review_scorecard_cases.json",
+      "--json-out",
+      "reports/automation/code_review_scorecard.json",
+      "--markdown-out",
+      "reports/automation/code_review_scorecard.md"
+    ],
+    "rationale": "Coding-agent output must be judged for requirement fit, correctness, security, maintainability, verification, and communication.",
+    "evidence_paths": [
+      "reports/automation/code_review_scorecard.json",
+      "reports/automation/code_review_scorecard.md"
+    ],
+    "timeout_seconds": 120
+  }
+]
