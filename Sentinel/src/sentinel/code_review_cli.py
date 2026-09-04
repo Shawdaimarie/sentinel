@@ -40,11 +40,22 @@ def _require_number(value: object, context: str) -> float:
     return number
 
 
+def _result_text(result: Mapping[str, object], key: str) -> str:
+    value = result.get(key)
+    if not isinstance(value, str):
+        raise ValueError(f"result field {key!r} must be text")
+    return value
+
+
+def _result_score(result: Mapping[str, object]) -> float:
+    return _require_number(result.get("score"), "result score")
+
+
 def _review_dimension(value: str) -> ReviewDimension:
     if value not in DIMENSIONS:
         joined = ", ".join(DIMENSIONS)
         raise ValueError(f"unknown review dimension {value!r}; expected one of: {joined}")
-    return cast(ReviewDimension, value)
+    return value
 
 
 def scores_from_mapping(scores: Mapping[str, object]) -> list[DimensionScore]:
@@ -120,9 +131,9 @@ def markdown_report(results: Sequence[Mapping[str, object]]) -> str:
         hard_failures = ", ".join(cast(list[str], result.get("hard_failures", []))) or "none"
         lines.append(
             "| {case} | {score:.4f} | {decision} | {failures} | {hard_failures} |".format(
-                case=result["id"],
-                score=float(result["score"]),
-                decision=result["decision"],
+                case=_result_text(result, "id"),
+                score=_result_score(result),
+                decision=_result_text(result, "decision"),
                 failures=failures,
                 hard_failures=hard_failures,
             )
@@ -169,10 +180,14 @@ def main(argv: Sequence[str] | None = None) -> int:
         args.markdown_out.write_text(markdown_report(results), encoding="utf-8")
 
     expected_mismatches = [
-        result["id"] for result in results if result.get("expected_matched") is False
+        _result_text(result, "id")
+        for result in results
+        if result.get("expected_matched") is False
     ]
     threshold_failures = [
-        result["id"] for result in results if float(result["score"]) < args.min_score
+        _result_text(result, "id")
+        for result in results
+        if _result_score(result) < args.min_score
     ]
     if expected_mismatches or threshold_failures:
         return 1
