@@ -219,7 +219,7 @@ def _config_hash(config: TraceImportConfig) -> str:
 def _otlp_value(raw: object) -> JsonValue:
     if not isinstance(raw, Mapping):
         if isinstance(raw, (str, int, float, bool)) or raw is None:
-            return cast(JSONScalar, raw)
+            return raw
         raise TraceImportError(f"unsupported OTLP value: {type(raw).__name__}")
 
     known = (
@@ -245,7 +245,7 @@ def _otlp_value(raw: object) -> JsonValue:
             if key == "bytesValue":
                 return "[BINARY]"
             if isinstance(value, (str, int, float, bool)) or value is None:
-                return cast(JSONScalar, value)
+                return value
             raise TraceImportError(f"invalid OTLP {key}: {value!r}")
 
     array = raw.get("arrayValue")
@@ -469,7 +469,7 @@ def _as_string(value: JsonValue | None) -> str | None:
 
 
 def _as_float(value: JsonValue | None) -> float | None:
-    if value is None or isinstance(value, list) or isinstance(value, bool):
+    if value is None or isinstance(value, (list, bool)):
         return None
     try:
         return float(value)
@@ -678,11 +678,10 @@ def _actions(
             if "approval" not in event_name.lower():
                 continue
             decision = (_as_string(_first(event_attrs, APPROVAL_KEYS)) or "").lower()
-            status = cast(
-                Literal["allowed", "denied"],
+            status: Literal["allowed", "denied"] = (
                 "denied"
                 if decision in {"denied", "rejected", "false", "0"}
-                else "allowed",
+                else "allowed"
             )
             event_metadata = _bounded_metadata(
                 event_attrs,
