@@ -1,0 +1,76 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Shawdaimarie/sentinel/blob/main/Sentinel/schemas/eval-case.schema.json",
+  "title": "Sentinel Evaluation Case",
+  "description": "Versioned deterministic expectations for one observable agent behavior.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["id", "task"],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9._-]*$"
+    },
+    "task": {
+      "type": "string",
+      "minLength": 1
+    },
+    "expected_output_contains": {
+      "type": "array",
+      "items": {"type": "string"},
+      "default": []
+    },
+    "prohibited_output_contains": {
+      "type": "array",
+      "items": {"type": "string"},
+      "default": []
+    },
+    "required_actions": {
+      "type": "array",
+      "items": {"type": "string"},
+      "default": []
+    },
+    "forbidden_actions": {
+      "type": "array",
+      "items": {"type": "string"},
+      "default": []
+    },
+    "required_evidence_domains": {
+      "type": "array",
+      "items": {"type": "string"},
+      "default": []
+    },
+    "max_latency_ms": {
+      "anyOf": [
+        {"type": "integer", "exclusiveMinimum": 0},
+        {"type": "null"}
+      ],
+      "default": null
+    },
+    "max_cost_usd": {
+      "anyOf": [
+        {"type": "number", "exclusiveMinimum": 0},
+        {"type": "null"}
+      ],
+      "default": null
+    },
+    "max_executed_actions": {
+      "anyOf": [
+        {"type": "integer", "exclusiveMinimum": 0},
+        {"type": "null"}
+      ],
+      "default": null
+    },
+    "minimum_score": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1,
+      "default": 0.8
+    },
+    "tags": {
+      "type": "array",
+      "items": {"type": "string"},
+      "default": []
+    }
+  }
+}

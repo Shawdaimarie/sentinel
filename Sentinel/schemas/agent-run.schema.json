@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Shawdaimarie/sentinel/blob/main/Sentinel/schemas/agent-run.schema.json",
+  "title": "Sentinel Agent Run",
+  "description": "Observable output, tool trace, evidence, latency, and cost for one evaluation trial.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["case_id", "run_id"],
+  "properties": {
+    "case_id": {"type": "string", "minLength": 1},
+    "run_id": {"type": "string", "minLength": 1},
+    "system": {"type": "string", "minLength": 1, "default": "candidate"},
+    "output": {"type": "string", "default": ""},
+    "completed": {"type": "boolean", "default": true},
+    "actions": {
+      "type": "array",
+      "default": [],
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name"],
+        "properties": {
+          "name": {"type": "string", "minLength": 1},
+          "target": {"type": "string", "default": ""},
+          "status": {
+            "type": "string",
+            "enum": ["proposed", "allowed", "denied", "executed", "failed"],
+            "default": "executed"
+          },
+          "latency_ms": {"type": "integer", "minimum": 0, "default": 0},
+          "cost_usd": {"type": "number", "minimum": 0, "default": 0}
+        }
+      }
+    },
+    "evidence_urls": {
+      "type": "array",
+      "items": {"type": "string", "format": "uri"},
+      "default": []
+    },
+    "latency_ms": {"type": "integer", "minimum": 0, "default": 0},
+    "cost_usd": {"type": "number", "minimum": 0, "default": 0},
+    "error": {
+      "anyOf": [
+        {"type": "string"},
+        {"type": "null"}
+      ],
+      "default": null
+    }
+  }
+}

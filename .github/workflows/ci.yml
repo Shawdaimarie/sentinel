@@ -1,0 +1,124 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  quality-and-evaluation:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.12"]
+    defaults:
+      run:
+        working-directory: Sentinel
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+          cache-dependency-path: Sentinel/pyproject.toml
+      - name: Install package and quality tools
+        run: |
+          python -m pip install --upgrade pip "setuptools>=83" wheel
+          python -m pip install -e ".[dev]" pip-audit
+      - name: Lint
+        id: lint
+        continue-on-error: true
+        run: |
+          mkdir -p reports/diagnostics
+          set -o pipefail
+          ruff check src tests 2>&1 | tee reports/diagnostics/ruff.txt
+      - name: Type check
+        id: typecheck
+        continue-on-error: true
+        run: |
+          set -o pipefail
+          mypy src 2>&1 | tee reports/diagnostics/mypy.txt
+      - name: Test
+        id: tests
+        continue-on-error: true
+        run: |
+          set -o pipefail
+          pytest -q 2>&1 | tee reports/diagnostics/pytest.txt
+      - name: Dependency audit
+        id: audit
+        continue-on-error: true
+        run: |
+          set -o pipefail
+          pip-audit 2>&1 | tee reports/diagnostics/pip-audit.txt
+      - name: Deterministic agent release gate
+        id: evaluation
+        continue-on-error: true
+        run: |
+          set -o pipefail
+          sentinel-eval \
+            --cases examples/eval_cases.jsonl \
+            --runs examples/eval_runs.jsonl \
+            --baseline-runs examples/baseline_runs.jsonl \
+            --report reports/evaluation.md \
+            --json-out reports/evaluation.json \
+            --comparison-json reports/comparison.json \
+            --min-score 0.90 \
+            2>&1 | tee reports/diagnostics/evaluation.txt
+      - name: Upload verification evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sentinel-verification-python-${{ matrix.python-version }}
+          path: |
+            Sentinel/reports/diagnostics/
+            Sentinel/reports/evaluation.md
+            Sentinel/reports/evaluation.json
+            Sentinel/reports/comparison.json
+          if-no-files-found: warn
+      - name: Enforce quality gates
+        if: always()
+        run: |
+          test "${{ steps.lint.outcome }}" = "success"
+          test "${{ steps.typecheck.outcome }}" = "success"
+          test "${{ steps.tests.outcome }}" = "success"
+          test "${{ steps.audit.outcome }}" = "success"
+          test "${{ steps.evaluation.outcome }}" = "success"
+
+  container-build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: Sentinel
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build non-root image with bounded registry retry
+        id: build
+        continue-on-error: true
+        run: |
+          set -o pipefail
+          : > container-build.log
+          for attempt in 1 2 3; do
+            echo "Container build attempt ${attempt}/3" | tee -a container-build.log
+            if docker build --progress=plain -t sentinel-eval:ci . \
+              2>&1 | tee -a container-build.log; then
+              exit 0
+            fi
+            if [ "${attempt}" -lt 3 ]; then
+              sleep $((attempt * 15))
+            fi
+          done
+          exit 1
+      - name: Upload container diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sentinel-container-build
+          path: Sentinel/container-build.log
+          if-no-files-found: error
+      - name: Enforce container gate
+        if: always()
+        run: test "${{ steps.build.outcome }}" = "success"

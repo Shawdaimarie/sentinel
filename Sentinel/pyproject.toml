@@ -1,11 +1,11 @@
 [build-system]
-requires = ["setuptools>=68", "wheel"]
+requires = ["setuptools>=83", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "sentinel"
-version = "0.1.1"
-description = "Governed multi-agent system for continuous verification of business claims and controls."
+version = "0.2.0"
+description = "Governed agent execution and deterministic evaluation for high-consequence AI workflows."
 readme = "README.md"
 requires-python = ">=3.11"
 license = { text = "Apache-2.0" }
@@ -17,10 +17,16 @@ dependencies = [
 
 [project.optional-dependencies]
 llm = ["anthropic>=0.40"]
-dev = ["pytest>=8.0", "ruff>=0.5", "mypy>=1.10", "types-PyYAML"]
+dev = [
+    "mypy>=1.10",
+    "pytest>=8.0",
+    "ruff>=0.5",
+    "types-PyYAML",
+]
 
 [project.scripts]
 sentinel = "sentinel.cli:main"
+sentinel-eval = "sentinel.eval_cli:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]

@@ -1,51 +1,151 @@
-# sentinel
+# Sentinel
 
-**A governed multi-agent system for continuous verification of business claims and controls.**
-Every action evaluated against policy. Every action logged. Every finding traceable to evidence.
+**Governed agent execution and deterministic evaluation for high-consequence AI workflows.**
 
-[![ci](https://github.com/Shawdaimarie/sentinel/actions/workflows/ci.yml/badge.svg)](https://github.com/Shawdaimarie/sentinel/actions/workflows/ci.yml)
+Every proposed action is evaluated against policy. Every decision is logged
+before a side effect. Every release can be gated on versioned correctness,
+safety, grounding, tool-use, latency, and cost assertions.
 
 ---
 
 ## Premise
 
-Most organisations make public assertions no one can trace — uptime figures, latency numbers, client counts — and rely on controls that were validated once and never probed again. Sentinel is a working demonstration of the alternative: autonomous agents that crawl a public surface, test each quantitative claim against a linked source, probe critical controls on a schedule, and produce a report in which every line cites the logged action that produced it.
+Organizations increasingly connect language models to browsers, databases,
+files, communication systems, and operational APIs. A persuasive demo does not
+establish that those agents are bounded, auditable, grounded, efficient, or
+safe under adversarial input.
 
-It is built for [Essential Digital Solution](https://essentialdigitalsolution.com), whose stated principle it implements: assertions trace to a source record; controls are probed continuously rather than validated once.
+Sentinel is a working reference implementation of a stricter pattern:
 
-## Design
+1. **Govern execution.** Agents cannot bypass declarative policy.
+2. **Record decisions.** Allowed and denied actions are written to a
+   tamper-evident log before execution.
+3. **Treat external content as untrusted.** Every network hop is evaluated.
+4. **Measure observable behavior.** Versioned cases score outputs, tool traces,
+   evidence, latency, cost, and action budgets.
+5. **Block regressions.** Safety failures and unacceptable paired regressions
+   fail the release gate.
 
-Four agents, one policy, one audit log.
+## Architecture
+
+```text
+                         policy.yaml
+                              │
+                              ▼
+                   deny-by-default policy
+                              │
+              ┌───────────────┼────────────────┐
+              ▼               ▼                ▼
+          crawler          verifier          prober
+              └───────────────┬────────────────┘
+                              ▼
+                           reporter
+                              │
+                  Markdown findings + audit refs
+
+ every Agent.act() ──> evaluate ──> append audit decision ──> execute or deny
+
+ versioned eval cases ─┐
+                       ├─> deterministic evaluator ─> release gate
+ captured agent runs ──┘                  │
+                                  Markdown + JSON + hashes
+```
+
+Detailed component design is in [`ARCHITECTURE.md`](ARCHITECTURE.md). Security
+objectives, threat analysis, controls, and residual risk are in
+[`SECURITY.md`](SECURITY.md).
+
+## Governed agents
 
 | Agent | Role | Permitted actions |
-|-------|------|-------------------|
-| `crawler` | Retrieve pages; extract quantitative claims | `http.get` on the monitored domain |
-| `verifier` | Test each claim against linked evidence | `http.get`, optional `llm.complete` |
-| `prober` | Probe controls; compare to declared thresholds | `http.head`, `http.get` |
-| `reporter` | Compile findings with audit citations | `fs.write` to `reports/` only |
+|---|---|---|
+| `crawler` | Retrieve pages and extract quantitative claims | `http.get` on declared domains |
+| `verifier` | Test claims against linked evidence | `http.get`, optional `llm.complete` |
+| `prober` | Probe controls and thresholds | `http.head`, `http.get` |
+| `reporter` | Compile findings with audit citations | `fs.write` under `reports/` |
 
-Two properties hold for every agent, without exception:
+Three invariants apply:
 
-1. **No unevaluated action.** An agent proposes an action; the policy engine decides; only then does execution occur. The default decision is deny. A denied action is logged with its reason and raises, so refusals are as visible as successes.
-2. **No unlogged action.** Each decision is appended to a hash-chained log *before* execution. Editing, deleting, or reordering any record breaks the chain, which `sentinel verify-audit` detects. With a key present, the chain cannot be recomputed by an attacker who rewrites the file, and a keyed verifier refuses a log that has been downgraded to unkeyed.
-3. **No unevaluated network hop.** Redirects are not followed automatically; each hop is a policy-evaluated action. Hosts resolving to private, loopback, or link-local addresses are refused. Responses are bounded in size and restricted to textual types.
+1. **No unevaluated action.** The default policy decision is deny.
+2. **No unlogged decision.** The audit record is appended before dispatch.
+3. **No unevaluated network hop.** Redirects are followed manually and each
+   destination is re-submitted to policy.
 
-Boundaries — permitted actions, permitted domains, per-run budgets, thresholds — are declared once, in [`policy.yaml`](policy.yaml). There is no code path around it.
+## Audit integrity
 
-## Verdicts
+The audit log is append-only JSON Lines. Each record carries the digest of the
+previous record and a digest of its own canonical content:
 
-A claim is one of three things, and the distinction is deliberate:
+- SHA-256 when no key is configured;
+- HMAC-SHA256 when `SENTINEL_AUDIT_KEY` is present; and
+- explicit rejection of keyed-to-unkeyed downgrade during verification.
+
+The chain detects modification, deletion in the middle, reordering, sequence
+gaps, and keyed downgrade. It does not by itself detect deletion of the entire
+file or truncation of the tail; production deployments must stream records to
+external append-only storage.
+
+## Agent evaluation harness
+
+The `sentinel-eval` command evaluates observable agent run artifacts without
+requiring a model-based judge.
+
+### Default metrics
+
+| Metric | Weight | Observable evidence |
+|---|---:|---|
+| Correctness | 30% | Completion plus expected output assertions |
+| Safety | 30% | Forbidden actions denied and prohibited output absent |
+| Grounding | 15% | Required evidence domains present |
+| Tool use | 15% | Required actions used within an action budget |
+| Efficiency | 10% | Latency and cost inside declared limits |
+
+Safety is a hard gate. A system cannot offset a secret disclosure or forbidden
+side effect with speed or correctness elsewhere.
+
+### Example release gate
+
+```bash
+python -m pip install -e ".[dev]"
+
+sentinel-eval \
+  --cases examples/eval_cases.jsonl \
+  --runs examples/eval_runs.jsonl \
+  --baseline-runs examples/baseline_runs.jsonl \
+  --report reports/evaluation.md \
+  --json-out reports/evaluation.json \
+  --comparison-json reports/comparison.json \
+  --min-score 0.90
+```
+
+The command returns nonzero when the suite threshold fails, required pass rate
+fails, safety rate fails, or the candidate introduces an unacceptable paired
+regression.
+
+See:
+
+- [`docs/EVALUATION.md`](docs/EVALUATION.md) for the protocol;
+- [`docs/NIST_AI_RMF_CROSSWALK.md`](docs/NIST_AI_RMF_CROSSWALK.md) for the
+  engineering crosswalk;
+- [`docs/ENGINEERING_CASE_STUDY.md`](docs/ENGINEERING_CASE_STUDY.md) for design
+  decisions and tradeoffs; and
+- [`schemas/`](schemas/) for machine-readable contracts.
+
+## Claim verdicts
+
+A public claim is one of three things:
 
 - **Supported** — a linked source contains the asserted quantity.
 - **Unsupported** — no source is linked, or the source does not contain it.
 - **Unverifiable** — a source is linked but could not be retrieved.
 
-An absent source and an unreachable one call for different remedies; collapsing them would hide which problem the organisation has.
+An absent source and an unreachable source require different remedies, so they
+are not collapsed into one failure class.
 
 ## Usage
 
 ```bash
-pip install -e ".[dev]"
+python -m pip install -e ".[dev]"
 
 sentinel run \
   --page https://essentialdigitalsolution.com/ \
@@ -54,53 +154,85 @@ sentinel run \
 sentinel verify-audit
 ```
 
-`run` produces `reports/YYYY-MM-DD.md` and appends to `audit/sentinel.jsonl`. `verify-audit` walks the chain and reports the first break, if any.
+`sentinel run` produces `reports/YYYY-MM-DD.md` and appends to
+`audit/sentinel.jsonl`. `sentinel verify-audit` walks the chain and reports the
+first break.
 
-Set `SENTINEL_AUDIT_KEY` to authenticate the log with HMAC-SHA256; without it the chain is plain SHA-256 and `verify-audit` says so. A log is entirely keyed or entirely unkeyed; introducing a key means starting a new log file.
-
-The log format is specified in [sentinel-spec](https://github.com/Shawdaimarie/sentinel-spec), so it can be verified without trusting this implementation: the same file yields the same verdict from the Python, TypeScript, and Go verifiers there. Pin the policy with `--policy-sha256 <digest>` to refuse a run under any policy other than the one reviewed.
-
-To enable semantic verification for paraphrased claims, install the optional dependency and set `ANTHROPIC_API_KEY`:
+Set an external audit key when keyed integrity is required:
 
 ```bash
-pip install -e ".[llm]"
-sentinel run --llm --page https://essentialdigitalsolution.com/
+export SENTINEL_AUDIT_KEY="replace-with-secret-manager-material"
+sentinel run --page https://example.com
+sentinel verify-audit
 ```
 
-The model's rationale is logged alongside its verdict. It never overrides an absent source.
+Introducing a key requires a new log file; a log is entirely keyed or entirely
+unkeyed.
 
-## Repository
+To enable semantic verification of paraphrased claims:
 
+```bash
+python -m pip install -e ".[llm]"
+export ANTHROPIC_API_KEY="..."
+sentinel run --llm --page https://example.com
 ```
-policy.yaml                  Declared boundaries — the only place they are decided
+
+The model's rationale is logged. It cannot upgrade a claim that has no linked
+source.
+
+## Repository structure
+
+```text
+policy.yaml                     declared boundaries
 src/sentinel/
-  policy.py                  Policy engine: evaluate, record, deny by default
-  audit.py                   Append-only, hash-chained log (format: sentinel-spec)
-  models.py                  Claim, Verification, ProbeResult
-  orchestrator.py            Runs the agents in sequence on one policy and one log
-  cli.py                     `sentinel run`, `sentinel verify-audit`
-  http.py                    Governed retrieval: per-hop evaluation, size and type limits
+  policy.py                     policy evaluation and budgets
+  audit.py                      SHA-256 / HMAC-SHA256 audit chain
+  http.py                       governed retrieval and redirect evaluation
+  models.py                     claim and probe data models
+  orchestrator.py               crawl → verify → probe → report
+  cli.py                        operational CLI
+  evaluation.py                 deterministic evaluation engine
+  eval_cli.py                   release-gate CLI
   agents/
-    base.py                  Agent.act — evaluate, log, then execute
-    crawler.py  verifier.py  prober.py  reporter.py
-tests/                       Policy boundaries, chain integrity, agent behaviour,
-                             and one test per control named in SECURITY.md
-ARCHITECTURE.md              Component design and data flow
-SECURITY.md                  Objectives, adversary model, STRIDE analysis, residual risk
+    base.py                     evaluate → log → execute
+    crawler.py                  claim extraction
+    verifier.py                 evidence verification
+    prober.py                   control probes
+    reporter.py                 Markdown reporting
+tests/                          unit, security, and evaluation tests
+examples/                       cases, baseline runs, candidate runs, reports
+schemas/                        JSON Schema contracts
+docs/                           protocol, crosswalk, and case study
 ```
 
 ## Development
 
 ```bash
-ruff check src tests && mypy src && pytest
+make install
+make quality
+make test
+make compare
+make docker
 ```
 
-CI runs these, `pip-audit`, and CodeQL on Python 3.11 and 3.12. `mypy` is configured strict. A separate job in [sentinel-spec](https://github.com/Shawdaimarie/sentinel-spec) installs this repository from `main` and asserts its digests match the conformance vectors.
+The GitHub Actions workflow runs:
+
+- `ruff`;
+- strict `mypy`;
+- the unit and security suite;
+- `pip-audit`;
+- the deterministic candidate/baseline release gate;
+- upload of the Markdown and JSON evidence; and
+- a non-root Docker build.
 
 ## Scope
 
-This is a reference implementation. It demonstrates that governance can be enforced structurally — in the shape of the code — rather than by convention. It is not, as shipped, a production monitoring service; see [SECURITY.md](SECURITY.md) for what would need to change.
+Sentinel demonstrates enforceable architecture and reproducible evaluation. It
+is not a production monitoring service, an AI certification, or a universal
+proof of safety. A consequential deployment still needs domain-specific cases,
+repeated trials, human review, external audit storage, production identity and
+secrets management, incident response, and independent security assessment.
 
 ## License
 
-Apache-2.0. See [LICENSE](LICENSE).
+Apache-2.0. See [`LICENSE`](LICENSE).

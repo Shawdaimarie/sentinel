@@ -1,0 +1,10 @@
+{
+  "baseline_system": "baseline-v0.1",
+  "candidate_system": "candidate-v0.2",
+  "baseline_score": 0.98,
+  "candidate_score": 1.0,
+  "mean_delta": 0.02,
+  "max_allowed_regression": 0.02,
+  "promotion_recommended": true,
+  "regressions": []
+}
