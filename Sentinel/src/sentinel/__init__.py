@@ -1,13 +1,14 @@
-"""Sentinel: governed execution, evaluation, automation, and value routing.
+"""Sentinel: governed execution, evaluation, automation, routing, and capsules.
 
 Every agent action passes through policy evaluation and is written to an
-append-only, hash-chained audit log before execution. Versioned evaluation
-cases make correctness, safety, grounding, tool use, and efficiency observable.
+append-only, hash-chained audit log before execution. Versioned evaluation cases
+make correctness, safety, grounding, tool use, and efficiency observable.
 Offline OpenTelemetry imports connect production traces to the same strict
 AgentRun contract without contacting provider endpoints. Benefit-gated
 automation runs only allowlisted, high-value stability tasks and preserves
 human control over identity-sensitive work. Value routing connects public proof,
-private delivery boundaries, deployability, and ownership clarity.
+private delivery boundaries, deployability, and ownership clarity. Deployment
+capsules add hashed manifests for proof and delivery assets.
 """
 
-__version__ = "0.5.0"
+__version__ = "0.6.0"
