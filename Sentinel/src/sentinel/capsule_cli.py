@@ -146,9 +146,7 @@ def result_payload(
 
     manifest_payloads = [capsule_manifest_payload(manifest) for manifest in manifests]
     blocked = [manifest.capsule.id for manifest in manifests if manifest.status == "blocked"]
-    below_threshold = [
-        manifest.capsule.id for manifest in manifests if manifest.score < min_score
-    ]
+    below_threshold = [manifest.capsule.id for manifest in manifests if manifest.score < min_score]
     return {
         "schema_version": "sentinel.deployment_capsule_report.v1",
         "min_score": min_score,
@@ -172,16 +170,12 @@ def markdown_report(manifests: Sequence[CapsuleManifest], *, min_score: float) -
     ]
     for manifest in manifests:
         external_signal = "yes" if manifest.ready_for_external_signal else "no"
-        lines.append(
-            "| {title} | {visibility} | {score:.4f} | {status} | {signal} | `{sha}` |".format(
-                title=manifest.capsule.title,
-                visibility=manifest.capsule.visibility,
-                score=manifest.score,
-                status=manifest.status,
-                signal=external_signal,
-                sha=manifest.manifest_sha256,
-            )
+        row = (
+            f"| {manifest.capsule.title} | {manifest.capsule.visibility} | "
+            f"{manifest.score:.4f} | {manifest.status} | {external_signal} | "
+            f"`{manifest.manifest_sha256}` |"
         )
+        lines.append(row)
     lines.append("")
     for manifest in manifests:
         lines.append(f"## {manifest.capsule.id}")
