@@ -19,7 +19,7 @@ dependencies = [
 llm = ["anthropic>=0.40"]
 dev = [
     "mypy>=1.10",
-    "pytest>=8.0",
+    "pytest>=9.1.1",
     "ruff>=0.5",
     "types-PyYAML",
 ]
