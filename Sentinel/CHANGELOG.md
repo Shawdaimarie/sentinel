@@ -15,6 +15,31 @@ All notable changes to this project are documented here. The format follows
 - Secure agentic delivery playbook for separating model suggestion from executable action across backend, frontend, policy, evaluation, audit, and human-review boundaries.
 - AI engineering value scorecard for translating governed-agent and model-evaluation work into business-facing evidence for applied AI, software engineering, developer-tooling, and internal-efficiency roles.
 
+## [0.3.0] - 2026-09-04
+
+### Added
+
+- Offline `sentinel-import-otel` command for normalizing OTLP JSON exports into
+  strict, provider-neutral `AgentRun` JSONL.
+- Identifier, topology, duplicate-span, ambiguous-root, and cycle validation for
+  untrusted trace input.
+- Tool, retry, approval, evidence, latency, cost, and completion mapping across
+  a documented minimal semantic-convention profile.
+- Fail-closed partial-trace behavior that cannot silently represent missing
+  output or root timing as a complete run.
+- Configurable sensitive-attribute redaction, URL credential/query scrubbing,
+  and bounded preservation of unknown provider metadata.
+- Reproducibility manifest containing source/configuration SHA-256 fingerprints,
+  trace topology, retry attempts, completeness, warnings, and redaction counts.
+- Versioned OTLP fixture, strict output, manifest schema, dedicated tests, and a
+  CI workflow that evaluates the imported run through Sentinel's release gate.
+
+### Changed
+
+- Package version advanced to `0.3.0`.
+- Sentinel now connects production observability artifacts to deterministic
+  evaluation without making the core `AgentRun` contract provider-specific.
+
 ## [0.2.1] - 2026-09-04
 
 ### Added

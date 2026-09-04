@@ -1,4 +1,4 @@
-.PHONY: install quality test evaluate compare docker
+.PHONY: install quality test import-otel evaluate compare docker
 
 install:
 	python -m pip install -e ".[dev]"
@@ -7,9 +7,21 @@ quality:
 	ruff check src tests
 	mypy src
 
-# Security tests are part of the default test suite.
+# Security and trace-import tests are part of the default test suite.
 test:
 	pytest -q
+
+import-otel:
+	sentinel-import-otel \
+		--input examples/otel/agent_trace.json \
+		--output reports/otel-agent-runs.jsonl \
+		--manifest reports/otel-import-manifest.json
+	sentinel-eval \
+		--cases examples/otel/eval_case.jsonl \
+		--runs reports/otel-agent-runs.jsonl \
+		--report reports/otel-evaluation.md \
+		--json-out reports/otel-evaluation.json \
+		--min-score 0.90
 
 evaluate:
 	sentinel-eval \

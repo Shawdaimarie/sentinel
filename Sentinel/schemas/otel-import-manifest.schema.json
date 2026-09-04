@@ -1,0 +1,241 @@
+{
+  "$defs": {
+    "TraceActionRecord": {
+      "additionalProperties": false,
+      "description": "Trace topology and retry evidence kept outside the strict AgentRun contract.",
+      "properties": {
+        "attempt": {
+          "default": 1,
+          "minimum": 1,
+          "title": "Attempt",
+          "type": "integer"
+        },
+        "metadata": {
+          "additionalProperties": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "integer"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "title": "Metadata",
+          "type": "object"
+        },
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "parent_span_id": {
+          "anyOf": [
+            {
+              "pattern": "^[0-9a-f]{16}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Parent Span Id"
+        },
+        "span_id": {
+          "pattern": "^[0-9a-f]{16}$",
+          "title": "Span Id",
+          "type": "string"
+        },
+        "start_ns": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Start Ns"
+        },
+        "status": {
+          "enum": [
+            "proposed",
+            "allowed",
+            "denied",
+            "executed",
+            "failed"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "target": {
+          "default": "",
+          "title": "Target",
+          "type": "string"
+        }
+      },
+      "required": [
+        "span_id",
+        "name",
+        "status"
+      ],
+      "title": "TraceActionRecord",
+      "type": "object"
+    },
+    "TraceRecord": {
+      "additionalProperties": false,
+      "description": "Per-trace provenance, completeness, topology, and bounded metadata.",
+      "properties": {
+        "actions": {
+          "items": {
+            "$ref": "#/$defs/TraceActionRecord"
+          },
+          "title": "Actions",
+          "type": "array"
+        },
+        "case_id": {
+          "title": "Case Id",
+          "type": "string"
+        },
+        "metadata": {
+          "additionalProperties": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "integer"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "title": "Metadata",
+          "type": "object"
+        },
+        "missing_fields": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Missing Fields",
+          "type": "array"
+        },
+        "partial": {
+          "title": "Partial",
+          "type": "boolean"
+        },
+        "root_span_id": {
+          "pattern": "^[0-9a-f]{16}$",
+          "title": "Root Span Id",
+          "type": "string"
+        },
+        "run_id": {
+          "title": "Run Id",
+          "type": "string"
+        },
+        "trace_id": {
+          "pattern": "^[0-9a-f]{32}$",
+          "title": "Trace Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "trace_id",
+        "root_span_id",
+        "case_id",
+        "run_id",
+        "partial"
+      ],
+      "title": "TraceRecord",
+      "type": "object"
+    }
+  },
+  "$id": "https://github.com/Shawdaimarie/sentinel/blob/main/Sentinel/schemas/otel-import-manifest.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "Evidence proving which source and configuration produced the runs.",
+  "properties": {
+    "config_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Config Sha256",
+      "type": "string"
+    },
+    "importer": {
+      "default": "sentinel.otel.v1",
+      "title": "Importer",
+      "type": "string"
+    },
+    "partial_runs": {
+      "minimum": 0,
+      "title": "Partial Runs",
+      "type": "integer"
+    },
+    "redacted_attribute_count": {
+      "minimum": 0,
+      "title": "Redacted Attribute Count",
+      "type": "integer"
+    },
+    "run_count": {
+      "minimum": 0,
+      "title": "Run Count",
+      "type": "integer"
+    },
+    "schema_version": {
+      "default": "sentinel.otel.import.v1",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "source_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Source Sha256",
+      "type": "string"
+    },
+    "trace_count": {
+      "minimum": 0,
+      "title": "Trace Count",
+      "type": "integer"
+    },
+    "traces": {
+      "items": {
+        "$ref": "#/$defs/TraceRecord"
+      },
+      "title": "Traces",
+      "type": "array"
+    },
+    "warnings": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Warnings",
+      "type": "array"
+    }
+  },
+  "required": [
+    "source_sha256",
+    "config_sha256",
+    "trace_count",
+    "run_count",
+    "partial_runs",
+    "redacted_attribute_count"
+  ],
+  "title": "TraceImportManifest",
+  "type": "object"
+}

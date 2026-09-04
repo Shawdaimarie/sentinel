@@ -1,220 +1,87 @@
 # Sentinel
 
-**Governed agent execution and deterministic evaluation for high-consequence AI workflows.**
+**Governed agent execution, deterministic evaluation, and offline production-trace normalization.**
 
-Every proposed action is evaluated against policy. Every decision is logged
-before a side effect. Every release can be gated on versioned correctness,
-safety, grounding, tool-use, latency, and cost assertions.
+Sentinel is a Python 3.11+ reference platform for evaluating and controlling
+tool-using AI workflows. It keeps authorization, execution, audit evidence,
+trace provenance, and release decisions separate enough to inspect and test.
 
----
+## Capabilities
 
-## Premise
+### Governed execution
 
-Organizations increasingly connect language models to browsers, databases,
-files, communication systems, and operational APIs. A persuasive demo does not
-establish that those agents are bounded, auditable, grounded, efficient, or
-safe under adversarial input.
+- Deny-by-default policy evaluation before every action.
+- Decision logging before side effects.
+- Per-agent action and network boundaries.
+- Manual redirect handling with policy evaluation at each hop.
+- SHA-256 or HMAC-SHA256 audit chaining.
 
-Sentinel is a working reference implementation of a stricter pattern:
+### Deterministic evaluation
 
-1. **Govern execution.** Agents cannot bypass declarative policy.
-2. **Record decisions.** Allowed and denied actions are written to a
-   tamper-evident log before execution.
-3. **Treat external content as untrusted.** Every network hop is evaluated.
-4. **Measure observable behavior.** Versioned cases score outputs, tool traces,
-   evidence, latency, cost, and action budgets.
-5. **Block regressions.** Safety failures and unacceptable paired regressions
-   fail the release gate.
-6. **Verify independently.** A portable profile and normative vectors are
-   implemented separately in Python, TypeScript, and Go.
+- Strict `EvalCase` and `AgentRun` contracts.
+- Correctness, safety, grounding, tool-use, latency, cost, and action budgets.
+- Hard failures for forbidden actions and prohibited output.
+- Candidate-versus-baseline regression analysis.
+- Markdown and JSON evidence with input fingerprints.
 
-## Architecture
+### OpenTelemetry import
 
-```text
-                         policy.yaml
-                              │
-                              ▼
-                   deny-by-default policy
-                              │
-              ┌───────────────┼────────────────┐
-              ▼               ▼                ▼
-          crawler          verifier          prober
-              └───────────────┬────────────────┘
-                              ▼
-                           reporter
-                              │
-                  Markdown findings + audit refs
+- Offline OTLP JSON parsing; no provider credentials or network access.
+- Trace/span identifier and topology validation.
+- Deterministic root selection and cycle detection.
+- Tool, retry, approval, evidence, latency, and cost normalization.
+- Fail-closed partial-trace handling.
+- Configurable sensitive-attribute redaction.
+- Bounded preservation of unknown provider metadata.
+- Strict `AgentRun` JSONL plus a separate provenance manifest.
 
- every Agent.act() ──> evaluate ──> append audit decision ──> execute or deny
-
- versioned eval cases ─┐
-                       ├─> deterministic evaluator ─> release gate
- captured agent runs ──┘                  │
-                                  Markdown + JSON + hashes
-
- portable spec + vectors ──> Python verifier
-                         ├─> TypeScript verifier ──> identical final digest
-                         └─> Go verifier
-
- code-agent response ──> rubric dimensions ──> score + decision label
-```
-
-Detailed component design is in [`ARCHITECTURE.md`](ARCHITECTURE.md). Security
-objectives, threat analysis, controls, and residual risk are in
-[`SECURITY.md`](SECURITY.md).
-
-## Governed agents
-
-| Agent | Role | Permitted actions |
-|---|---|---|
-| `crawler` | Retrieve pages and extract quantitative claims | `http.get` on declared domains |
-| `verifier` | Test claims against linked evidence | `http.get`, optional `llm.complete` |
-| `prober` | Probe controls and thresholds | `http.head`, `http.get` |
-| `reporter` | Compile findings with audit citations | `fs.write` under `reports/` |
-
-Three invariants apply:
-
-1. **No unevaluated action.** The default policy decision is deny.
-2. **No unlogged decision.** The audit record is appended before dispatch.
-3. **No unevaluated network hop.** Redirects are followed manually and each
-   destination is re-submitted to policy.
-
-## Audit integrity
-
-The audit log is append-only JSON Lines. Each record carries the digest of the
-previous record and a digest of its own canonical content:
-
-- SHA-256 when no key is configured;
-- HMAC-SHA256 when `SENTINEL_AUDIT_KEY` is present; and
-- explicit rejection of keyed-to-unkeyed downgrade during verification.
-
-The chain detects modification, deletion in the middle, reordering, sequence
-gaps, and keyed downgrade. It does not by itself detect deletion of the entire
-file or truncation of the tail; production deployments must stream records to
-external append-only storage.
-
-### Portable verification
-
-[`spec/SPEC.md`](spec/SPEC.md) defines `sentinel.audit.v1-portable`, including
-canonical JSON rules, safe data types, digest modes, failure behavior, and
-production boundaries. Normative keyed and unkeyed vectors live under
-[`spec/vectors/`](spec/vectors/). Independent implementations under
-[`verifiers/`](verifiers/) verify the same record counts and final digests in
-Python, TypeScript, and Go.
-
-From this directory:
-
-```bash
-python verifiers/python/verify.py --log spec/vectors/unkeyed.jsonl
-
-cd verifiers/typescript
-tsc -p tsconfig.json
-node dist/test.js
-node dist/verifier.js --log ../../spec/vectors/unkeyed.jsonl
-
-cd ../go
-go test ./...
-go run . --log ../../spec/vectors/unkeyed.jsonl
-```
-
-Use `--key sentinel-demo-key` for the keyed fixture. That key is public test
-data and must never be used in a deployment.
-
-## Agent evaluation harness
-
-The `sentinel-eval` command evaluates observable agent run artifacts without
-requiring a model-based judge.
-
-### Default metrics
-
-| Metric | Weight | Observable evidence |
-|---|---:|---|
-| Correctness | 30% | Completion plus expected output assertions |
-| Safety | 30% | Forbidden actions denied and prohibited output absent |
-| Grounding | 15% | Required evidence domains present |
-| Tool use | 15% | Required actions used within an action budget |
-| Efficiency | 10% | Latency and cost inside declared limits |
-
-Safety is a hard gate. A system cannot offset a secret disclosure or forbidden
-side effect with speed or correctness elsewhere.
-
-### Example release gate
+## Install
 
 ```bash
 python -m pip install -e ".[dev]"
+```
 
+## Import a trace export
+
+```bash
+sentinel-import-otel \
+  --input examples/otel/agent_trace.json \
+  --output reports/otel-agent-runs.jsonl \
+  --manifest reports/otel-import-manifest.json
+```
+
+Additional sensitive attributes can be removed with repeated flags:
+
+```bash
+sentinel-import-otel \
+  --input trace.json \
+  --output runs.jsonl \
+  --redact customer.account_id \
+  --redact vendor.private_payload
+```
+
+A trace with missing output or root timestamps is emitted as
+`completed=false` with an explicit `partial telemetry` error. Multiple roots,
+cycles, malformed identifiers, duplicate span IDs, or a missing case identifier
+fail the import rather than being guessed.
+
+See [`docs/TRACE_IMPORT.md`](docs/TRACE_IMPORT.md) for the mapping and security
+boundary.
+
+## Evaluate imported runs
+
+```bash
 sentinel-eval \
-  --cases examples/eval_cases.jsonl \
-  --runs examples/eval_runs.jsonl \
-  --baseline-runs examples/baseline_runs.jsonl \
-  --report reports/evaluation.md \
-  --json-out reports/evaluation.json \
-  --comparison-json reports/comparison.json \
+  --cases examples/otel/eval_case.jsonl \
+  --runs reports/otel-agent-runs.jsonl \
+  --report reports/otel-evaluation.md \
+  --json-out reports/otel-evaluation.json \
   --min-score 0.90
 ```
 
-The command returns nonzero when the suite threshold fails, required pass rate
-fails, safety rate fails, or the candidate introduces an unacceptable paired
-regression.
-
-## Coding-agent review scorer
-
-`sentinel.code_review` converts human rubric dimensions into deterministic
-accept, accept-with-edits, needs-human-design, or reject decisions. It is meant
-for AI-generated code review, coding-agent calibration, and model-evaluation
-work where fluency is not enough.
-
-The review dimensions are:
-
-- requirement fit;
-- correctness;
-- security;
-- maintainability;
-- verification; and
-- communication.
-
-Security remains a hard gate. A superficially high score cannot rescue an
-unsafe answer that exposes secrets, bypasses authorization, runs destructive
-commands, or introduces uncontrolled side effects.
-
-See:
-
-- [`docs/CODING_AGENT_REVIEW_RUBRIC.md`](docs/CODING_AGENT_REVIEW_RUBRIC.md)
-  for the human review protocol;
-- [`docs/SECURE_AGENTIC_DELIVERY_PLAYBOOK.md`](docs/SECURE_AGENTIC_DELIVERY_PLAYBOOK.md)
-  for backend, frontend, policy, audit, and review boundaries;
-- [`docs/AI_ENGINEERING_VALUE_SCORECARD.md`](docs/AI_ENGINEERING_VALUE_SCORECARD.md)
-  for business-facing evidence and role-fit mapping; and
-- [`examples/code_review_cases.jsonl`](examples/code_review_cases.jsonl) for
-  starter review cases.
-
-## Evaluation documentation
-
-See:
-
-- [`docs/EVALUATION.md`](docs/EVALUATION.md) for the protocol;
-- [`docs/NIST_AI_RMF_CROSSWALK.md`](docs/NIST_AI_RMF_CROSSWALK.md) for the
-  engineering crosswalk;
-- [`docs/ENGINEERING_CASE_STUDY.md`](docs/ENGINEERING_CASE_STUDY.md) for design
-  decisions and tradeoffs; and
-- [`schemas/`](schemas/) for machine-readable contracts.
-
-## Claim verdicts
-
-A public claim is one of three things:
-
-- **Supported** — a linked source contains the asserted quantity.
-- **Unsupported** — no source is linked, or the source does not contain it.
-- **Unverifiable** — a source is linked but could not be retrieved.
-
-An absent source and an unreachable source require different remedies, so they
-are not collapsed into one failure class.
-
-## Usage
+## Run a governed claim-verification workflow
 
 ```bash
-python -m pip install -e ".[dev]"
-
 sentinel run \
   --page https://essentialdigitalsolution.com/ \
   --control https://essentialdigitalsolution.com/
@@ -222,14 +89,10 @@ sentinel run \
 sentinel verify-audit
 ```
 
-`sentinel run` produces `reports/YYYY-MM-DD.md` and appends to
-`audit/sentinel.jsonl`. `sentinel verify-audit` walks the chain and reports the
-first break.
-
-Set an external audit key when keyed integrity is required:
+For keyed audit integrity:
 
 ```bash
-export SENTINEL_AUDIT_KEY="replace-with-secret-manager-material"
+export SENTINEL_AUDIT_KEY="material-from-a-secret-manager"
 sentinel run --page https://example.com
 sentinel verify-audit
 ```
@@ -237,76 +100,45 @@ sentinel verify-audit
 Introducing a key requires a new log file; a log is entirely keyed or entirely
 unkeyed.
 
-To enable semantic verification of paraphrased claims:
-
-```bash
-python -m pip install -e ".[llm]"
-export ANTHROPIC_API_KEY="..."
-sentinel run --llm --page https://example.com
-```
-
-The model's rationale is logged. It cannot upgrade a claim that has no linked
-source.
-
-## Repository structure
-
-```text
-policy.yaml                     declared boundaries
-src/sentinel/
-  policy.py                     policy evaluation and budgets
-  audit.py                      SHA-256 / HMAC-SHA256 audit chain
-  http.py                       governed retrieval and redirect evaluation
-  models.py                     claim and probe data models
-  orchestrator.py               crawl → verify → probe → report
-  cli.py                        operational CLI
-  evaluation.py                 deterministic evaluation engine
-  eval_cli.py                   release-gate CLI
-  code_review.py                deterministic coding-agent review scorer
-  agents/
-    base.py                     evaluate → log → execute
-    crawler.py                  claim extraction
-    verifier.py                 evidence verification
-    prober.py                   control probes
-    reporter.py                 Markdown reporting
-tests/                          unit, security, evaluation, conformance tests
-examples/                       cases, baseline runs, candidate runs, reports
-spec/                           portable audit profile and normative vectors
-verifiers/                      Python, TypeScript, and Go implementations
-schemas/                        JSON Schema contracts
-docs/                           protocol, crosswalk, case study, review assets
-```
-
-## Development
+## Quality gates
 
 ```bash
 make install
 make quality
 make test
+make import-otel
 make compare
 make docker
 ```
 
-The GitHub Actions workflow runs:
+GitHub Actions runs Ruff, strict mypy, pytest, dependency audit, deterministic
+evaluation, OTLP normalization, imported-run evaluation, portable
+Python/TypeScript/Go conformance, CodeQL, and a non-root container build.
 
-- `ruff`;
-- strict `mypy`;
-- the unit and security suite;
-- `pip-audit`;
-- the deterministic candidate/baseline release gate;
-- independent Python, TypeScript, and Go conformance checks;
-- upload of Markdown, JSON, and diagnostic evidence;
-- CodeQL; and
-- a non-root Docker build.
+## Repository map
 
-## Scope
+```text
+src/sentinel/
+  policy.py             policy evaluation and budgets
+  audit.py              hash/HMAC audit chain
+  http.py               governed retrieval
+  evaluation.py         deterministic scoring and release gates
+  trace_import.py       OTLP JSON normalization and provenance
+  trace_cli.py          sentinel-import-otel CLI
+  agents/               governed crawler/verifier/prober/reporter
 
-Sentinel demonstrates enforceable architecture and reproducible evaluation. It
-is not a production monitoring service, an AI certification, or a universal
-proof of safety. A consequential deployment still needs domain-specific cases,
-repeated trials, human review, external audit storage and digest anchoring,
-production identity and secrets management, incident response, and independent
-security assessment.
+tests/                  unit, security, evaluation, trace-import tests
+examples/otel/           trace fixture, strict run output, manifest, eval case
+schemas/                 JSON contracts
+spec/                    portable audit profile and vectors
+verifiers/               independent Python, TypeScript, and Go verification
+docs/                    protocols, crosswalks, case study, roadmap
+```
 
-## License
+## Interpretation boundary
 
-Apache-2.0. See [`LICENSE`](LICENSE).
+Sentinel does not certify an agent as safe. It makes a defined set of behaviors,
+limits, and evidence inspectable. Coverage remains bounded by the trace data and
+versioned cases provided. Production use requires domain-specific cases,
+repeated trials, human review, external audit storage, operational monitoring,
+and independent security assessment.
