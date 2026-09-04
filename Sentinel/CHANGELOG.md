@@ -4,6 +4,24 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Added
+
+- Language-neutral `sentinel.audit.v1-portable` specification.
+- Normative keyed and unkeyed conformance vectors with expected final digests.
+- Independent standard-library Python and Go verifiers.
+- Independent dependency-free TypeScript verifier after compilation.
+- Cross-language CI proving identical verification outcomes and binding
+  Sentinel's own audit implementation to the portable vectors.
+
+### Changed
+
+- Security and architecture documentation now link to tested, in-repository
+  evidence rather than an external specification dependency.
+- The public landing page now exposes polyglot verification and its trust
+  boundary directly to reviewers.
+
 ## [0.2.0] - 2026-09-04
 
 ### Added
@@ -39,9 +57,9 @@ All notable changes to this project are documented here. The format follows
   `keyed` flag inside each record selected the verification algorithm, so an
   attacker able to rewrite the log could flip it to `false` on every record,
   recompute plain SHA-256 forward, and pass keyed verification. A verifier
-  holding a key now refuses any unkeyed record. Found while writing
-  [sentinel-spec](https://github.com/Shawdaimarie/sentinel-spec); covered by
-  `test_keyed_verifier_rejects_downgrade_to_unkeyed` and spec vector 10.
+  holding a key now refuses any unkeyed record. The behavior is covered by
+  `test_keyed_verifier_rejects_downgrade_to_unkeyed` and the portable
+  conformance vectors under `spec/vectors/`.
 
 ### Changed
 
@@ -50,9 +68,9 @@ All notable changes to this project are documented here. The format follows
 
 ### Added
 
-- The audit-chain format is specified language-neutrally in sentinel-spec,
-  with conformance vectors and verifiers in Python, TypeScript, and Go.
-  `README.md`, `ARCHITECTURE.md`, and `SECURITY.md` link to it.
+- The audit-chain format was documented language-neutrally and later promoted
+  into the in-repository portable profile with independent Python, TypeScript,
+  and Go verification.
 
 ## [0.1.0] - 2026-08-29
 
