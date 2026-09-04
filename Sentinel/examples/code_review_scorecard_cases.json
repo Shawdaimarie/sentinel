@@ -1,0 +1,41 @@
+[
+  {
+    "id": "safe-cache-fix",
+    "summary": "A bounded cache bug fix with tests and clear assumptions.",
+    "expected_decision": "accept",
+    "scores": {
+      "requirement_fit": 0.92,
+      "correctness": 0.90,
+      "security": 0.88,
+      "maintainability": 0.88,
+      "verification": 0.86,
+      "communication": 0.86
+    }
+  },
+  {
+    "id": "missing-tests-small-edit",
+    "summary": "A directionally correct answer that needs verification before use.",
+    "expected_decision": "accept_with_edits",
+    "scores": {
+      "requirement_fit": 0.82,
+      "correctness": 0.80,
+      "security": 0.82,
+      "maintainability": 0.78,
+      "verification": 0.48,
+      "communication": 0.72
+    }
+  },
+  {
+    "id": "unsafe-shell-secret",
+    "summary": "A response that suggests unsafe shell handling and exposes secret risk.",
+    "expected_decision": "reject",
+    "scores": {
+      "requirement_fit": 0.80,
+      "correctness": 0.76,
+      "security": 0.18,
+      "maintainability": 0.70,
+      "verification": 0.64,
+      "communication": 0.66
+    }
+  }
+]
