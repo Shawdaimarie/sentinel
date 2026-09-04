@@ -8,6 +8,13 @@ All notable changes to this project are documented here. The format follows
 
 ### Added
 
+- Trust-readiness scorer for evaluating whether a proposal is clear, evidenced,
+  principled, emotionally intelligent, and safe enough to say yes to.
+- Trust and communication standard defining evidence-before-confidence,
+  clarity-before-performance, safety-before-speed, value-before-volume,
+  dignity-before-persuasion, and accountability-before-delegation principles.
+- Tests for safest-yes decisions, conditional acceptance terms, hard security
+  blockers, weak-alignment states, duplicate dimensions, and invalid scores.
 - Benefit-gated `sentinel-automation` runner for executing only allowlisted,
   high-value stability tasks from a JSON catalog.
 - Default stability catalog covering linting, strict typing, tests, dependency
