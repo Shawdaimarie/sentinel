@@ -1,10 +1,12 @@
 # Sentinel
 
-**Governed agent execution and deterministic evaluation for high-consequence AI workflows.**
+**Governed agent execution, deterministic evaluation, benefit-gated automation, and value routing for high-consequence AI workflows.**
 
 Every proposed action is evaluated against policy. Every decision is logged
 before a side effect. Every release can be gated on versioned correctness,
-safety, grounding, tool-use, latency, and cost assertions.
+safety, grounding, tool-use, latency, and cost assertions. Every value-bearing
+work item can be routed through evidence, security, deployability, and ownership
+clarity before it is presented externally or scaled.
 
 ---
 
@@ -12,8 +14,8 @@ safety, grounding, tool-use, latency, and cost assertions.
 
 Organizations increasingly connect language models to browsers, databases,
 files, communication systems, and operational APIs. A persuasive demo does not
-establish that those agents are bounded, auditable, grounded, efficient, or
-safe under adversarial input.
+establish that those agents are bounded, auditable, grounded, efficient, safe
+under adversarial input, or worth scaling.
 
 Sentinel is a working reference implementation of a stricter pattern:
 
@@ -27,6 +29,8 @@ Sentinel is a working reference implementation of a stricter pattern:
    fail the release gate.
 6. **Verify independently.** A portable profile and normative vectors are
    implemented separately in Python, TypeScript, and Go.
+7. **Route value.** Public proof, private delivery, and human-only decisions are
+   separated before work is reused, automated, or distributed.
 
 ## Architecture
 
@@ -57,6 +61,8 @@ Sentinel is a working reference implementation of a stricter pattern:
                          └─> Go verifier
 
  code-agent response ──> rubric dimensions ──> score + decision label
+
+ work item ──> value route gateway ──> deployable / pilot / review / hold / reject
 ```
 
 Detailed component design is in [`ARCHITECTURE.md`](ARCHITECTURE.md). Security
@@ -93,39 +99,10 @@ gaps, and keyed downgrade. It does not by itself detect deletion of the entire
 file or truncation of the tail; production deployments must stream records to
 external append-only storage.
 
-### Portable verification
-
-[`spec/SPEC.md`](spec/SPEC.md) defines `sentinel.audit.v1-portable`, including
-canonical JSON rules, safe data types, digest modes, failure behavior, and
-production boundaries. Normative keyed and unkeyed vectors live under
-[`spec/vectors/`](spec/vectors/). Independent implementations under
-[`verifiers/`](verifiers/) verify the same record counts and final digests in
-Python, TypeScript, and Go.
-
-From this directory:
-
-```bash
-python verifiers/python/verify.py --log spec/vectors/unkeyed.jsonl
-
-cd verifiers/typescript
-tsc -p tsconfig.json
-node dist/test.js
-node dist/verifier.js --log ../../spec/vectors/unkeyed.jsonl
-
-cd ../go
-go test ./...
-go run . --log ../../spec/vectors/unkeyed.jsonl
-```
-
-Use `--key sentinel-demo-key` for the keyed fixture. That key is public test
-data and must never be used in a deployment.
-
 ## Agent evaluation harness
 
 The `sentinel-eval` command evaluates observable agent run artifacts without
 requiring a model-based judge.
-
-### Default metrics
 
 | Metric | Weight | Observable evidence |
 |---|---:|---|
@@ -138,11 +115,7 @@ requiring a model-based judge.
 Safety is a hard gate. A system cannot offset a secret disclosure or forbidden
 side effect with speed or correctness elsewhere.
 
-### Example release gate
-
 ```bash
-python -m pip install -e ".[dev]"
-
 sentinel-eval \
   --cases examples/eval_cases.jsonl \
   --runs examples/eval_runs.jsonl \
@@ -153,18 +126,14 @@ sentinel-eval \
   --min-score 0.90
 ```
 
-The command returns nonzero when the suite threshold fails, required pass rate
-fails, safety rate fails, or the candidate introduces an unacceptable paired
-regression.
-
 ## Coding-agent review scorer
 
-`sentinel.code_review` converts human rubric dimensions into deterministic
+`sentinel-code-review` converts human rubric dimensions into deterministic
 accept, accept-with-edits, needs-human-design, or reject decisions. It is meant
 for AI-generated code review, coding-agent calibration, and model-evaluation
 work where fluency is not enough.
 
-The review dimensions are:
+Review dimensions:
 
 - requirement fit;
 - correctness;
@@ -177,76 +146,61 @@ Security remains a hard gate. A superficially high score cannot rescue an
 unsafe answer that exposes secrets, bypasses authorization, runs destructive
 commands, or introduces uncontrolled side effects.
 
+## Value Route Gateway
+
+`sentinel-value-router` connects engineering proof to deployable value. It routes
+work items through five checks:
+
+1. value;
+2. evidence;
+3. security;
+4. deployment readiness; and
+5. ownership and reuse clarity.
+
+The router returns one of five lanes:
+
+| Lane | Meaning |
+|---|---|
+| Deployable | Strong enough to present or reuse as professional proof. |
+| Pilot | Useful enough for bounded testing before durable reuse. |
+| Human review | Valuable but blocked by a human-only or approval-sensitive boundary. |
+| Reserved hold | Potentially valuable but not clear enough for public distribution. |
+| Reject | A hard blocker exists, usually security or sensitive-data exposure. |
+
+```bash
+sentinel-value-router \
+  --items examples/value_route_items.json \
+  --json-out reports/value-route/value_routes.json \
+  --markdown-out reports/value-route/value_routes.md \
+  --min-score 0.70
+```
+
 See:
 
+- [`docs/VALUE_ROUTE_GATEWAY.md`](docs/VALUE_ROUTE_GATEWAY.md) for the routing
+  method;
+- [`docs/OWNERSHIP_AND_PUBLIC_PROOF_BOUNDARY.md`](docs/OWNERSHIP_AND_PUBLIC_PROOF_BOUNDARY.md)
+  for the separation between public proof and private work;
+- [`docs/TRUST_AND_COMMUNICATION_STANDARD.md`](docs/TRUST_AND_COMMUNICATION_STANDARD.md)
+  for the safest-yes communication standard;
 - [`docs/CODING_AGENT_REVIEW_RUBRIC.md`](docs/CODING_AGENT_REVIEW_RUBRIC.md)
-  for the human review protocol;
-- [`docs/SECURE_AGENTIC_DELIVERY_PLAYBOOK.md`](docs/SECURE_AGENTIC_DELIVERY_PLAYBOOK.md)
-  for backend, frontend, policy, audit, and review boundaries;
-- [`docs/AI_ENGINEERING_VALUE_SCORECARD.md`](docs/AI_ENGINEERING_VALUE_SCORECARD.md)
-  for business-facing evidence and role-fit mapping; and
-- [`examples/code_review_cases.jsonl`](examples/code_review_cases.jsonl) for
-  starter review cases.
+  for the coding-agent review protocol; and
+- [`docs/AUTOMATION.md`](docs/AUTOMATION.md) for benefit-gated automation.
 
-## Evaluation documentation
+## Automation and workflows
 
-See:
+Sentinel includes scheduled and manually dispatchable workflows for:
 
-- [`docs/EVALUATION.md`](docs/EVALUATION.md) for the protocol;
-- [`docs/NIST_AI_RMF_CROSSWALK.md`](docs/NIST_AI_RMF_CROSSWALK.md) for the
-  engineering crosswalk;
-- [`docs/ENGINEERING_CASE_STUDY.md`](docs/ENGINEERING_CASE_STUDY.md) for design
-  decisions and tradeoffs; and
-- [`schemas/`](schemas/) for machine-readable contracts.
+- quality and deterministic evaluation;
+- portable audit conformance;
+- trace import;
+- CodeQL;
+- non-root container build;
+- benefit-gated stability automation; and
+- value-route report generation.
 
-## Claim verdicts
-
-A public claim is one of three things:
-
-- **Supported** — a linked source contains the asserted quantity.
-- **Unsupported** — no source is linked, or the source does not contain it.
-- **Unverifiable** — a source is linked but could not be retrieved.
-
-An absent source and an unreachable source require different remedies, so they
-are not collapsed into one failure class.
-
-## Usage
-
-```bash
-python -m pip install -e ".[dev]"
-
-sentinel run \
-  --page https://essentialdigitalsolution.com/ \
-  --control https://essentialdigitalsolution.com/
-
-sentinel verify-audit
-```
-
-`sentinel run` produces `reports/YYYY-MM-DD.md` and appends to
-`audit/sentinel.jsonl`. `sentinel verify-audit` walks the chain and reports the
-first break.
-
-Set an external audit key when keyed integrity is required:
-
-```bash
-export SENTINEL_AUDIT_KEY="replace-with-secret-manager-material"
-sentinel run --page https://example.com
-sentinel verify-audit
-```
-
-Introducing a key requires a new log file; a log is entirely keyed or entirely
-unkeyed.
-
-To enable semantic verification of paraphrased claims:
-
-```bash
-python -m pip install -e ".[llm]"
-export ANTHROPIC_API_KEY="..."
-sentinel run --llm --page https://example.com
-```
-
-The model's rationale is logged. It cannot upgrade a claim that has no linked
-source.
+These workflows preserve a reviewer-visible trail of proof while keeping
+identity, legal, financial, account, and assessment work human-controlled.
 
 ## Repository structure
 
@@ -256,24 +210,18 @@ src/sentinel/
   policy.py                     policy evaluation and budgets
   audit.py                      SHA-256 / HMAC-SHA256 audit chain
   http.py                       governed retrieval and redirect evaluation
-  models.py                     claim and probe data models
-  orchestrator.py               crawl → verify → probe → report
-  cli.py                        operational CLI
   evaluation.py                 deterministic evaluation engine
-  eval_cli.py                   release-gate CLI
   code_review.py                deterministic coding-agent review scorer
-  agents/
-    base.py                     evaluate → log → execute
-    crawler.py                  claim extraction
-    verifier.py                 evidence verification
-    prober.py                   control probes
-    reporter.py                 Markdown reporting
+  trust_readiness.py            safest-yes decision scoring
+  automation.py                 benefit-gated stability task runner
+  value_router.py               deployable value routing gateway
+  *_cli.py                      command-line interfaces
 tests/                          unit, security, evaluation, conformance tests
-examples/                       cases, baseline runs, candidate runs, reports
+examples/                       cases, baseline runs, candidate runs, route items
 spec/                           portable audit profile and normative vectors
 verifiers/                      Python, TypeScript, and Go implementations
 schemas/                        JSON Schema contracts
-docs/                           protocol, crosswalk, case study, review assets
+docs/                           protocol, crosswalk, trust, automation, routing
 ```
 
 ## Development
@@ -283,30 +231,23 @@ make install
 make quality
 make test
 make compare
+make automation
 make docker
 ```
 
-The GitHub Actions workflow runs:
-
-- `ruff`;
-- strict `mypy`;
-- the unit and security suite;
-- `pip-audit`;
-- the deterministic candidate/baseline release gate;
-- independent Python, TypeScript, and Go conformance checks;
-- upload of Markdown, JSON, and diagnostic evidence;
-- CodeQL; and
-- a non-root Docker build.
-
 ## Scope
 
-Sentinel demonstrates enforceable architecture and reproducible evaluation. It
-is not a production monitoring service, an AI certification, or a universal
-proof of safety. A consequential deployment still needs domain-specific cases,
-repeated trials, human review, external audit storage and digest anchoring,
-production identity and secrets management, incident response, and independent
-security assessment.
+Sentinel demonstrates enforceable architecture, reproducible evaluation, trust
+communication, benefit-gated automation, and deployable value routing. It is not
+a production monitoring service, an AI certification, a legal opinion, or a
+universal proof of safety. A consequential deployment still needs domain-specific
+cases, repeated trials, human review, external audit storage and digest
+anchoring, production identity and secrets management, incident response, and
+independent security assessment.
 
 ## License
 
-Apache-2.0. See [`LICENSE`](LICENSE).
+Apache-2.0. See [`LICENSE`](LICENSE). See
+[`docs/OWNERSHIP_AND_PUBLIC_PROOF_BOUNDARY.md`](docs/OWNERSHIP_AND_PUBLIC_PROOF_BOUNDARY.md)
+for the separation between repository license, public attribution, and private
+commercial or identity-sensitive materials.
