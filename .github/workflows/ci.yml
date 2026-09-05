@@ -68,6 +68,16 @@ jobs:
             --comparison-json reports/comparison.json \
             --min-score 0.90 \
             2>&1 | tee reports/diagnostics/evaluation.txt
+      - name: Coding-agent review scorecard gate
+        id: code_review
+        continue-on-error: true
+        run: |
+          set -o pipefail
+          sentinel-code-review \
+            --cases examples/code_review_scorecard_cases.json \
+            --json-out reports/code-review/scorecard.json \
+            --markdown-out reports/code-review/scorecard.md \
+            2>&1 | tee reports/diagnostics/code-review.txt
       - name: Upload verification evidence
         if: always()
         uses: actions/upload-artifact@v4
@@ -78,6 +88,8 @@ jobs:
             Sentinel/reports/evaluation.md
             Sentinel/reports/evaluation.json
             Sentinel/reports/comparison.json
+            Sentinel/reports/code-review/scorecard.md
+            Sentinel/reports/code-review/scorecard.json
           if-no-files-found: warn
       - name: Enforce quality gates
         if: always()
@@ -87,6 +99,7 @@ jobs:
           test "${{ steps.tests.outcome }}" = "success"
           test "${{ steps.audit.outcome }}" = "success"
           test "${{ steps.evaluation.outcome }}" = "success"
+          test "${{ steps.code_review.outcome }}" = "success"
 
   portable-audit-conformance:
     name: Portable audit conformance
