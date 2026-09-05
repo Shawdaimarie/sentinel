@@ -10,7 +10,7 @@ It treats AI-generated code as useful but untrusted until it passes security, co
 
 ## Implementation Status
 
-The deployed source package now includes a runnable evaluator, structured JSONL review output, an implementation pipeline view, sanitized case studies, a security policy, a threat model, a test strategy, a release hygiene cadence, a 30/60/90 advancement roadmap, an advancement language guide, an opportunity operating process, and a value-exposure plan.
+The deployed source package now includes a runnable evaluator, structured JSONL review output, an implementation pipeline view, sanitized case studies, a security policy, a threat model, a test strategy, a release hygiene cadence, a 30/60/90 advancement roadmap, an advancement language guide, a governed approval rubric, an opportunity operating process, and a value-exposure plan.
 
 This GitHub reference is intentionally concise: it gives reviewers the live project link, the system value, the evidence stack, and the verification standard without exposing private work or unsupported claims.
 
@@ -27,6 +27,18 @@ This project is built to support credible movement into higher-value technical o
 - Software engineering advancement: architecture-aware review, testing, CI gates, threat modeling, and maintainable documentation.
 - Coding advancement: runnable Python evaluator code, severity rules, JSONL output, sample scenarios, and unit tests.
 
+## Governed Ranking Readiness
+
+Current posture: **top-tier candidate readiness**.
+
+That means the project has strong evidence for serious technical review, not that an external party has officially ranked, certified, or approved it. The ranking signal is based on inspectable proof:
+
+- Advanced coding evidence through a runnable evaluator, tests, sample scenarios, and structured output.
+- Advanced AI evaluation evidence through model-output risk classification, severity rules, and promotion gates.
+- Advanced software engineering evidence through CI workflow, repeat builds, source control, and maintainable docs.
+- High-assurance security evidence through threat modeling, credential hygiene, public-claim checks, and private-by-default deployment.
+- Review-ready authentication through a live site, GitHub reference, Handshake-ready entry, and reviewer-safe documentation.
+
 ## Evidence Stack
 
 - Deployable React/Vinext site presenting the system surface.
@@ -36,7 +48,7 @@ This project is built to support credible movement into higher-value technical o
 - Severity rubric for critical, high, medium, low, and informational issues.
 - Promotion gates for security blockers, required changes, missing evidence, performance follow-up, and human approval.
 - Sanitized case studies covering unsafe execution, unreliable inference integration, and missing evidence.
-- Security policy, threat model, test strategy, deployment notes, and structured-output schema.
+- Security policy, threat model, test strategy, deployment notes, structured-output schema, and governed approval rubric.
 - Release hygiene cadence, advancement roadmap, advancement language guide, opportunity operating process, and value-exposure plan.
 - Enterprise assurance review covering claim accuracy, client-neutrality, private-by-default deployment, and repeatable release gates.
 - Handshake-ready project entry for AI engineering, AI infrastructure, software engineering, and coding evaluation roles.
@@ -78,6 +90,7 @@ Reference alignment:
 - Test and build verification
 - CI release gating
 - Release hygiene
+- Governed approval readiness
 - Opportunity positioning
 - Governance and audit evidence
 - Claim accuracy and client-neutral communication
