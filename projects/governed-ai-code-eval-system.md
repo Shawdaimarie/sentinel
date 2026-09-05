@@ -10,7 +10,7 @@ It supports software engineering, AI infrastructure, and model-evaluation work b
 
 ## Implementation Status
 
-The deployed source package now includes a runnable evaluator, an implementation pipeline view, sanitized case studies, a security policy, a threat model, a test strategy, and a value-exposure plan.
+The deployed source package now includes a runnable evaluator, structured JSONL review output, an implementation pipeline view, sanitized case studies, a security policy, a threat model, a test strategy, a release hygiene cadence, a 30/60/90 advancement roadmap, an opportunity operating process, and a value-exposure plan.
 
 This GitHub reference is intentionally concise: it gives reviewers the live project link, the system value, the evidence stack, and the verification standard without exposing private work or unsupported claims.
 
@@ -22,11 +22,13 @@ Sentinel is positioned around governed multi-agent systems, continuous verificat
 
 - Deployable React/Vinext site presenting the system surface.
 - Runnable Python evaluator packaged under `packages/evaluator` in the deployed source package.
-- Unit-tested rule detection for security, reliability, evidence quality, and promotion gates.
+- Machine-readable JSONL output for CI comments, audit logs, dashboards, and model-comparison reports.
+- Unit-tested rule detection for security, reliability, evidence quality, promotion gates, and structured output.
 - Severity rubric for critical, high, medium, low, and informational issues.
 - Promotion gates for security blockers, required changes, missing evidence, performance follow-up, and human approval.
 - Sanitized case studies covering unsafe execution, unreliable inference integration, and missing evidence.
-- Security policy, threat model, test strategy, and deployment notes.
+- Security policy, threat model, test strategy, deployment notes, and structured-output schema.
+- Release hygiene cadence, advancement roadmap, opportunity operating process, and value-exposure plan.
 - Enterprise assurance review covering claim accuracy, client-neutrality, private-by-default deployment, and repeatable release gates.
 - Handshake-ready project entry for AI engineering and AI infrastructure roles.
 
@@ -40,7 +42,7 @@ Assurance controls include:
 - No confidential platform details or private account identifiers.
 - No production secrets or credentials required for the site.
 - Private-by-default deployment posture.
-- Repeatable assurance, lint, production build, Python unit-test, and evaluator compilation gates.
+- Repeatable assurance, lint, production build, Python unit-test, JSONL output, and evaluator compilation gates.
 - Claims tied to visible files, tests, review artifacts, or deployed surfaces.
 
 Reference alignment:
@@ -59,10 +61,13 @@ Reference alignment:
 - Secure software development
 - Model-output adjudication
 - Threat modeling
+- Structured evaluator output
 - Technical writing
 - Risk classification
 - Test and build verification
 - CI release gating
+- Release hygiene
+- Opportunity positioning
 - Governance and audit evidence
 - Claim accuracy and client-neutral communication
 
@@ -76,11 +81,15 @@ pnpm run lint
 pnpm run build
 pnpm run build
 python3 -m unittest discover -s packages/evaluator/tests
+PYTHONPATH=packages/evaluator/src python3 -m governed_ai_code_eval packages/evaluator/examples/risky_candidate.py --jsonl
 python3 -m compileall packages/evaluator/src packages/evaluator/tests
 ```
 
 The release also passed a current-file scan and a local Git-history scan for client-specific terms before deployment.
 
-## Next Upgrade
+## Next Four-Step Advancement Loop
 
-Expand the evaluator with additional sanitized scenarios for model training, inference services, MLOps pipelines, prompt-injection boundaries, dependency risk, logging hygiene, and machine-readable review output for pull-request comments.
+1. Add additional sanitized scenarios for model training, inference services, MLOps pipelines, and agent tools.
+2. Expand evaluator rules for prompt-injection boundaries, dependency risk, logging hygiene, and resource budgets.
+3. Connect JSONL review output to automated pull-request summaries or a lightweight dashboard.
+4. Refresh GitHub, Handshake, portfolio, and application language only when the deployed evidence improves.
