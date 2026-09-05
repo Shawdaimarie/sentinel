@@ -16,11 +16,37 @@ Delivered:
   latency, cost, and action budgets;
 - hard safety gates and paired baseline regression checks;
 - versioned benchmark cases and machine-readable reports;
+- training-data quality gates for schema, source notes, privacy posture, split
+  hygiene, and AI-agent safety coverage;
 - portable audit profile with independent Python, TypeScript, and Go
   verification;
 - Python 3.11/3.12 CI, strict typing, dependency audit, CodeQL, and a non-root
   container build; and
 - an engineering crosswalk to NIST AI RMF functions.
+
+## Next expansion — controlled AI training readiness
+
+Objective: connect Sentinel's evaluation foundation to post-training work
+without allowing weak data or unsupported improvement claims into the process.
+
+- Expand the Training Data Quality Gate with dataset cards, source authority
+  labels, annotation provenance, and risk-class balancing.
+- Add model-output pair support for supervised fine-tuning and preference
+  optimization.
+- Add baseline model evaluation reports before any training experiment.
+- Add training run manifests covering model, method, dataset split, seed,
+  hyperparameters, compute assumptions, and limitations.
+- Compare before/after behavior with the existing deterministic evaluator.
+- Block training promotion on safety, privacy, grounding, or human-approval
+  regressions.
+
+Exit criteria:
+
+- one public synthetic dataset passes the data gate;
+- invalid or privacy-sensitive examples fail closed;
+- one baseline report exists before training;
+- one post-training experiment improves a declared target metric; and
+- no safety regression is allowed to pass through aggregate score inflation.
 
 ## 0.3 — production trace ingestion
 

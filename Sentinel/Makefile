@@ -1,4 +1,4 @@
-.PHONY: install quality test import-otel evaluate compare code-review automation value-route capsules docker
+.PHONY: install quality test import-otel evaluate compare code-review data-gate automation value-route capsules docker
 
 install:
 	python -m pip install -e ".[dev]"
@@ -46,6 +46,13 @@ code-review:
 		--cases examples/code_review_scorecard_cases.json \
 		--json-out reports/code-review/scorecard.json \
 		--markdown-out reports/code-review/scorecard.md
+
+data-gate:
+	sentinel-data-gate \
+		--input examples/training/agent_safety_examples.jsonl \
+		--json-out reports/data-gate/agent_safety_examples.json \
+		--markdown-out reports/data-gate/agent_safety_examples.md \
+		--min-examples 20
 
 automation:
 	sentinel-automation \

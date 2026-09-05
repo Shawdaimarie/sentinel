@@ -1,6 +1,6 @@
 # Sentinel
 
-**Governed AI-agent execution, deterministic evaluation, and production-trace normalization.**
+**Governed AI-agent execution, deterministic evaluation, training-data quality gates, and production-trace normalization.**
 
 [![CI](https://github.com/Shawdaimarie/sentinel/actions/workflows/ci.yml/badge.svg)](https://github.com/Shawdaimarie/sentinel/actions/workflows/ci.yml)
 [![Trace import](https://github.com/Shawdaimarie/sentinel/actions/workflows/trace-import.yml/badge.svg)](https://github.com/Shawdaimarie/sentinel/actions/workflows/trace-import.yml)
@@ -16,6 +16,7 @@ operational infrastructure. It combines:
 - governed network access;
 - deterministic correctness, safety, grounding, latency, and cost evaluation;
 - paired baseline regression gates;
+- training/evaluation dataset quality gates before post-training claims;
 - independently verifiable audit chains in Python, TypeScript, and Go; and
 - offline OpenTelemetry trace normalization into strict evaluation records.
 
@@ -30,6 +31,7 @@ The implementation lives in [`Sentinel/`](Sentinel/).
 | Production trace bridge | OTLP JSON becomes strict `AgentRun` JSONL plus a provenance manifest |
 | Trace safety | Malformed IDs, cycles, ambiguous roots, and invented completeness fail closed |
 | Sensitive-data handling | Configurable redaction and bounded unknown-provider metadata |
+| Training data readiness | JSONL examples are checked for schema, source, privacy, splits, and risk coverage |
 | Evaluation engineering | Versioned cases, hard safety gates, slices, and baseline comparison |
 | Portable verification | Independent Python, TypeScript, and Go implementations share vectors |
 | Delivery discipline | Python 3.11/3.12, Ruff, strict mypy, pytest, `pip-audit`, CodeQL, Docker |
@@ -81,6 +83,22 @@ sentinel-eval \
   --min-score 0.90
 ```
 
+## Training-data quality quick start
+
+```bash
+cd Sentinel
+python -m pip install -e ".[dev]"
+
+sentinel-data-gate \
+  --input examples/training/agent_safety_examples.jsonl \
+  --json-out reports/data-gate/agent_safety_examples.json \
+  --markdown-out reports/data-gate/agent_safety_examples.md \
+  --min-examples 20
+```
+
+The data gate checks training and evaluation examples before fine-tuning,
+preference optimization, benchmark publication, or public proof claims.
+
 ## Architecture
 
 ```text
@@ -100,6 +118,8 @@ agent proposal ──> deny-by-default policy ──> audit decision ──> exe
                                               │
                                               ▼
                          portable SHA-256/HMAC-SHA256 verification
+
+training examples ──> schema + privacy + split checks ──> data gate report
 ```
 
 ## Reviewer path

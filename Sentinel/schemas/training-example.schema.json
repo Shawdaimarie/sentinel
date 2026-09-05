@@ -1,0 +1,136 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Shawdaimarie/sentinel/blob/main/Sentinel/schemas/training-example.schema.json",
+  "title": "Sentinel Training Example",
+  "description": "Structured training or evaluation example for AI-agent safety, grounding, privacy, and post-training readiness.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "task_type",
+    "prompt",
+    "expected_behavior",
+    "label",
+    "risk_tags",
+    "source",
+    "privacy",
+    "split",
+    "created_at"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9._-]*$"
+    },
+    "task_type": {
+      "type": "string",
+      "enum": [
+        "tool_use_safety",
+        "grounding",
+        "privacy",
+        "human_approval",
+        "cost_control",
+        "regulated_workflow",
+        "safe_completion",
+        "coding_agent_review"
+      ]
+    },
+    "prompt": {
+      "type": "string",
+      "minLength": 1
+    },
+    "expected_behavior": {
+      "type": "string",
+      "minLength": 1
+    },
+    "label": {
+      "type": "string",
+      "enum": [
+        "allow",
+        "deny",
+        "refuse",
+        "request_approval",
+        "cite_evidence",
+        "complete",
+        "human_review"
+      ]
+    },
+    "risk_tags": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "enum": [
+          "cost_runaway",
+          "fabricated_evidence",
+          "grounding",
+          "human_approval",
+          "missing_citation",
+          "privacy",
+          "prompt_injection",
+          "regulated_decision",
+          "retry_loop",
+          "safe_completion",
+          "secret_exposure",
+          "unsafe_file_write",
+          "unsafe_shell",
+          "unauthorized_tool_use"
+        ]
+      },
+      "uniqueItems": true
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "note"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["synthetic", "public", "benchmark", "internal"]
+        },
+        "note": {
+          "type": "string",
+          "minLength": 1
+        },
+        "url": {
+          "type": ["string", "null"]
+        }
+      }
+    },
+    "privacy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "contains_personal_data",
+        "contains_credentials",
+        "public_release_ok"
+      ],
+      "properties": {
+        "contains_personal_data": {
+          "type": "boolean",
+          "default": false
+        },
+        "contains_credentials": {
+          "type": "boolean",
+          "default": false
+        },
+        "public_release_ok": {
+          "type": "boolean",
+          "default": true
+        }
+      }
+    },
+    "split": {
+      "type": "string",
+      "enum": ["train", "validation", "test"]
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date"
+    },
+    "limitations": {
+      "type": "string",
+      "default": ""
+    }
+  }
+}
