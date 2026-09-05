@@ -1,13 +1,15 @@
 # Sentinel
 
-**Governed agent execution, deterministic evaluation, benefit-gated automation, value routing, and deployment capsules for high-consequence AI workflows.**
+**Governed agent execution, deterministic evaluation, training-data quality gates, benefit-gated automation, value routing, and deployment capsules for high-consequence AI workflows.**
 
 Every proposed action is evaluated against policy. Every decision is logged
 before a side effect. Every release can be gated on versioned correctness,
 safety, grounding, tool-use, latency, and cost assertions. Every value-bearing
 work item can be routed through evidence, security, deployability, and ownership
-clarity before it is presented externally or scaled. Every deployment capsule
-hashes its declared evidence and separates public proof from private delivery.
+clarity before it is presented externally or scaled. Every training dataset can
+be checked for structure, source notes, privacy posture, split hygiene, and risk
+coverage before tuning or benchmark claims. Every deployment capsule hashes its
+declared evidence and separates public proof from private delivery.
 
 ---
 
@@ -31,9 +33,11 @@ Sentinel is a working reference implementation of a stricter pattern:
    fail the release gate.
 6. **Verify independently.** A portable profile and normative vectors are
    implemented separately in Python, TypeScript, and Go.
-7. **Route value.** Public proof, private delivery, and human-only decisions are
+7. **Gate training data.** Examples are checked before they shape evaluation,
+   fine-tuning, preference optimization, or public benchmark claims.
+8. **Route value.** Public proof, private delivery, and human-only decisions are
    separated before work is reused, automated, or distributed.
-8. **Package proof.** Deployment capsules hash evidence assets and record terms,
+9. **Package proof.** Deployment capsules hash evidence assets and record terms,
    visibility, blockers, and next actions.
 
 ## Architecture
@@ -65,6 +69,8 @@ Sentinel is a working reference implementation of a stricter pattern:
                          └─> Go verifier
 
  code-agent response ──> rubric dimensions ──> score + decision label
+
+ training examples ──> data quality gate ──> schema + privacy + split report
 
  work item ──> value route gateway ──> deployable / pilot / review / hold / reject
 
@@ -151,6 +157,34 @@ Review dimensions:
 Security remains a hard gate. A superficially high score cannot rescue an
 unsafe answer that exposes secrets, bypasses authorization, runs destructive
 commands, or introduces uncontrolled side effects.
+
+## Training Data Quality Gate
+
+`sentinel-data-gate` validates AI training and evaluation examples before they
+are used for post-training, benchmark publication, or public proof.
+
+The gate checks:
+
+- schema validity;
+- duplicate example IDs;
+- credential-like content;
+- direct personal data in public proof;
+- source-note coverage;
+- train/validation/test split leakage;
+- supported risk tags;
+- class balance; and
+- coverage of prompt injection, privacy, human approval, and tool-use safety.
+
+```bash
+sentinel-data-gate \
+  --input examples/training/agent_safety_examples.jsonl \
+  --json-out reports/data-gate/agent_safety_examples.json \
+  --markdown-out reports/data-gate/agent_safety_examples.md \
+  --min-examples 20
+```
+
+See [`docs/TRAINING_DATA_QUALITY_GATE.md`](docs/TRAINING_DATA_QUALITY_GATE.md)
+and the synthetic public proof dataset under [`examples/training/`](examples/training/).
 
 ## Value Route Gateway
 
@@ -245,6 +279,7 @@ src/sentinel/
   http.py                       governed retrieval and redirect evaluation
   evaluation.py                 deterministic evaluation engine
   code_review.py                deterministic coding-agent review scorer
+  data_gate.py                  training-data quality and public-proof checks
   trust_readiness.py            safest-yes decision scoring
   automation.py                 benefit-gated stability task runner
   value_router.py               deployable value routing gateway
