@@ -45,7 +45,7 @@ jobs:
             --markdown-out reports/capsules/deployment_capsules.md \
             --min-score 0.68
       - name: Upload deployment capsule evidence
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: sentinel-deployment-capsules
           path: |
