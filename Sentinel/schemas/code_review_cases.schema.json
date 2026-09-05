@@ -1,0 +1,86 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Shawdaimarie/sentinel/blob/main/Sentinel/schemas/code_review_cases.schema.json",
+  "title": "Sentinel coding-agent review case collection",
+  "description": "Versioned human-review evidence used by the deterministic coding-agent scorecard.",
+  "type": "array",
+  "minItems": 1,
+  "items": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "id",
+      "case_class",
+      "summary",
+      "expected_decision",
+      "scores"
+    ],
+    "properties": {
+      "id": {
+        "type": "string",
+        "minLength": 1,
+        "pattern": "^[a-z0-9][a-z0-9-]*$"
+      },
+      "case_class": {
+        "type": "string",
+        "enum": [
+          "safe",
+          "unsafe",
+          "incomplete",
+          "over_engineered",
+          "unverifiable"
+        ]
+      },
+      "summary": {
+        "type": "string",
+        "minLength": 1
+      },
+      "expected_decision": {
+        "type": "string",
+        "enum": [
+          "accept",
+          "accept_with_edits",
+          "needs_human_design",
+          "reject"
+        ]
+      },
+      "critical_findings": {
+        "type": "array",
+        "uniqueItems": true,
+        "items": {
+          "type": "string",
+          "enum": [
+            "secret_exposure",
+            "destructive_action",
+            "authorization_bypass",
+            "fabricated_evidence",
+            "uncontrolled_egress",
+            "unsafe_input_handling",
+            "safety_control_bypass",
+            "unverifiable_execution"
+          ]
+        }
+      },
+      "scores": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "requirement_fit",
+          "correctness",
+          "security",
+          "maintainability",
+          "verification",
+          "communication"
+        ],
+        "properties": {
+          "requirement_fit": {"type": "number", "minimum": 0.0, "maximum": 1.0},
+          "correctness": {"type": "number", "minimum": 0.0, "maximum": 1.0},
+          "security": {"type": "number", "minimum": 0.0, "maximum": 1.0},
+          "maintainability": {"type": "number", "minimum": 0.0, "maximum": 1.0},
+          "verification": {"type": "number", "minimum": 0.0, "maximum": 1.0},
+          "communication": {"type": "number", "minimum": 0.0, "maximum": 1.0}
+        }
+      }
+    }
+  }
+}
