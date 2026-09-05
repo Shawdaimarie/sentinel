@@ -8,6 +8,12 @@ The Governed AI Code Evaluation System is an assurance-backed AI engineering pro
 
 It supports software engineering, AI infrastructure, and model-evaluation work by treating AI-generated code as useful but untrusted until it has passed clear controls.
 
+## Implementation Status
+
+The deployed source package now includes a runnable evaluator, an implementation pipeline view, sanitized case studies, a security policy, a threat model, a test strategy, and a value-exposure plan.
+
+This GitHub reference is intentionally concise: it gives reviewers the live project link, the system value, the evidence stack, and the verification standard without exposing private work or unsupported claims.
+
 ## Why This Belongs With Sentinel
 
 Sentinel is positioned around governed multi-agent systems, continuous verification, and sourced accountability. This project extends that same principle into code-agent evaluation: model outputs should be reviewed, classified, and promoted only when the evidence trail is strong enough.
@@ -15,10 +21,12 @@ Sentinel is positioned around governed multi-agent systems, continuous verificat
 ## Evidence Stack
 
 - Deployable React/Vinext site presenting the system surface.
-- Runnable Python proof pack for AI-code review findings.
+- Runnable Python evaluator packaged under `packages/evaluator` in the deployed source package.
+- Unit-tested rule detection for security, reliability, evidence quality, and promotion gates.
 - Severity rubric for critical, high, medium, low, and informational issues.
 - Promotion gates for security blockers, required changes, missing evidence, performance follow-up, and human approval.
-- Security and governance standard covering secrets, data handling, sandboxing, reliability, and audit evidence.
+- Sanitized case studies covering unsafe execution, unreliable inference integration, and missing evidence.
+- Security policy, threat model, test strategy, and deployment notes.
 - Enterprise assurance review covering claim accuracy, client-neutrality, private-by-default deployment, and repeatable release gates.
 - Handshake-ready project entry for AI engineering and AI infrastructure roles.
 
@@ -32,7 +40,7 @@ Assurance controls include:
 - No confidential platform details or private account identifiers.
 - No production secrets or credentials required for the site.
 - Private-by-default deployment posture.
-- Repeatable assurance, lint, and production build gates.
+- Repeatable assurance, lint, production build, Python unit-test, and evaluator compilation gates.
 - Claims tied to visible files, tests, review artifacts, or deployed surfaces.
 
 Reference alignment:
@@ -50,18 +58,29 @@ Reference alignment:
 - LLM application review
 - Secure software development
 - Model-output adjudication
+- Threat modeling
 - Technical writing
 - Risk classification
 - Test and build verification
+- CI release gating
 - Governance and audit evidence
 - Claim accuracy and client-neutral communication
 
 ## Verification
 
-The site source was verified with an assurance check, linting, and repeat production builds before private deployment.
+The deployed source was verified on September 5, 2026 with:
 
-The companion evaluator was verified with repeat Python unit-test runs and a sample risky-code review producing 11 classified findings.
+```bash
+pnpm run assurance
+pnpm run lint
+pnpm run build
+pnpm run build
+python3 -m unittest discover -s packages/evaluator/tests
+python3 -m compileall packages/evaluator/src packages/evaluator/tests
+```
+
+The release also passed a current-file scan and a local Git-history scan for client-specific terms before deployment.
 
 ## Next Upgrade
 
-Move the full proof pack into a dedicated GitHub repository or into Sentinel under a stable package path, then connect the CI workflow so each pull request runs both the web build and evaluator tests.
+Expand the evaluator with additional sanitized scenarios for model training, inference services, MLOps pipelines, prompt-injection boundaries, dependency risk, logging hygiene, and machine-readable review output for pull-request comments.
