@@ -4,19 +4,28 @@ Live private deployment: https://governed-ai-code-eval-system.shawdaimarie.chatg
 
 ## Summary
 
-The Governed AI Code Evaluation System is an assurance-backed AI engineering project for reviewing frontier coding-agent outputs through security, correctness, reliability, performance, and evidence-quality gates.
+The Governed AI Code Evaluation System is an assurance-backed proof project for advancement in AI engineering, AI infrastructure, software engineering, code-agent evaluation, and hands-on coding readiness.
 
-It supports software engineering, AI infrastructure, and model-evaluation work by treating AI-generated code as useful but untrusted until it has passed clear controls.
+It treats AI-generated code as useful but untrusted until it passes security, correctness, reliability, performance, maintainability, and evidence-quality gates. The result is a project that shows not only interest in AI, but practical engineering judgment that reviewers can inspect.
 
 ## Implementation Status
 
-The deployed source package now includes a runnable evaluator, structured JSONL review output, an implementation pipeline view, sanitized case studies, a security policy, a threat model, a test strategy, a release hygiene cadence, a 30/60/90 advancement roadmap, an opportunity operating process, and a value-exposure plan.
+The deployed source package now includes a runnable evaluator, structured JSONL review output, an implementation pipeline view, sanitized case studies, a security policy, a threat model, a test strategy, a release hygiene cadence, a 30/60/90 advancement roadmap, an advancement language guide, an opportunity operating process, and a value-exposure plan.
 
 This GitHub reference is intentionally concise: it gives reviewers the live project link, the system value, the evidence stack, and the verification standard without exposing private work or unsupported claims.
 
 ## Why This Belongs With Sentinel
 
 Sentinel is positioned around governed multi-agent systems, continuous verification, and sourced accountability. This project extends that same principle into code-agent evaluation: model outputs should be reviewed, classified, and promoted only when the evidence trail is strong enough.
+
+## Advancement Signal
+
+This project is built to support credible movement into higher-value technical opportunities by proving four inspectable capabilities:
+
+- Technology advancement: deployment discipline, verification, release hygiene, and measurable system controls.
+- AI advancement: model-output evaluation, LLM application review, agent boundaries, and AI-risk framing.
+- Software engineering advancement: architecture-aware review, testing, CI gates, threat modeling, and maintainable documentation.
+- Coding advancement: runnable Python evaluator code, severity rules, JSONL output, sample scenarios, and unit tests.
 
 ## Evidence Stack
 
@@ -28,9 +37,9 @@ Sentinel is positioned around governed multi-agent systems, continuous verificat
 - Promotion gates for security blockers, required changes, missing evidence, performance follow-up, and human approval.
 - Sanitized case studies covering unsafe execution, unreliable inference integration, and missing evidence.
 - Security policy, threat model, test strategy, deployment notes, and structured-output schema.
-- Release hygiene cadence, advancement roadmap, opportunity operating process, and value-exposure plan.
+- Release hygiene cadence, advancement roadmap, advancement language guide, opportunity operating process, and value-exposure plan.
 - Enterprise assurance review covering claim accuracy, client-neutrality, private-by-default deployment, and repeatable release gates.
-- Handshake-ready project entry for AI engineering and AI infrastructure roles.
+- Handshake-ready project entry for AI engineering, AI infrastructure, software engineering, and coding evaluation roles.
 
 ## Assurance Standard
 
@@ -56,6 +65,8 @@ Reference alignment:
 
 - AI engineering
 - AI infrastructure
+- Software engineering
+- Coding evaluation
 - Code-agent evaluation
 - LLM application review
 - Secure software development
