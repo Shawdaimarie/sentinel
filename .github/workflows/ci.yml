@@ -19,7 +19,7 @@ jobs:
       run:
         working-directory: Sentinel
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
@@ -105,7 +105,7 @@ jobs:
     name: Portable audit conformance
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
@@ -151,7 +151,7 @@ jobs:
       run:
         working-directory: Sentinel
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Build non-root image with bounded registry retry
         id: build
         continue-on-error: true
