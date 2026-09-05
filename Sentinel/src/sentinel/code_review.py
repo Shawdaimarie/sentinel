@@ -9,7 +9,7 @@ from __future__ import annotations
 
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
-from typing import Literal, TypeAlias, cast
+from typing import Literal, TypeAlias
 
 ReviewDimension: TypeAlias = Literal[
     "requirement_fit",
@@ -171,7 +171,7 @@ def _ordered_critical_findings(findings: Sequence[str]) -> tuple[CriticalFinding
         if finding in seen:
             raise ValueError(f"duplicate critical finding: {finding}")
         seen.add(finding)
-        normalized.append(cast(CriticalFinding, finding))
+        normalized.append(finding)
     return tuple(normalized)
 
 
