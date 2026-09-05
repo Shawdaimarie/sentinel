@@ -78,7 +78,7 @@ def _review_dimension(value: str) -> ReviewDimension:
     if value not in DIMENSIONS:
         joined = ", ".join(DIMENSIONS)
         raise ValueError(f"unknown review dimension {value!r}; expected one of: {joined}")
-    return cast(ReviewDimension, value)
+    return value
 
 
 def scores_from_mapping(scores: Mapping[str, object]) -> list[DimensionScore]:
@@ -226,7 +226,7 @@ def _markdown_cell(value: str) -> str:
 def markdown_report(results: Sequence[Mapping[str, object]]) -> str:
     """Render evaluated cases as a reviewer-oriented Markdown report."""
 
-    decision_counts = {decision: 0 for decision in DECISIONS}
+    decision_counts: dict[str, int] = {decision: 0 for decision in DECISIONS}
     for result in results:
         decision_counts[_result_text(result, "decision")] += 1
 
