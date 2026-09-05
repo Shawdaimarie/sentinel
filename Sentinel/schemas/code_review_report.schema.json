@@ -1,0 +1,141 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Shawdaimarie/sentinel/blob/main/Sentinel/schemas/code_review_report.schema.json",
+  "title": "Sentinel coding-agent review report",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "source_sha256",
+    "case_count",
+    "decision_counts",
+    "critical_finding_counts",
+    "all_expected_matched",
+    "results"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "sentinel.code_review_report.v2"
+    },
+    "source_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "case_count": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "decision_counts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "accept",
+        "accept_with_edits",
+        "needs_human_design",
+        "reject"
+      ],
+      "properties": {
+        "accept": {"type": "integer", "minimum": 0},
+        "accept_with_edits": {"type": "integer", "minimum": 0},
+        "needs_human_design": {"type": "integer", "minimum": 0},
+        "reject": {"type": "integer", "minimum": 0}
+      }
+    },
+    "critical_finding_counts": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "integer",
+        "minimum": 1
+      }
+    },
+    "all_expected_matched": {
+      "type": "boolean"
+    },
+    "results": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "case_class",
+          "summary",
+          "score",
+          "decision",
+          "reviewer_action",
+          "reviewer_action_text",
+          "passed",
+          "dimension_scores",
+          "failing_dimensions",
+          "hard_failures",
+          "critical_findings",
+          "decisive_failure_modes"
+        ],
+        "properties": {
+          "id": {"type": "string", "minLength": 1},
+          "case_class": {"type": "string", "minLength": 1},
+          "summary": {"type": "string"},
+          "score": {"type": "number", "minimum": 0.0, "maximum": 1.0},
+          "decision": {
+            "type": "string",
+            "enum": [
+              "accept",
+              "accept_with_edits",
+              "needs_human_design",
+              "reject"
+            ]
+          },
+          "reviewer_action": {
+            "type": "string",
+            "enum": [
+              "adopt_or_adapt",
+              "edit_and_reverify",
+              "pause_for_human_design",
+              "do_not_use"
+            ]
+          },
+          "reviewer_action_text": {"type": "string", "minLength": 1},
+          "passed": {"type": "boolean"},
+          "dimension_scores": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "requirement_fit",
+              "correctness",
+              "security",
+              "maintainability",
+              "verification",
+              "communication"
+            ],
+            "properties": {
+              "requirement_fit": {"type": "number", "minimum": 0.0, "maximum": 1.0},
+              "correctness": {"type": "number", "minimum": 0.0, "maximum": 1.0},
+              "security": {"type": "number", "minimum": 0.0, "maximum": 1.0},
+              "maintainability": {"type": "number", "minimum": 0.0, "maximum": 1.0},
+              "verification": {"type": "number", "minimum": 0.0, "maximum": 1.0},
+              "communication": {"type": "number", "minimum": 0.0, "maximum": 1.0}
+            }
+          },
+          "failing_dimensions": {
+            "type": "array",
+            "items": {"type": "string"}
+          },
+          "hard_failures": {
+            "type": "array",
+            "items": {"type": "string"}
+          },
+          "critical_findings": {
+            "type": "array",
+            "items": {"type": "string"}
+          },
+          "decisive_failure_modes": {
+            "type": "array",
+            "items": {"type": "string"}
+          },
+          "expected_decision": {"type": "string"},
+          "expected_matched": {"type": "boolean"}
+        }
+      }
+    }
+  }
+}
