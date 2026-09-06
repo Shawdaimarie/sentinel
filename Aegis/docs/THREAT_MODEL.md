@@ -31,7 +31,7 @@ audit/telemetry sinks ◄── decision evidence ── Aegis
 | Tampering | Stale capability survives policy change | Capability embeds active policy SHA-256 | policy-drift test |
 | Repudiation | Allow/deny happens without evidence | Decision audit append before returning allow | replay/audit assertions |
 | Information disclosure | Public example contains private key material | Example JWKS is public-key-only and cannot sign tokens | repository fixture |
-| Denial of service | Caller floods tool authorization | Per workload/tool/action fixed-window limits | rate-limit test |
+| Denial of service | Caller floods tool authorization | State-backed per workload/tool/action fixed-window limits | rate-limit test |
 | Denial of service | Oversized or ambiguous HTTP input consumes resources | body, header, timeout, content-type, and JSON limits | HTTP bounds test |
 | Elevation of privilege | Approval for one capability is reused for another | Approval binds capability JTI, hash, subject, tool, action, resource, and policy hash | approval mismatch test |
 | Elevation of privilege | Used or revoked capability is replayed | State store reserves JTI atomically and checks revocation | replay/revocation tests |
@@ -41,9 +41,10 @@ audit/telemetry sinks ◄── decision evidence ── Aegis
 
 Aegis does not yet include a production OIDC issuer, SPIRE server, cloud KMS/HSM,
 SIEM integration, or distributed database adapter. The reference file state
-store is useful for local runs but is not a multi-process distributed lock. A
-production deployment must use an atomic compare-and-set state service and must
-deny on timeout or consistency errors.
+store persists replay, revocation, and rate-limit reservations for local runs,
+but it is not a multi-process distributed lock. A production deployment must use
+an atomic compare-and-set state service and must deny on timeout or consistency
+errors.
 
 Audit hashes detect mutation of retained records, not deletion of the entire
 log or tail truncation. Production deployments must stream records to external
