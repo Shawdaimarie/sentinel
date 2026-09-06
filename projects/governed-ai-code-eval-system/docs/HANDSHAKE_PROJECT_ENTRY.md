@@ -6,7 +6,7 @@ Governed AI Code Evaluation System
 
 ## One-Line Summary
 
-Built and deployed a governed AI code evaluation application that turns generated code into auditable findings, security gates, model-calibration decisions, structured outputs, and advancement-ready engineering evidence.
+Built and deployed a governed AI code evaluation application that turns generated code into auditable findings, security gates, model-calibration decisions, AI/ML scenario evidence, structured outputs, and advancement-ready engineering evidence.
 
 ## Description
 
@@ -14,7 +14,7 @@ This project demonstrates advancement-ready capability in AI engineering, AI inf
 
 The system models how coding-agent outputs should be reviewed before acceptance. It evaluates generated code across security, correctness, data quality, reliability, performance, maintainability, and evidence quality, then translates findings into clear promotion decisions that can be inspected by technical reviewers.
 
-The work includes a governed review application workspace, runnable evaluator package, model-comparison calibration engine, local calibration audit trail, machine-readable JSONL review output, security and governance standard, enterprise assurance review, threat model, test strategy, sanitized case studies, model calibration protocol, release hygiene cadence, advancement roadmap, opportunity operating process, sample model-output review, capability evidence matrix, and repeatable verification checks.
+The work includes a governed review application workspace, runnable evaluator package, model-comparison calibration engine, local calibration audit trail, AI/ML scenario evidence library, machine-readable JSONL review output, security and governance standard, enterprise assurance review, threat model, test strategy, sanitized case studies, model calibration protocol, release hygiene cadence, advancement roadmap, opportunity operating process, sample model-output review, capability evidence matrix, and repeatable verification checks.
 
 ## Skills Demonstrated
 
@@ -26,6 +26,7 @@ The work includes a governed review application workspace, runnable evaluator pa
 - LLM application review
 - Comparative model-output calibration
 - Calibration audit evidence
+- AI/ML scenario evaluation
 - AI security boundary review
 - Secure software development
 - Model-output adjudication
@@ -55,21 +56,21 @@ The work includes a governed review application workspace, runnable evaluator pa
 
 ## Outcome
 
-The final application is built as a portfolio-ready proof asset for AI engineering, software engineering, AI infrastructure, and model evaluation work. It shows practical ability to write evaluator code, compare candidate outputs, preserve calibration evidence, identify security issues, classify failure modes, define acceptance gates, maintain release hygiene, and communicate engineering evidence clearly.
+The final application is built as a portfolio-ready proof asset for AI engineering, software engineering, AI infrastructure, and model evaluation work. It shows practical ability to write evaluator code, compare candidate outputs, preserve calibration evidence, review AI/ML workflow scenarios, identify security issues, classify failure modes, define acceptance gates, maintain release hygiene, and communicate engineering evidence clearly.
 
 The project is intentionally client-neutral and avoids unsupported certification or affiliation claims. Its trust signal comes from visible controls, verification evidence, and accurate technical writing.
 
 ## Ranking And Approval Readiness
 
-This project supports top-tier candidate readiness through governed, inspectable evidence: a live evaluator application, runnable evaluator code, comparative calibration, local calibration audit snapshots, structured JSONL output, unit tests, sanitized case studies, a threat model, a release hygiene cadence, and a deployed review surface.
+This project supports top-tier candidate readiness through governed, inspectable evidence: a live evaluator application, runnable evaluator code, comparative calibration, local calibration audit snapshots, AI/ML scenario coverage, structured JSONL output, unit tests, sanitized case studies, a threat model, a release hygiene cadence, and a deployed review surface.
 
 It is review-ready for technology, AI, software engineering, infrastructure, security, and coding opportunities. Official approval, ranking, certification, or endorsement should come only from an external reviewer, employer, program, or credentialing body.
 
 ## Next-Four-Step Progression
 
-1. Structured evaluator output for automation.
-2. Release hygiene cadence for sustained quality.
-3. Model Calibration Protocol and audit trail for comparing candidate outputs.
+1. Stable evaluator, calibration, and scenario-library output for automation.
+2. Reviewer notes and dashboard-ready summaries for scenario evidence.
+3. Pull-request or dashboard integration for structured review records.
 4. Opportunity operating process for GitHub, Handshake, portfolio, and application use.
 
 ## Best Link Text

@@ -2,12 +2,18 @@
 
 ## Purpose
 
-The evaluator can emit newline-delimited JSON so automated systems can ingest review results without parsing Markdown. This supports pull-request comments, release dashboards, audit logs, model-comparison reports, and calibration records.
+The evaluator can emit newline-delimited JSON so automated systems can ingest review results without parsing Markdown. This supports pull-request comments, release dashboards, audit logs, model-comparison reports, calibration records, and scenario evidence packets.
 
-## Command
+## Review Command
 
 ```bash
 PYTHONPATH=packages/evaluator/src python3 -m governed_ai_code_eval packages/evaluator/examples/risky_candidate.py --jsonl
+```
+
+## Scenario Library Command
+
+```bash
+PYTHONPATH=packages/evaluator/src python3 -m governed_ai_code_eval --scenario-library
 ```
 
 ## Record Types
@@ -48,12 +54,21 @@ PYTHONPATH=packages/evaluator/src python3 -m governed_ai_code_eval packages/eval
 | `rationale` | Why the finding matters. |
 | `recommendation` | Minimum expected fix. |
 
+## Scenario Library Output
+
+The scenario-library command returns a JSON array. Each item contains:
+
+- `scenario`: sanitized scenario metadata, workflow name, review focus, synthetic code, evidence flags, expected rule IDs, and value signal.
+- `review`: the governed evaluator output for that scenario, including summary and findings.
+
+Use scenario output to show breadth across realistic AI/ML engineering review surfaces while keeping records synthetic and client-neutral.
+
 ## Hygiene Rules
 
-- Keep records deterministic and line-oriented.
+- Keep records deterministic and line-oriented where JSONL is used.
 - Preserve stable field names for downstream tools.
 - Avoid embedding secrets, account identifiers, private URLs, or proprietary snippets.
-- Treat JSONL as machine-readable evidence, not as a replacement for human review.
+- Treat JSONL and scenario JSON as machine-readable evidence, not as replacements for human review.
 
 ## Calibration Output
 

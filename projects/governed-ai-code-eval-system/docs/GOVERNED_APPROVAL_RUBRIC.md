@@ -14,9 +14,10 @@ This means the project has enough inspectable evidence to support a high-trust t
 
 - Live evaluator application.
 - Runnable evaluator code.
-- Unit-tested review and model-comparison logic.
+- Unit-tested review, model-comparison, and scenario-library logic.
 - Structured JSONL output.
 - Calibration audit trail.
+- Scenario evidence library.
 - Deployed portfolio surface.
 - Sanitized case studies.
 - Security policy and threat model.
@@ -30,18 +31,18 @@ This means the project has enough inspectable evidence to support a high-trust t
 
 | Criterion | Evidence | Current Signal |
 | --- | --- | --- |
-| Coding capability | Python evaluator, tests, sample scenarios, structured output. | Advanced evidence |
-| AI evaluation judgment | Severity rubric, promotion gates, comparative calibration, calibration audit snapshots, evidence-quality scoring. | Advanced evidence |
-| Software engineering hygiene | Repeat builds, source control, documentation, and release checks. | Advanced evidence |
-| AI infrastructure mindset | Runtime boundaries, timeout review, JSONL automation, operational failure-mode language. | Strong evidence |
-| AI security governance | Threat model, credential hygiene, unsafe execution checks, prompt-injection boundaries, sensitive-log controls, private-by-default deployment, assurance scan. | High-assurance evidence |
-| Data-quality discipline | Schema-validation expectation for parsed model or remote output and deterministic review records. | Strong evidence |
+| Coding capability | Python evaluator, tests, AI/ML scenarios, structured output. | Advanced evidence |
+| AI evaluation judgment | Severity rubric, promotion gates, comparative calibration, calibration audit snapshots, scenario failure modes, evidence-quality scoring. | Advanced evidence |
+| Software engineering hygiene | Repeat builds, source control, documentation, CI checks, and release checks. | Advanced evidence |
+| AI infrastructure mindset | Runtime boundaries, timeout review, artifact pinning, model lifecycle review, JSONL automation, operational failure-mode language. | Strong evidence |
+| AI security governance | Threat model, credential hygiene, unsafe execution checks, prompt-injection boundaries, runtime dependency checks, sensitive-log controls, private-by-default deployment, assurance scan. | High-assurance evidence |
+| Data-quality discipline | Schema-validation expectation for parsed model or remote output, evaluation-leakage detection, deterministic split expectations, and deterministic review records. | Strong evidence |
 | Professional authentication | GitHub reference, live site, Handshake entry, reviewer-safe docs. | Review-ready |
 
 ## Governed Approval Path
 
-1. **Self-audited readiness**: the project passes local assurance, lint, production build twice, tests, JSONL output, compilation, and restricted-language scans.
-2. **Reviewer-ready evidence**: the project has a live site, GitHub reference, proof package, case studies, model-calibration protocol, calibration audit trail, and role-aligned summary language.
+1. **Self-audited readiness**: the project passes local assurance, lint, production build twice, tests, JSONL output, scenario export, calibration proof, compilation, and restricted-language scans.
+2. **Reviewer-ready evidence**: the project has a live site, GitHub reference, proof package, case studies, model-calibration protocol, calibration audit trail, scenario evidence library, and role-aligned summary language.
 3. **External validation**: a hiring team, technical reviewer, mentor, credentialing body, or program assessor reviews the evidence.
 4. **Authenticated approval**: an external party grants approval, selection, endorsement, credential, or role progression.
 
@@ -56,6 +57,7 @@ Use these phrases:
 - Advancement-ready AI software evaluation.
 - Evidence-backed coding and engineering judgment.
 - Comparative model-output calibration.
+- AI/ML scenario evidence.
 - Market-aligned AI engineering proof asset.
 
 Avoid these phrases unless they are externally verified:
@@ -75,6 +77,7 @@ Every advancement claim must map to at least one of:
 - Test result.
 - Build result.
 - Structured evaluator output.
+- Scenario-library output.
 - Deployment.
 - Security control.
 - Data-quality control.

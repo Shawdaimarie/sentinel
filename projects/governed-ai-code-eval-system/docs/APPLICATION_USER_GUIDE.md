@@ -12,7 +12,9 @@ It converts candidate code and supporting evidence into:
 - A promotion gate.
 - Required remediation actions.
 - Newline-delimited JSON review output for automation.
+- Model-calibration ranking.
 - A local calibration audit trail for repeated model-comparison decisions.
+- Scenario evidence for AI/ML workflow review.
 
 ## Primary Workflow
 
@@ -24,6 +26,7 @@ It converts candidate code and supporting evidence into:
 6. Use the JSONL output as the machine-readable review artifact.
 7. Use the Model Calibration Lab when comparing multiple model or implementation candidates.
 8. Save a local calibration snapshot or copy the audit JSON when the comparison needs decision evidence.
+9. Use the Scenario Evidence Library when proving review breadth across AI/ML workflows.
 
 ## Review Lenses
 
@@ -49,7 +52,7 @@ The application checks candidate code across seven reviewer-facing lenses:
 
 ## Reviewer Value
 
-The application demonstrates practical AI engineering judgment because it does not treat model-generated code as automatically trustworthy. It requires inspectable proof, shows the reasoning behind each finding, and converts review outcomes into a format suitable for CI comments, audit logs, dashboards, and model-comparison reports.
+The application demonstrates practical AI engineering judgment because it does not treat model-generated code as automatically trustworthy. It requires inspectable proof, shows the reasoning behind each finding, and converts review outcomes into a format suitable for CI comments, audit logs, dashboards, model-comparison reports, and scenario-based evaluation packets.
 
 ## Model Calibration Lab
 
@@ -63,9 +66,20 @@ The application can save calibration snapshots in the browser. Each snapshot rec
 
 The audit trail is local-first. It does not send data to a server, and it does not store candidate source code. Use the copied audit JSON when a reviewer, portfolio package, or project record needs repeatable decision evidence.
 
+## Scenario Evidence Library
+
+The Scenario Evidence Library demonstrates evaluator breadth across four sanitized AI/ML workflows:
+
+- Model training leakage review.
+- Inference artifact control review.
+- MLOps supply-chain review.
+- Agent tool-boundary review.
+
+Each scenario maps a workflow to expected findings and a governed hold condition. Use it when a reviewer needs evidence that the system can reason beyond one hand-selected sample.
+
 ## High-Value Method Layer
 
-The application includes method alignment for AI research systems, secure AI governance, software/platform engineering, model calibration, audit evidence, and data-quality evaluation tooling. These lanes are tied to public labor-market signals and to concrete controls inside the evaluator.
+The application includes method alignment for AI research systems, secure AI governance, software/platform engineering, model calibration, audit evidence, AI/ML scenario review, and data-quality evaluation tooling. These lanes are tied to public labor-market signals and to concrete controls inside the evaluator.
 
 ## Public Release Boundaries
 

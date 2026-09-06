@@ -4,7 +4,7 @@ Live application deployment: https://governed-ai-code-eval-system.shawdaimarie.c
 
 ## Project Type
 
-Interactive AI engineering and software engineering application for evaluating generated code, comparing model outputs, and preserving governed calibration evidence.
+Interactive AI engineering and software engineering application for evaluating generated code, comparing model outputs, preserving governed calibration evidence, and demonstrating AI/ML workflow review judgment.
 
 ## What It Does
 
@@ -20,6 +20,7 @@ It produces:
 - Required remediation actions.
 - Model-calibration ranking.
 - Local calibration audit snapshots.
+- Scenario-library review output.
 - Newline-delimited JSON output for automation.
 
 ## Technical Value
@@ -35,8 +36,9 @@ This project demonstrates practical ability in high-demand technology areas:
 - Model-output adjudication.
 - Comparative model-output calibration.
 - Calibration audit evidence.
+- AI/ML scenario evaluation.
 - AI security and prompt-injection boundary review.
-- Data-quality validation for generated or remote output.
+- Data-quality validation for generated, remote, training, and evaluation output.
 - Structured technical communication.
 - Release hygiene and verification.
 
@@ -50,6 +52,7 @@ The current version maps the application to market-supported technology methods:
 - Data quality and model-evaluation tooling.
 - Model-comparison calibration.
 - Calibration audit trail.
+- AI/ML scenario evidence.
 - Executive technical review and release governance.
 
 The project uses public labor-market sources from the U.S. Bureau of Labor Statistics to keep positioning grounded and accurate rather than inflated.
@@ -69,6 +72,19 @@ Calibration criteria include:
 
 See: [Model calibration protocol](./docs/MODEL_CALIBRATION_PROTOCOL.md).
 
+## Scenario Evidence Library
+
+The current release adds a sanitized Scenario Evidence Library covering four AI/ML engineering workflows:
+
+- Model training leakage review.
+- Inference artifact control review.
+- MLOps supply-chain review.
+- Agent tool-boundary review.
+
+The Python proof pack exposes `scenario_evidence_library()` and `review_scenario_library()`, and the command-line interface can emit the full scenario review set through `--scenario-library`.
+
+See: [Scenario evidence library](./docs/SCENARIO_EVIDENCE_LIBRARY.md).
+
 ## Calibration Audit Trail
 
 The live application can save calibration snapshots locally in the browser and copy audit JSON for review packets. The audit trail preserves review metadata, score spread, weights, candidate ranks, and decision gates without storing candidate source code.
@@ -86,7 +102,8 @@ See: [Calibration audit trail](./docs/CALIBRATION_AUDIT_TRAIL.md).
 5. Use the promotion gate to decide whether the code can move forward.
 6. Compare candidate outputs in the calibration lab when more than one model or implementation is being evaluated.
 7. Save a local calibration snapshot or copy the audit JSON when comparison evidence should be preserved.
-8. Preserve JSONL output as machine-readable evidence.
+8. Run or present scenario-library output when proving broader AI/ML workflow coverage.
+9. Preserve JSONL output as machine-readable evidence.
 
 ## Evidence Package
 
@@ -98,20 +115,24 @@ This GitHub project package includes:
 - [High-value method alignment](./docs/HIGH_VALUE_METHOD_ALIGNMENT.md).
 - [Model calibration protocol](./docs/MODEL_CALIBRATION_PROTOCOL.md).
 - [Calibration audit trail](./docs/CALIBRATION_AUDIT_TRAIL.md).
+- [Scenario evidence library](./docs/SCENARIO_EVIDENCE_LIBRARY.md).
 - [Handshake-ready project entry](./docs/HANDSHAKE_PROJECT_ENTRY.md).
 - Security and publication boundaries.
 - Verification record for the application release.
 
-The deployed application source was committed locally as `9a398ed4659bd2999dc9dbe8a7bcb47db672fd98` and saved as Sites version 12.
+The deployed application source was committed locally as `782825fce0fa0eb60470733a2c3d24f41ee8cadf` and saved as Sites version 13.
 
 ## Current Proof Signals
 
-- Evaluator tests: `10` passing.
-- Sample governed review output: `14` findings across security, correctness, reliability, performance, and data quality.
+- Evaluator tests: `12` passing.
+- Scenario coverage: `4` sanitized AI/ML workflows.
+- Evaluator rule posture: `23` active review signals across default and contextual findings.
+- Sample governed review output: `15` JSONL records across summary and findings.
 - Calibration proof ranks the safer candidate first with high consensus separation.
 - Calibration audit proof emits `calibration_summary` and ranked `calibration_candidate` JSONL records.
-- Advanced AI-risk checks include prompt-injection bypass phrases, sensitive logging, unsafe model-output parsing, unsafe execution, hardcoded secret-like values, unsafe YAML/pickle deserialization, and missing network timeouts.
-- The release passed assurance, lint, production build twice, Python unit tests, JSONL evaluator output, calibration audit proof, Python compilation, and a publication-boundary scan.
+- Scenario proof covers model training, inference service, MLOps pipeline, and agent tooling.
+- Advanced AI-risk checks include prompt-injection bypass phrases, sensitive logging, unsafe model-output parsing, unsafe execution, hardcoded secret-like values, runtime dependency installation, unsafe YAML/pickle deserialization, mutable model and image aliases, data leakage, unseeded splits, and missing network timeouts.
+- The release passed assurance, lint, production build twice, Python unit tests, JSONL evaluator output, calibration audit proof, scenario-library export, Python compilation, and a publication-boundary scan.
 
 ## Verification Record
 
@@ -125,6 +146,7 @@ pnpm run build
 python3 -m unittest discover -s packages/evaluator/tests
 PYTHONPATH=packages/evaluator/src python3 -m governed_ai_code_eval packages/evaluator/examples/risky_candidate.py --jsonl
 PYTHONPATH=packages/evaluator/src python3 -c "from governed_ai_code_eval import calibration_report_to_jsonl, compare_candidate_reviews; report = compare_candidate_reviews('calibration proof', [('safe', 'def ok():\n    return 1\n'), ('risky', 'result = eval(user_input)\n')], tests_present=True, threat_model_present=True, performance_budget_present=True); assert report.winner == 'safe'; assert 'calibration_summary' in calibration_report_to_jsonl(report)"
+PYTHONPATH=packages/evaluator/src python3 -m governed_ai_code_eval --scenario-library
 python3 -m compileall packages/evaluator/src packages/evaluator/tests packages/evaluator/examples
 ```
 
