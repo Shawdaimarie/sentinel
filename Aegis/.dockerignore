@@ -1,0 +1,8 @@
+.git
+.cache
+.venv
+audit
+bin
+coverage.out
+reports
+tmp

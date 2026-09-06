@@ -1,0 +1,46 @@
+{
+  "version": "aegis.policy.v1",
+  "issuer": "https://aegis.local.example",
+  "audience": "aegis-authorizer",
+  "default_max_ttl_seconds": 300,
+  "rules": [
+    {
+      "id": "deny-production-admin-without-breakglass",
+      "effect": "deny",
+      "subjects": ["*"],
+      "tools": ["mcp.kubernetes"],
+      "actions": ["delete", "exec"],
+      "resources": ["prod/*"],
+      "max_ttl_seconds": 60
+    },
+    {
+      "id": "allow-agent-read-billing",
+      "effect": "allow",
+      "subjects": ["spiffe://example.org/ns/finance/sa/sentinel-agent"],
+      "spiffe_trust_domains": ["example.org"],
+      "tools": ["mcp.billing"],
+      "actions": ["read"],
+      "resources": ["invoices/*"],
+      "max_ttl_seconds": 120,
+      "rate_limit": {
+        "limit": 4,
+        "window_seconds": 60
+      }
+    },
+    {
+      "id": "allow-approved-deploy",
+      "effect": "allow",
+      "subjects": ["spiffe://example.org/ns/platform/sa/release-agent"],
+      "spiffe_trust_domains": ["example.org"],
+      "tools": ["mcp.deploy"],
+      "actions": ["promote"],
+      "resources": ["staging/*"],
+      "require_approval": true,
+      "max_ttl_seconds": 60,
+      "rate_limit": {
+        "limit": 2,
+        "window_seconds": 300
+      }
+    }
+  ]
+}

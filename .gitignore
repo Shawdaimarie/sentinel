@@ -1,6 +1,9 @@
 .venv/
+.cache/
+.tools/
 __pycache__/
 *.py[cod]
+Sentinel/src/*.egg-info/
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/
@@ -8,6 +11,7 @@ coverage.xml
 htmlcov/
 audit/
 reports/
+Aegis/bin/
 .env
 Sentinel/verifiers/typescript/dist/
 Sentinel/verifiers/go/sentinel-audit-verify
