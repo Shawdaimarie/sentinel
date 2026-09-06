@@ -1,0 +1,42 @@
+[
+  {
+    "id": "allow-finance-read",
+    "subject": "spiffe://example.org/ns/finance/sa/sentinel-agent",
+    "tool": "mcp.billing",
+    "action": "read",
+    "resource": "invoices/2026-09",
+    "expected_decision": "allow"
+  },
+  {
+    "id": "deny-unknown-workload",
+    "subject": "spiffe://example.org/ns/finance/sa/unknown",
+    "tool": "mcp.billing",
+    "action": "read",
+    "resource": "invoices/2026-09",
+    "expected_decision": "deny"
+  },
+  {
+    "id": "deny-scope-escalation",
+    "subject": "spiffe://example.org/ns/finance/sa/sentinel-agent",
+    "tool": "mcp.billing",
+    "action": "write",
+    "resource": "invoices/2026-09",
+    "expected_decision": "deny"
+  },
+  {
+    "id": "deny-production-breakglass-default",
+    "subject": "spiffe://example.org/ns/platform/sa/release-agent",
+    "tool": "mcp.kubernetes",
+    "action": "delete",
+    "resource": "prod/api",
+    "expected_decision": "deny"
+  },
+  {
+    "id": "allow-approved-staging-deploy-policy-match",
+    "subject": "spiffe://example.org/ns/platform/sa/release-agent",
+    "tool": "mcp.deploy",
+    "action": "promote",
+    "resource": "staging/api",
+    "expected_decision": "allow"
+  }
+]

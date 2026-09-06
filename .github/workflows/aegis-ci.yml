@@ -1,0 +1,56 @@
+name: Aegis CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  aegis-go:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: Aegis
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.23.x"
+          cache-dependency-path: Aegis/go.mod
+      - name: Format check
+        run: |
+          test -z "$(gofmt -l .)"
+      - name: Vet
+        run: go vet ./...
+      - name: Race tests
+        run: go test -race ./...
+      - name: Policy benchmark smoke
+        run: go test -run '^$' -bench=. -benchtime=100x ./...
+      - name: Policy evaluation harness
+        run: go run ./cmd/aegis-policy-eval --policy examples/policy.json --cases examples/policy_eval_cases.json
+      - name: Static build
+        run: |
+          mkdir -p bin
+          CGO_ENABLED=0 go build -trimpath -ldflags="-s -w -buildid=" -o bin/aegis ./cmd/aegis
+          go version -m bin/aegis
+      - name: Upload Aegis binary evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: aegis-binary-evidence
+          path: |
+            Aegis/bin/aegis
+          if-no-files-found: warn
+
+  aegis-container:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build non-root Aegis image
+        run: docker build --progress=plain -t aegis-authorizer:ci Aegis
+      - name: Inspect configured user
+        run: |
+          test "$(docker image inspect aegis-authorizer:ci --format '{{.Config.User}}')" = "65532:65532"
