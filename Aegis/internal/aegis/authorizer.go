@@ -34,22 +34,20 @@ type AuthorizationResult struct {
 }
 
 type Authorizer struct {
-	Policy      Policy
-	Keys        *KeySet
-	State       StateStore
-	Audit       AuditSink
-	RateLimiter *RateLimiter
-	Clock       Clock
+	Policy Policy
+	Keys   *KeySet
+	State  StateStore
+	Audit  AuditSink
+	Clock  Clock
 }
 
 func NewAuthorizer(policy Policy, keys *KeySet, state StateStore, audit AuditSink) *Authorizer {
 	return &Authorizer{
-		Policy:      policy,
-		Keys:        keys,
-		State:       state,
-		Audit:       audit,
-		RateLimiter: NewRateLimiter(),
-		Clock:       RealClock{},
+		Policy: policy,
+		Keys:   keys,
+		State:  state,
+		Audit:  audit,
+		Clock:  RealClock{},
 	}
 }
 
@@ -123,10 +121,10 @@ func (a *Authorizer) Authorize(ctx context.Context, request AuthorizationRequest
 			return deny(err.Error())
 		}
 	}
-	if policyDecision.Rule.RateLimit != nil && a.RateLimiter != nil {
+	if policyDecision.Rule.RateLimit != nil {
 		key := identity.Subject + "|" + claims.Tool + "|" + claims.Action
-		if !a.RateLimiter.Allow(key, *policyDecision.Rule.RateLimit, now) {
-			return deny("rate_limited")
+		if err := a.State.ReserveRateLimit(ctx, key, *policyDecision.Rule.RateLimit, now); err != nil {
+			return deny(reasonForStateError(err))
 		}
 	}
 	if err := a.State.ReserveJTI(ctx, claims.JTI, time.Unix(claims.ExpiresAt, 0)); err != nil {
@@ -229,6 +227,8 @@ func reasonForStateError(err error) string {
 		return "replay_detected"
 	case errors.Is(err, ErrRevoked):
 		return "capability_revoked"
+	case errors.Is(err, ErrRateLimited):
+		return "rate_limited"
 	default:
 		return "state_unavailable"
 	}
