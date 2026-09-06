@@ -1,57 +1,47 @@
 # Governed AI Code Evaluation System
 
-Live private deployment: https://governed-ai-code-eval-system.shawdaimarie.chatgpt.site
+Live application deployment: https://governed-ai-code-eval-system.shawdaimarie.chatgpt.site
+
+GitHub project package: [`projects/governed-ai-code-eval-system/README.md`](./governed-ai-code-eval-system/README.md)
 
 ## Summary
 
-The Governed AI Code Evaluation System is an assurance-backed proof project for advancement in AI engineering, AI infrastructure, software engineering, code-agent evaluation, and hands-on coding readiness.
+The Governed AI Code Evaluation System is now a deployable application and public GitHub project package for advancement in AI engineering, AI infrastructure, software engineering, code-agent evaluation, and hands-on coding readiness.
 
-It treats AI-generated code as useful but untrusted until it passes security, correctness, reliability, performance, maintainability, and evidence-quality gates. The result is a project that shows not only interest in AI, but practical engineering judgment that reviewers can inspect.
+It treats AI-generated code as useful but untrusted until it passes security, correctness, reliability, performance, maintainability, and evidence-quality gates. The system turns that review into scored findings, required actions, a promotion decision, and machine-readable JSONL output.
 
-## Implementation Status
+## Application Upgrade
 
-The deployed source package now includes a runnable evaluator, structured JSONL review output, an implementation pipeline view, sanitized case studies, a security policy, a threat model, a test strategy, a release hygiene cadence, a 30/60/90 advancement roadmap, an advancement language guide, a governed approval rubric, an opportunity operating process, and a value-exposure plan.
+The live project now includes an interactive application workspace with:
 
-This GitHub reference is intentionally concise: it gives reviewers the live project link, the system value, the evidence stack, and the verification standard without exposing private work or unsupported claims.
+- Editable candidate-code review input.
+- Evidence controls for tests, threat model, and performance budget.
+- Scored readiness and risk index.
+- Categorized governed findings.
+- Promotion gate such as `Security Blocker`, `Remediation Required`, `Evidence Hold`, `Approve With Notes`, or `Promotion Ready`.
+- JSONL output suitable for CI comments, audit logs, dashboards, and model-comparison reports.
 
 ## Why This Belongs With Sentinel
 
-Sentinel is positioned around governed multi-agent systems, continuous verification, and sourced accountability. This project extends that same principle into code-agent evaluation: model outputs should be reviewed, classified, and promoted only when the evidence trail is strong enough.
+Sentinel is positioned around governed AI systems, continuous verification, and sourced accountability. This project extends that principle into code-agent evaluation: model outputs should be reviewed, classified, and promoted only when the evidence trail is strong enough.
 
-## Advancement Signal
+## Evidence Stack
 
-This project is built to support credible movement into higher-value technical opportunities by proving four inspectable capabilities:
-
-- Technology advancement: deployment discipline, verification, release hygiene, and measurable system controls.
-- AI advancement: model-output evaluation, LLM application review, agent boundaries, and AI-risk framing.
-- Software engineering advancement: architecture-aware review, testing, CI gates, threat modeling, and maintainable documentation.
-- Coding advancement: runnable Python evaluator code, severity rules, JSONL output, sample scenarios, and unit tests.
+- Live React/Vinext application presenting the governed review workflow.
+- Browser-based evaluator with editable code, evidence controls, findings, score, risk index, and JSONL output.
+- Runnable Python evaluator packaged in the deployed source state.
+- Machine-readable JSONL schema for automation and audit use.
+- Unit-tested rule detection for security, reliability, evidence quality, promotion gates, and structured output.
+- Sanitized case studies covering unsafe execution, unreliable integration, and missing evidence.
+- Security policy, threat model, test strategy, deployment notes, structured-output schema, and governed approval rubric.
+- Release hygiene cadence, advancement roadmap, advancement language guide, opportunity operating process, and value-exposure plan.
+- Handshake-ready project entry for AI engineering, AI infrastructure, software engineering, and coding evaluation roles.
 
 ## Governed Ranking Readiness
 
 Current posture: **top-tier candidate readiness**.
 
-That means the project has strong evidence for serious technical review, not that an external party has officially ranked, certified, or approved it. The ranking signal is based on inspectable proof:
-
-- Advanced coding evidence through a runnable evaluator, tests, sample scenarios, and structured output.
-- Advanced AI evaluation evidence through model-output risk classification, severity rules, and promotion gates.
-- Advanced software engineering evidence through CI workflow, repeat builds, source control, and maintainable docs.
-- High-assurance security evidence through threat modeling, credential hygiene, public-claim checks, and private-by-default deployment.
-- Review-ready authentication through a live site, GitHub reference, Handshake-ready entry, and reviewer-safe documentation.
-
-## Evidence Stack
-
-- Deployable React/Vinext site presenting the system surface.
-- Runnable Python evaluator packaged under `packages/evaluator` in the deployed source package.
-- Machine-readable JSONL output for CI comments, audit logs, dashboards, and model-comparison reports.
-- Unit-tested rule detection for security, reliability, evidence quality, promotion gates, and structured output.
-- Severity rubric for critical, high, medium, low, and informational issues.
-- Promotion gates for security blockers, required changes, missing evidence, performance follow-up, and human approval.
-- Sanitized case studies covering unsafe execution, unreliable inference integration, and missing evidence.
-- Security policy, threat model, test strategy, deployment notes, structured-output schema, and governed approval rubric.
-- Release hygiene cadence, advancement roadmap, advancement language guide, opportunity operating process, and value-exposure plan.
-- Enterprise assurance review covering claim accuracy, client-neutrality, private-by-default deployment, and repeatable release gates.
-- Handshake-ready project entry for AI engineering, AI infrastructure, software engineering, and coding evaluation roles.
+That means the project has strong evidence for serious technical review, not that an external party has officially ranked, certified, cleared, or approved it. The ranking signal is based on inspectable proof and accurate claim boundaries.
 
 ## Assurance Standard
 
@@ -73,31 +63,9 @@ Reference alignment:
 - OWASP Application Security Verification Standard: https://owasp.org/www-project-application-security-verification-standard/
 - CISA Secure by Design: https://www.cisa.gov/securebydesign
 
-## Skills Demonstrated
-
-- AI engineering
-- AI infrastructure
-- Software engineering
-- Coding evaluation
-- Code-agent evaluation
-- LLM application review
-- Secure software development
-- Model-output adjudication
-- Threat modeling
-- Structured evaluator output
-- Technical writing
-- Risk classification
-- Test and build verification
-- CI release gating
-- Release hygiene
-- Governed approval readiness
-- Opportunity positioning
-- Governance and audit evidence
-- Claim accuracy and client-neutral communication
-
 ## Verification
 
-The deployed source was verified on September 5, 2026 with:
+The application release was verified on September 5, 2026 with:
 
 ```bash
 pnpm run assurance
@@ -109,7 +77,7 @@ PYTHONPATH=packages/evaluator/src python3 -m governed_ai_code_eval packages/eval
 python3 -m compileall packages/evaluator/src packages/evaluator/tests
 ```
 
-The release also passed a current-file scan and a local Git-history scan for client-specific terms before deployment.
+The release also passed a current-file scan for client-specific terms before deployment and GitHub publication.
 
 ## Next Four-Step Advancement Loop
 
