@@ -31,8 +31,24 @@ This project demonstrates practical ability in high-demand technology areas:
 - Code-agent evaluation.
 - LLM application review.
 - Model-output adjudication.
+- AI security and prompt-injection boundary review.
+- Data-quality validation for generated or remote output.
 - Structured technical communication.
 - Release hygiene and verification.
+
+## High-Value Method Layer
+
+The current version maps the application to market-supported technology methods:
+
+- AI research and evaluation systems.
+- Secure AI and cybersecurity governance.
+- Software and platform engineering.
+- Data quality and model-evaluation tooling.
+- Executive technical review and release governance.
+
+The project uses public labor-market sources from the U.S. Bureau of Labor Statistics to keep positioning grounded and accurate rather than inflated.
+
+See: [High-value method alignment](./docs/HIGH_VALUE_METHOD_ALIGNMENT.md).
 
 ## Application Workflow
 
@@ -50,11 +66,19 @@ This GitHub project package includes:
 - [Application user guide](./docs/APPLICATION_USER_GUIDE.md).
 - [Governed approval rubric](./docs/GOVERNED_APPROVAL_RUBRIC.md).
 - [Structured output schema](./docs/STRUCTURED_OUTPUT_SCHEMA.md).
+- [High-value method alignment](./docs/HIGH_VALUE_METHOD_ALIGNMENT.md).
 - [Handshake-ready project entry](./docs/HANDSHAKE_PROJECT_ENTRY.md).
 - Security and publication boundaries.
 - Verification record for the application release.
 
-The deployed application source was committed locally as `7c3636e1a8ed573be951ddcf0de4b5cd928158ba` and saved as Sites version 9.
+The deployed application source was committed locally as `2b6588d9e307c69ac4062b1f22da592711b1d7fe` and saved as Sites version 10.
+
+## Current Proof Signals
+
+- Evaluator tests: `8` passing.
+- Sample governed review output: `14` findings across security, correctness, reliability, performance, and data quality.
+- Advanced AI-risk checks include prompt-injection bypass phrases, sensitive logging, unsafe model-output parsing, unsafe execution, hardcoded secret-like values, unsafe YAML/pickle deserialization, and missing network timeouts.
+- The release passed assurance, lint, production build twice, Python unit tests, JSONL evaluator output, Python compilation, and a publication-boundary scan.
 
 ## Verification Record
 
@@ -67,9 +91,9 @@ pnpm run build
 pnpm run build
 python3 -m unittest discover -s packages/evaluator/tests
 PYTHONPATH=packages/evaluator/src python3 -m governed_ai_code_eval packages/evaluator/examples/risky_candidate.py --jsonl
-python3 -m compileall packages/evaluator/src packages/evaluator/tests
+python3 -m compileall packages/evaluator/src packages/evaluator/tests packages/evaluator/examples
 ```
 
 ## Claim Boundary
 
-This project supports top-tier candidate readiness through visible, governed evidence. It does not claim external certification, clearance, employer approval, or institutional endorsement unless such validation is separately granted by an external reviewer.
+This project supports top-tier candidate readiness through visible, governed evidence. It does not claim external certification, clearance, employer approval, guaranteed ranking, or institutional endorsement unless such validation is separately granted by an external reviewer.
