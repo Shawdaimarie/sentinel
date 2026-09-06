@@ -2,7 +2,7 @@
 
 ## Purpose
 
-The evaluator can emit newline-delimited JSON so automated systems can ingest review results without parsing Markdown. This supports pull-request comments, release dashboards, audit logs, and future model-comparison reports.
+The evaluator can emit newline-delimited JSON so automated systems can ingest review results without parsing Markdown. This supports pull-request comments, release dashboards, audit logs, model-comparison reports, and calibration records.
 
 ## Command
 
@@ -46,6 +46,17 @@ PYTHONPATH=packages/evaluator/src python3 -m governed_ai_code_eval packages/eval
 | `rationale` | Why the finding matters. |
 | `recommendation` | Minimum expected fix. |
 
+## Calibration Output
+
+The reusable comparison helper returns a calibration report with:
+
+- Project name.
+- Winning candidate identifier.
+- Score spread.
+- Consensus gap.
+- Overall decision.
+- Ranked candidate summaries with score, risk index, promotion gate, max severity, finding totals, severe finding totals, and category counts.
+
 ## Current Sample Output Signal
 
 The current risky sample produces 14 findings across security, correctness, reliability, performance, and data quality. It is intended as a synthetic evaluator demonstration, not as confidential production code.
@@ -55,4 +66,4 @@ The current risky sample produces 14 findings across security, correctness, reli
 - Keep records deterministic and line-oriented.
 - Preserve stable field names for downstream tools.
 - Avoid embedding secrets, account identifiers, private URLs, or proprietary snippets.
-- Treat JSONL as machine-readable evidence, not as a replacement for human review.
+- Treat JSONL and calibration reports as machine-readable evidence, not as a replacement for human review.
