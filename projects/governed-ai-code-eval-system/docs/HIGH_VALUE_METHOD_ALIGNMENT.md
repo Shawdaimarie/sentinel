@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This document maps the Governed AI Code Evaluation System to high-value technology methods with strong evidence of pay, growth, or strategic demand. It supports reviewer confidence without claiming guaranteed income, official ranking, clearance, certification, or endorsement.
+This document maps the application to high-value technology methods with strong evidence of pay, growth, or strategic demand. It is designed to support reviewer confidence without claiming guaranteed income, official ranking, clearance, certification, or endorsement.
 
 ## Market Basis
 
@@ -11,51 +11,41 @@ The method selection is based on current public labor-market signals from the U.
 | Technology Lane | Public Signal | System Method |
 | --- | --- | --- |
 | Computer and information systems management | $175,140 median wage and 16% projected growth. | Executive-grade release governance, evidence ownership, and technical decision gates. |
-| Computer and information research science | $140,300 median wage and 22% projected growth. | Deterministic evaluation harnesses, model-output review, comparative calibration, experiment-style scenario evidence, and structured findings. |
+| Computer and information research science | $140,300 median wage and 22% projected growth. | Deterministic evaluation harnesses, model-output review, comparative calibration, audit-ready decision evidence, experiment-style scenario evidence, and structured findings. |
 | Software development and quality | $135,980 software developer median wage and 10% projected growth for the broader software developer, QA, and tester group. | Typed application workflow, repeat builds, unit tests, release cadence, and maintainable reviewer-facing output. |
 | Information security analysis | $129,180 median wage and 21% projected growth. | Secrets hygiene, unsafe execution detection, prompt-injection boundaries, sensitive-log controls, and threat-model discipline. |
-| Data science and evaluation tooling | $120,230 median wage and 35% projected growth. | Schema expectations, JSONL records, data-quality findings, model-output validation, calibration records, and evaluation-ready evidence. |
+| Data science and evaluation tooling | $120,230 median wage and 35% projected growth. | Schema expectations, JSONL records, data-quality findings, model-output validation, and evaluation-ready evidence. |
 
 ## Implemented Methods
 
 ### 1. Deterministic Evaluation Harness
 
-The application and evaluator convert candidate code into stable findings. This demonstrates software engineering judgment because the review process is repeatable and inspectable.
+The application and evaluator convert candidate code into stable findings. This demonstrates software engineering judgment because the review process is repeatable and can be inspected.
 
 Evidence:
 
 - Browser-based evaluator workspace.
 - Python evaluator package.
 - Model-comparison calibration engine.
-- Unit tests for rule detection, promotion gates, and candidate ranking.
+- Local calibration audit snapshots and calibration JSONL export.
+- Unit tests for rule detection and promotion gates.
 - JSONL output for automation.
 
-### 2. Comparative Model Calibration
+### 2. Secure AI Boundary Review
 
-The system can compare multiple candidate outputs using weighted criteria for AI security boundary, task correctness, data reliability, and operational readiness.
-
-Evidence:
-
-- Model Calibration Lab in the live application.
-- `compare_candidate_reviews()` helper in the evaluator package.
-- Consensus-gap decision signal.
-- Model Calibration Protocol.
-
-### 3. Secure AI Boundary Review
-
-The evaluator covers higher-value AI security controls, including prompt-injection phrases, unsafe execution, secret-like source values, and sensitive logging.
+The evaluator now covers higher-value AI security controls, including prompt-injection phrases, unsafe execution, secret-like source values, and sensitive logging.
 
 Evidence:
 
 - `SEC-001` dynamic execution detection.
 - `SEC-004` secret-like assignment detection.
 - `SEC-010` prompt-injection bypass phrase detection.
-- `SEC-011` sensitive logging detection.
+- `SEC-011` sensitive value written to logs detection.
 - Threat model and assurance scan.
 
-### 4. Data Quality And Model-Output Validation
+### 3. Data Quality And Model-Output Validation
 
-The evaluator flags model or remote output that is parsed before schema validation. This supports AI infrastructure and evaluation-data credibility because generated output should not become trusted state without validation.
+The evaluator now flags model or remote output that is parsed before schema validation. This supports AI infrastructure and evaluation-data credibility because generated output should not become trusted state without validation.
 
 Evidence:
 
@@ -64,7 +54,7 @@ Evidence:
 - JSONL review records.
 - Evaluation evidence guidance.
 
-### 5. Platform Reliability Gate
+### 4. Platform Reliability Gate
 
 The system treats network timeouts, unbounded execution, and scale assumptions as release concerns. This demonstrates platform engineering and AI infrastructure maturity.
 
@@ -75,7 +65,7 @@ Evidence:
 - Performance-budget evidence control.
 - Release hygiene cadence.
 
-### 6. Executive Review Posture
+### 5. Executive Review Posture
 
 The system separates evidence-backed readiness from unsupported claims. This protects credibility and keeps the project aligned with high-trust enterprise review standards.
 
@@ -90,7 +80,7 @@ Evidence:
 
 The accurate positioning is:
 
-This project demonstrates top-tier candidate readiness through a live evaluator application, comparative model calibration, secure AI review controls, data-quality validation signals, platform reliability gates, runnable evaluator code, tests, structured JSONL output, and sanitized documentation.
+This project demonstrates top-tier candidate readiness through a live evaluator application, secure AI review controls, data-quality validation signals, platform reliability gates, model-calibration audit evidence, runnable evaluator code, tests, structured JSONL output, and sanitized documentation.
 
 Keep official approval, ranking, certification, clearance, employment selection, or endorsement separate until granted by an external reviewer.
 

@@ -11,8 +11,8 @@ It converts candidate code and supporting evidence into:
 - Categorized findings.
 - A promotion gate.
 - Required remediation actions.
-- Model-calibration ranking.
 - Newline-delimited JSON review output for automation.
+- A local calibration audit trail for repeated model-comparison decisions.
 
 ## Primary Workflow
 
@@ -23,6 +23,7 @@ It converts candidate code and supporting evidence into:
 5. Inspect the score, risk index, evidence level, findings, and promotion gate.
 6. Use the JSONL output as the machine-readable review artifact.
 7. Use the Model Calibration Lab when comparing multiple model or implementation candidates.
+8. Save a local calibration snapshot or copy the audit JSON when the comparison needs decision evidence.
 
 ## Review Lenses
 
@@ -46,19 +47,25 @@ The application checks candidate code across seven reviewer-facing lenses:
 | `Approve With Notes` | Non-blocking findings remain and should be tracked. |
 | `Promotion Ready` | No governed findings are present and evidence is complete. |
 
+## Reviewer Value
+
+The application demonstrates practical AI engineering judgment because it does not treat model-generated code as automatically trustworthy. It requires inspectable proof, shows the reasoning behind each finding, and converts review outcomes into a format suitable for CI comments, audit logs, dashboards, and model-comparison reports.
+
 ## Model Calibration Lab
 
 The application includes a calibration workspace for comparing multiple candidate outputs. Reviewers can adjust weights for AI security boundary, task correctness, data reliability, and operational readiness, then inspect the score spread, top candidate, and decision gate.
 
 This is designed for AI-sector evaluation work where the value is not only finding issues in one answer, but comparing model outputs consistently and documenting why one candidate should advance.
 
-## Reviewer Value
+## Calibration Audit Trail
 
-The application demonstrates practical AI engineering judgment because it does not treat model-generated code as automatically trustworthy. It requires inspectable proof, shows the reasoning behind each finding, compares candidate outputs, and converts review outcomes into a format suitable for CI comments, audit logs, dashboards, and model-comparison reports.
+The application can save calibration snapshots in the browser. Each snapshot records the review name, timestamp, winning candidate, score spread, confidence signal, weights, candidate ranks, weighted scores, and decision gates.
+
+The audit trail is local-first. It does not send data to a server, and it does not store candidate source code. Use the copied audit JSON when a reviewer, portfolio package, or project record needs repeatable decision evidence.
 
 ## High-Value Method Layer
 
-The application includes method alignment for AI research systems, secure AI governance, software/platform engineering, model calibration, and data-quality evaluation tooling. These lanes are tied to public labor-market signals and to concrete controls inside the evaluator.
+The application includes method alignment for AI research systems, secure AI governance, software/platform engineering, model calibration, audit evidence, and data-quality evaluation tooling. These lanes are tied to public labor-market signals and to concrete controls inside the evaluator.
 
 ## Public Release Boundaries
 

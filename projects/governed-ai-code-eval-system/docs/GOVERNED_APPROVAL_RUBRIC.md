@@ -14,16 +14,13 @@ This means the project has enough inspectable evidence to support a high-trust t
 
 - Live evaluator application.
 - Runnable evaluator code.
-- Nine passing evaluator tests.
-- Sample JSONL review with 14 governed findings.
-- Data-quality category for generated or remote output.
-- Prompt-injection and sensitive-logging controls.
-- Comparative model-calibration logic.
+- Unit-tested review and model-comparison logic.
 - Structured JSONL output.
+- Calibration audit trail.
 - Deployed portfolio surface.
 - Sanitized case studies.
 - Security policy and threat model.
-- Model Calibration Protocol.
+- Model Calibration Protocol and Calibration Audit Trail.
 - High-value method alignment tied to public labor-market sources.
 - Release hygiene cadence.
 - Public-claim assurance checks.
@@ -33,20 +30,20 @@ This means the project has enough inspectable evidence to support a high-trust t
 
 | Criterion | Evidence | Current Signal |
 | --- | --- | --- |
-| Coding capability | Evaluator rules, tests, sample scenarios, structured output. | Advanced evidence |
-| AI evaluation judgment | Severity rubric, promotion gates, comparative calibration, model-output validation, evidence-quality scoring. | Advanced evidence |
+| Coding capability | Python evaluator, tests, sample scenarios, structured output. | Advanced evidence |
+| AI evaluation judgment | Severity rubric, promotion gates, comparative calibration, calibration audit snapshots, evidence-quality scoring. | Advanced evidence |
 | Software engineering hygiene | Repeat builds, source control, documentation, and release checks. | Advanced evidence |
 | AI infrastructure mindset | Runtime boundaries, timeout review, JSONL automation, operational failure-mode language. | Strong evidence |
 | AI security governance | Threat model, credential hygiene, unsafe execution checks, prompt-injection boundaries, sensitive-log controls, private-by-default deployment, assurance scan. | High-assurance evidence |
 | Data-quality discipline | Schema-validation expectation for parsed model or remote output and deterministic review records. | Strong evidence |
-| Professional authentication | GitHub project package, live app, Handshake entry, reviewer-safe docs. | Review-ready |
+| Professional authentication | GitHub reference, live site, Handshake entry, reviewer-safe docs. | Review-ready |
 
 ## Governed Approval Path
 
-1. Self-audited readiness: the project passes local assurance, lint, production build twice, tests, JSONL output, calibration proof, compilation, and restricted-language scans.
-2. Reviewer-ready evidence: the project has a live app, GitHub package, proof assets, case studies, high-value method map, model-calibration protocol, and role-aligned summary language.
-3. External validation: a hiring team, technical reviewer, mentor, credentialing body, or program assessor reviews the evidence.
-4. Authenticated approval: an external party grants approval, selection, endorsement, credential, or role progression.
+1. **Self-audited readiness**: the project passes local assurance, lint, production build twice, tests, JSONL output, compilation, and restricted-language scans.
+2. **Reviewer-ready evidence**: the project has a live site, GitHub reference, proof package, case studies, model-calibration protocol, calibration audit trail, and role-aligned summary language.
+3. **External validation**: a hiring team, technical reviewer, mentor, credentialing body, or program assessor reviews the evidence.
+4. **Authenticated approval**: an external party grants approval, selection, endorsement, credential, or role progression.
 
 ## Language Standard
 
@@ -82,7 +79,7 @@ Every advancement claim must map to at least one of:
 - Security control.
 - Data-quality control.
 - Model-calibration record.
-- High-value method source.
+- Calibration audit snapshot.
 - Case study.
 - Public documentation.
 - External reviewer feedback.

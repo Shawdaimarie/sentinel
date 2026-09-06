@@ -51,19 +51,24 @@ Each candidate output should include:
 
 The Python evaluator exposes `compare_candidate_reviews()` for reusable model comparison. The browser application exposes a Model Calibration Lab where review weights can be adjusted and candidate rankings update immediately.
 
+The browser application also provides a local calibration audit trail. Saved snapshots remain in the browser and preserve only review metadata: review name, timestamp, winning candidate, score spread, confidence signal, rubric weights, candidate ranks, weighted scores, and decision gates.
+
+The Python package can emit calibration JSONL with `calibration_report_to_jsonl()` so comparison decisions can be attached to CI evidence, portfolio records, reviewer packets, or internal quality logs.
+
 The expected proof trail is:
 
 1. Run individual governed reviews.
 2. Compare candidates using the weighted rubric.
 3. Record winner, score spread, consensus gap, and decision.
-4. Keep JSONL output and reviewer notes as evidence.
-5. Promote only when the top candidate clears safety, correctness, data-quality, and operational gates.
+4. Save a local calibration snapshot when the decision should be preserved.
+5. Keep JSONL output and reviewer notes as evidence.
+6. Promote only when the top candidate clears safety, correctness, data-quality, and operational gates.
 
 ## Claim Boundary
 
 Accurate positioning:
 
-This project demonstrates AI-sector calibration readiness through comparative model-output review, weighted scoring, security boundary checks, data-quality controls, evaluator tests, and reviewer-safe documentation.
+This project demonstrates AI-sector calibration readiness through comparative model-output review, weighted scoring, local audit snapshots, calibration JSONL, security boundary checks, data-quality controls, evaluator tests, and reviewer-safe documentation.
 
 Do not claim official benchmark leadership, clearance, certification, or institutional approval unless a qualified external reviewer grants it separately.
 
