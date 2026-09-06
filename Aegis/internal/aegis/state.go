@@ -30,7 +30,7 @@ type MemoryStateStore struct {
 	usedJTIs        map[string]time.Time
 	revokedJTIs     map[string]stateEntry
 	revokedSubjects map[string]string
-	rateBuckets      map[string]rateBucket
+	rateBuckets     map[string]rateBucket
 	healthErr       error
 	reserveErr      error
 	rateLimitErr    error
