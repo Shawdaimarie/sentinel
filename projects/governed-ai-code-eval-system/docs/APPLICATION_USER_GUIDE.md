@@ -24,10 +24,11 @@ It converts candidate code and supporting evidence into:
 
 ## Review Lenses
 
-The application checks candidate code across six reviewer-facing lenses:
+The application checks candidate code across seven reviewer-facing lenses:
 
 - Security
 - Correctness
+- Data quality
 - Reliability
 - Performance
 - Maintainability
@@ -46,6 +47,10 @@ The application checks candidate code across six reviewer-facing lenses:
 ## Reviewer Value
 
 The application demonstrates practical AI engineering judgment because it does not treat model-generated code as automatically trustworthy. It requires inspectable proof, shows the reasoning behind each finding, and converts review outcomes into a format suitable for CI comments, audit logs, dashboards, and model-comparison reports.
+
+## High-Value Method Layer
+
+The application includes method alignment for AI research systems, secure AI governance, software/platform engineering, and data-quality evaluation tooling. These lanes are tied to public labor-market signals and to concrete controls inside the evaluator.
 
 ## Public Release Boundaries
 
