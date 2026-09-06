@@ -34,11 +34,11 @@ type AuthorizationResult struct {
 }
 
 type Authorizer struct {
-	Policy Policy
-	Keys   *KeySet
-	State  StateStore
-	Audit  AuditSink
-	Clock  Clock
+	Policy	Policy
+	Keys	*KeySet
+	State	StateStore
+	Audit	AuditSink
+	Clock	Clock
 }
 
 func NewAuthorizer(policy Policy, keys *KeySet, state StateStore, audit AuditSink) *Authorizer {
