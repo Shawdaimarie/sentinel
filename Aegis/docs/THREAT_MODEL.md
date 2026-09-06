@@ -26,7 +26,9 @@ audit/telemetry sinks ◄── decision evidence ── Aegis
 | Category | Threat | Control | Evidence |
 |---|---|---|---|
 | Spoofing | A caller invents a subject or SPIFFE ID | Ed25519 JWT verification plus issuer/audience checks | `TestPolicyDriftTamperExpiryAndScopeEscalationDeny` |
+| Spoofing | Token `kid` collides across issuers | Issuer-scoped JWKS trust bundle selects keys only after issuer allowlist check | `TestIssuerScopedVerificationAndSPIFFEBindingDeny` |
 | Spoofing | Malformed SPIFFE URI bypasses trust-domain policy | Strict `spiffe://` parsing, no query/fragment/traversal | `TestSPIFFEValidationRejectsMalformedIdentity` |
+| Spoofing | Token presents conflicting `sub` and `spiffe_id` workload identities | Matching SPIFFE claims must be identical before policy matching | `TestIssuerScopedVerificationAndSPIFFEBindingDeny` |
 | Tampering | Capability scope is edited after signing | Signature verification over header and claims | tamper test |
 | Tampering | Stale capability survives policy change | Capability embeds active policy SHA-256 | policy-drift test |
 | Repudiation | Allow/deny happens without evidence | Decision audit append before returning allow | replay/audit assertions |
@@ -36,14 +38,17 @@ audit/telemetry sinks ◄── decision evidence ── Aegis
 | Elevation of privilege | Approval for one capability is reused for another | Approval binds capability JTI, hash, subject, tool, action, resource, and policy hash | approval mismatch test |
 | Elevation of privilege | Used or revoked capability is replayed | State store reserves JTI atomically and checks revocation | replay/revocation tests |
 | Elevation of privilege | Compromised key continues to authorize | Revoked keys are denied and removed from JWKS | key revocation test |
+| Elevation of privilege | Ambiguous trust-bundle config widens verifier authority | Empty JWKS, duplicate issuer, duplicate `kid`, wrong key use, and non-HTTPS issuer metadata fail at load time | `TestTrustBundleRejectsDuplicateIssuersAndKids` |
 
 ## Residual Risk
 
-Aegis does not yet include a production OIDC issuer, SPIRE server, cloud KMS/HSM,
-SIEM integration, or distributed database adapter. The reference file state
-store persists replay, revocation, and rate-limit reservations for local runs,
-but it is not a multi-process distributed lock. A production deployment must use
-an atomic compare-and-set state service and must deny on timeout or consistency
+Aegis does not yet include a production OIDC issuer, live OIDC discovery/JWKS
+polling, SPIRE server, cloud KMS/HSM, SIEM integration, or distributed database
+adapter. The trust-bundle loader is a fail-closed verifier configuration
+boundary, not automated key lifecycle management. The reference file state store
+persists replay, revocation, and rate-limit reservations for local runs, but it
+is not a multi-process distributed lock. A production deployment must use an
+atomic compare-and-set state service and must deny on timeout or consistency
 errors.
 
 Audit hashes detect mutation of retained records, not deletion of the entire

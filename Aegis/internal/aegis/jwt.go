@@ -82,6 +82,23 @@ func parseJWT(token string) (protectedHeader, []byte, []byte, string, string, er
 	return header, payloadJSON, signature, parts[0] + "." + parts[1], hex.EncodeToString(sum[:]), nil
 }
 
+func unverifiedIssuer(token string) (string, error) {
+	_, payloadJSON, _, _, _, err := parseJWT(token)
+	if err != nil {
+		return "", err
+	}
+	var claims struct {
+		Issuer string `json:"iss"`
+	}
+	if err := json.Unmarshal(payloadJSON, &claims); err != nil {
+		return "", ErrInvalidToken
+	}
+	if claims.Issuer == "" {
+		return "", ErrUntrustedIssuer
+	}
+	return claims.Issuer, nil
+}
+
 func verifySignature(publicKey ed25519.PublicKey, signingInput string, signature []byte) error {
 	if len(publicKey) != ed25519.PublicKeySize || !ed25519.Verify(publicKey, []byte(signingInput), signature) {
 		return ErrInvalidToken

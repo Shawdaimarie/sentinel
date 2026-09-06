@@ -6,6 +6,7 @@ import (
 	"errors"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"strings"
 	"testing"
 	"time"
@@ -43,6 +44,46 @@ func TestValidCapabilityIsAllowedExactlyOnce(t *testing.T) {
 	replay := authorizer.Authorize(context.Background(), AuthorizationRequest{Token: token})
 	if replay.Allowed || replay.Reason != "replay_detected" {
 		t.Fatalf("expected replay denial, got %+v", replay)
+	}
+}
+
+func TestIssuerScopedVerificationAndSPIFFEBindingDeny(t *testing.T) {
+	authorizer, keys, policy, now := testAuthorizer(t)
+	trustedIssuers, err := IssuerKeySetFromTrustBundle(TrustBundle{
+		Issuers: []TrustedIssuerConfig{
+			{
+				Issuer:  policy.Issuer,
+				JWKSURI: policy.Issuer + "/jwks.json",
+				JWKS:    keys.PublicJWKS(),
+			},
+		},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	authorizer.TrustedIssuers = trustedIssuers
+	token := mustSignCapability(t, keys, policy, readClaims(policy, "trusted-issuer", now))
+	result := authorizer.Authorize(context.Background(), AuthorizationRequest{Token: token})
+	if !result.Allowed {
+		t.Fatalf("expected trusted issuer allow, got %+v", result)
+	}
+
+	authorizer, keys, policy, now = testAuthorizer(t)
+	untrusted := readClaims(policy, "untrusted-issuer", now)
+	untrusted.Issuer = "https://rogue.example"
+	token = mustSignCapability(t, keys, policy, untrusted)
+	result = authorizer.Authorize(context.Background(), AuthorizationRequest{Token: token})
+	if result.Allowed || result.Reason != "untrusted_issuer" {
+		t.Fatalf("expected untrusted issuer denial, got %+v", result)
+	}
+
+	authorizer, keys, policy, now = testAuthorizer(t)
+	mismatched := readClaims(policy, "spiffe-mismatch", now)
+	mismatched.SPIFFEID = "spiffe://example.org/ns/finance/sa/other-agent"
+	token = mustSignCapability(t, keys, policy, mismatched)
+	result = authorizer.Authorize(context.Background(), AuthorizationRequest{Token: token})
+	if result.Allowed || result.Reason != "invalid_workload_identity" {
+		t.Fatalf("expected SPIFFE mismatch denial, got %+v", result)
 	}
 }
 
@@ -102,6 +143,17 @@ func TestApprovalIsSeparatelySignedAndBoundToCapability(t *testing.T) {
 	})
 	if result.Allowed || result.Reason != "approval_scope_mismatch" {
 		t.Fatalf("expected mismatched approval denial, got %+v", result)
+	}
+
+	untrustedApproval := approvalClaims(policy, "approval-untrusted-issuer", now, token, capability)
+	untrustedApproval.Issuer = "https://rogue.example"
+	untrustedToken := mustSignApproval(t, keys, untrustedApproval)
+	result = authorizer.Authorize(context.Background(), AuthorizationRequest{
+		Token:         token,
+		ApprovalToken: untrustedToken,
+	})
+	if result.Allowed || result.Reason != "untrusted_issuer" {
+		t.Fatalf("expected untrusted approval issuer denial, got %+v", result)
 	}
 
 	approval := approvalClaims(policy, "approval-2", now, token, capability)
@@ -239,6 +291,48 @@ func TestHTTPGatewayBoundsAndJWKS(t *testing.T) {
 	handler.authorize(rec, req)
 	if rec.Code != http.StatusBadRequest {
 		t.Fatalf("expected malformed json denial, got %d", rec.Code)
+	}
+}
+
+func TestTrustBundleRejectsDuplicateIssuersAndKids(t *testing.T) {
+	_, keys, policy, _ := testAuthorizer(t)
+	validBundle := TrustBundle{
+		Issuers: []TrustedIssuerConfig{
+			{
+				Issuer:  policy.Issuer,
+				JWKSURI: policy.Issuer + "/jwks.json",
+				JWKS:    keys.PublicJWKS(),
+			},
+		},
+	}
+	path := writeTrustBundle(t, validBundle)
+	if _, err := LoadTrustBundle(path); err != nil {
+		t.Fatalf("expected valid trust bundle to load: %v", err)
+	}
+
+	duplicateIssuer := TrustBundle{
+		Issuers: []TrustedIssuerConfig{
+			validBundle.Issuers[0],
+			validBundle.Issuers[0],
+		},
+	}
+	if _, err := LoadTrustBundle(writeTrustBundle(t, duplicateIssuer)); !errors.Is(err, ErrUntrustedIssuer) {
+		t.Fatalf("expected duplicate issuer rejection, got %v", err)
+	}
+
+	duplicateKid := keys.PublicJWKS()
+	duplicateKid.Keys = append(duplicateKid.Keys, duplicateKid.Keys[0])
+	duplicateKidBundle := TrustBundle{
+		Issuers: []TrustedIssuerConfig{
+			{
+				Issuer:  policy.Issuer,
+				JWKSURI: policy.Issuer + "/jwks.json",
+				JWKS:    duplicateKid,
+			},
+		},
+	}
+	if _, err := LoadTrustBundle(writeTrustBundle(t, duplicateKidBundle)); !errors.Is(err, ErrInvalidToken) {
+		t.Fatalf("expected duplicate kid rejection, got %v", err)
 	}
 }
 
@@ -406,4 +500,17 @@ func corruptJWTPart(token string, part int) string {
 	}
 	parts[part] = string(replacement) + parts[part][1:]
 	return strings.Join(parts, ".")
+}
+
+func writeTrustBundle(t *testing.T, bundle TrustBundle) string {
+	t.Helper()
+	path := t.TempDir() + "/trust-bundle.json"
+	data, err := json.Marshal(bundle)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(path, data, 0o600); err != nil {
+		t.Fatal(err)
+	}
+	return path
 }

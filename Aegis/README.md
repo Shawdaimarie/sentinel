@@ -13,10 +13,14 @@ rate limits, state-store failure, and audit failure all deny the request.
 
 ## What Shipped
 
-- Ed25519 JWT capability verification with JWKS-compatible public keys.
+- Ed25519 JWT capability verification with issuer-scoped JWKS-compatible public
+  keys.
+- OIDC-style trust-bundle loading for explicit issuer-to-JWKS verifier
+  configuration.
 - OIDC discovery and JWKS endpoints for integrating with existing identity
   plumbing.
-- SPIFFE-compatible workload identity parsing for `spiffe://` subjects.
+- SPIFFE-compatible workload identity parsing and conflict detection for
+  `spiffe://` subjects and `spiffe_id` claims.
 - Deny-by-default policy matching across subject, trust domain, tool, action,
   and resource.
 - Policy hash binding so stale capabilities fail after policy changes.
@@ -42,6 +46,10 @@ go run ./cmd/aegis-policy-eval \
   --policy examples/policy.json \
   --cases examples/policy_eval_cases.json
 go build -trimpath -ldflags="-s -w -buildid=" ./cmd/aegis
+go run ./cmd/aegis \
+  --policy examples/policy.json \
+  --trust-bundle examples/trust_bundle.json \
+  --check-config
 ```
 
 The public `examples/jwks.json` contains only a synthetic public key for server
@@ -57,6 +65,24 @@ Start the service:
 go run ./cmd/aegis \
   --policy examples/policy.json \
   --jwks examples/jwks.json \
+  --listen 127.0.0.1:8080
+```
+
+Production-shaped verifier configuration can use an issuer-scoped trust bundle:
+
+```bash
+go run ./cmd/aegis \
+  --policy examples/policy.json \
+  --trust-bundle examples/trust_bundle.json \
+  --check-config
+```
+
+Then start the service without `--check-config`:
+
+```bash
+go run ./cmd/aegis \
+  --policy examples/policy.json \
+  --trust-bundle examples/trust_bundle.json \
   --listen 127.0.0.1:8080
 ```
 
@@ -83,7 +109,7 @@ authorization server, SPIRE deployment, HSM, SIEM, or globally replicated
 database. Production use requires:
 
 - a trusted OIDC or workload-identity issuer;
-- managed JWKS rotation and emergency key removal;
+- managed JWKS rotation, issuer trust-bundle refresh, and emergency key removal;
 - an atomic distributed state adapter such as Redis, DynamoDB, Spanner, or etcd
   for replay, revocation, and rate-limit reservations;
 - external append-only audit storage and digest anchoring;

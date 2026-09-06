@@ -15,6 +15,7 @@ const (
 
 var (
 	ErrInvalidToken     = errors.New("invalid token")
+	ErrUntrustedIssuer  = errors.New("untrusted issuer")
 	ErrUnknownKey       = errors.New("unknown signing key")
 	ErrRevokedKey       = errors.New("revoked signing key")
 	ErrExpiredToken     = errors.New("expired token")
@@ -153,9 +154,19 @@ type WorkloadIdentity struct {
 }
 
 func WorkloadIdentityFromClaims(claims CapabilityClaims) (WorkloadIdentity, error) {
+	subjectSPIFFEID := ""
+	if strings.HasPrefix(claims.Subject, "spiffe://") {
+		subjectSPIFFEID = claims.Subject
+		if _, err := ParseSPIFFETrustDomain(subjectSPIFFEID); err != nil {
+			return WorkloadIdentity{}, err
+		}
+	}
 	spiffeID := claims.SPIFFEID
-	if spiffeID == "" && strings.HasPrefix(claims.Subject, "spiffe://") {
-		spiffeID = claims.Subject
+	if spiffeID != "" && subjectSPIFFEID != "" && spiffeID != subjectSPIFFEID {
+		return WorkloadIdentity{}, ErrInvalidIdentity
+	}
+	if spiffeID == "" {
+		spiffeID = subjectSPIFFEID
 	}
 	trustDomain := ""
 	if spiffeID != "" {
