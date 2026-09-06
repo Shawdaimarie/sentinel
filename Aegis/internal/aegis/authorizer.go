@@ -34,20 +34,23 @@ type AuthorizationResult struct {
 }
 
 type Authorizer struct {
-	Policy Policy
-	Keys   *KeySet
-	State  StateStore
-	Audit  AuditSink
-	Clock  Clock
+	Policy         Policy
+	Keys           *KeySet
+	TrustedIssuers *IssuerKeySet
+	State          StateStore
+	Audit          AuditSink
+	Clock          Clock
 }
 
 func NewAuthorizer(policy Policy, keys *KeySet, state StateStore, audit AuditSink) *Authorizer {
+	trustedIssuers, _ := NewIssuerKeySetFromKeySet(policy.Issuer, keys)
 	return &Authorizer{
-		Policy: policy,
-		Keys:   keys,
-		State:  state,
-		Audit:  audit,
-		Clock:  RealClock{},
+		Policy:         policy,
+		Keys:           keys,
+		TrustedIssuers: trustedIssuers,
+		State:          state,
+		Audit:          audit,
+		Clock:          RealClock{},
 	}
 }
 
@@ -73,13 +76,13 @@ func (a *Authorizer) Authorize(ctx context.Context, request AuthorizationRequest
 		result.Reason = reason
 		return a.finish(ctx, result)
 	}
-	if a.Keys == nil || a.State == nil || a.Audit == nil {
+	if a.TrustedIssuers == nil || a.State == nil || a.Audit == nil {
 		return deny("configuration_unavailable")
 	}
 	if err := a.State.Health(ctx); err != nil {
 		return deny("state_unavailable")
 	}
-	verified, err := a.Keys.VerifyCapability(request.Token, now)
+	verified, err := a.TrustedIssuers.VerifyCapability(request.Token, a.Policy.Issuer, now)
 	if err != nil {
 		return deny(reasonForTokenError(err))
 	}
@@ -146,7 +149,7 @@ func (a *Authorizer) verifyApproval(
 	if approvalToken == "" {
 		return errors.New("approval_required")
 	}
-	verifiedApproval, err := a.Keys.VerifyApproval(approvalToken, now)
+	verifiedApproval, err := a.TrustedIssuers.VerifyApproval(approvalToken, a.Policy.Issuer, now)
 	if err != nil {
 		return errors.New(reasonForTokenError(err))
 	}
@@ -210,6 +213,8 @@ func reasonForTokenError(err error) string {
 	switch {
 	case errors.Is(err, ErrExpiredToken):
 		return "token_expired"
+	case errors.Is(err, ErrUntrustedIssuer):
+		return "untrusted_issuer"
 	case errors.Is(err, ErrNotYetValid):
 		return "token_not_yet_valid"
 	case errors.Is(err, ErrUnknownKey):

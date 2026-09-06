@@ -30,6 +30,15 @@ state/audit failures, or needs key/policy rotation.
    go test -run '^$' -bench=. -benchtime=100x ./...
    ```
 
+4. For issuer-scoped verification, confirm the configured trust bundle loads:
+
+   ```bash
+   go run ./cmd/aegis \
+     --policy examples/policy.json \
+     --trust-bundle examples/trust_bundle.json \
+     --check-config
+   ```
+
 ## Unexpected Deny
 
 Check the decision reason in the `/v1/authorize` response and audit log.
@@ -38,8 +47,10 @@ Common reasons:
 
 | Reason | Meaning | Action |
 |---|---|---|
+| `untrusted_issuer` | Token issuer is absent from the configured trusted issuer set or does not match the active policy issuer | Check trust-bundle contents, issuer URL, and JWKS rotation state |
 | `unknown_signing_key` | `kid` is absent from JWKS | Confirm issuer rotation and JWKS refresh |
 | `revoked_signing_key` | Signing key is explicitly revoked | Reissue capability with current key |
+| `invalid_workload_identity` | SPIFFE identity is malformed or conflicts with another SPIFFE identity claim | Reissue token with one canonical workload identity |
 | `policy_hash_mismatch` | Capability was minted under another policy | Re-mint after policy review |
 | `approval_required` | Rule requires a signed approval JWT | Attach a matching approval token |
 | `approval_scope_mismatch` | Approval does not bind this capability and scope | Reissue approval for this exact request |
@@ -60,10 +71,21 @@ Common reasons:
 ## Key Rotation
 
 1. Add the new public key to JWKS before using it to sign.
-2. Rotate signing to the new `kid`.
-3. Keep the previous key available only until its last valid token expires.
-4. Mark the previous key retired, then revoke/remove it after the overlap.
-5. For emergency compromise, skip the overlap and revoke immediately.
+2. Publish the updated issuer-scoped trust bundle or JWKS source.
+3. Rotate signing to the new `kid`.
+4. Keep the previous key available only until its last valid token expires.
+5. Mark the previous key retired, then revoke/remove it after the overlap.
+6. For emergency compromise, skip the overlap and revoke immediately.
+
+## Trust-Bundle Rotation
+
+1. Validate the issuer URL is the intended HTTPS issuer.
+2. Reject duplicate issuer entries and duplicate `kid` values before rollout.
+3. Deploy new public keys before signing capabilities with them.
+4. Remove old keys only after their last valid capability expires, unless this
+   is an emergency revocation.
+5. Monitor `untrusted_issuer`, `unknown_signing_key`, and
+   `revoked_signing_key` denials during the overlap.
 
 ## Policy Rotation
 

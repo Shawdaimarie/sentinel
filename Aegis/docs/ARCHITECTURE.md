@@ -17,8 +17,8 @@ human approval issuer ─► signed approval JWT ───┤
                                                 │
                        ┌────────────────────────┼────────────────────────┐
                        ▼                        ▼                        ▼
-                JWKS verification       deny-by-default policy       shared state
-                       │                 + policy hash binding       replay/revoke/rate
+             issuer-scoped JWKS         deny-by-default policy       shared state
+                verification            + policy hash binding       replay/revoke/rate
                        └────────────────────────┬────────────────────────┘
                                                 ▼
                                   audit record + OTel event
@@ -32,16 +32,24 @@ human approval issuer ─► signed approval JWT ───┤
 ### JWT and JWKS
 
 `internal/aegis/jwt.go` verifies compact JWTs signed with Ed25519 (`EdDSA`).
-`internal/aegis/keys.go` loads OKP Ed25519 JWKS documents, publishes non-revoked
-public keys, rotates active signing keys in tests and tooling, and rejects
-revoked keys. Revoked keys are removed from the public JWKS response and denied
-during verification.
+`internal/aegis/keys.go` loads OKP Ed25519 JWKS documents, validates
+issuer-scoped trust bundles, publishes non-revoked public keys, rotates active
+signing keys in tests and tooling, and rejects revoked keys. Verification first
+uses the untrusted `iss` claim only as a selector into the configured trusted
+issuer set; a token whose issuer is not the active policy issuer is denied
+before policy evaluation. Duplicate issuers, duplicate `kid` values, empty
+JWKS documents, non-signature keys, and non-HTTPS issuer metadata fail at load
+time. Revoked keys are removed from the public JWKS response and denied during
+verification.
 
 ### Workload Identity
 
 `types.go` accepts OIDC-style `iss`, `aud`, and `sub` claims and extracts
 SPIFFE-compatible identities when either `sub` or `spiffe_id` is a
 `spiffe://trust-domain/path` URI. A malformed SPIFFE URI denies the request.
+When both `sub` and `spiffe_id` are SPIFFE URIs, they must match exactly so a
+token cannot present one subject while widening policy matching through another
+SPIFFE identity.
 
 ### Policy Engine
 
@@ -66,7 +74,8 @@ consistent across replicas.
 
 1. required configuration exists;
 2. shared state is healthy;
-3. capability signature and key status are valid;
+3. token issuer is trusted for the active policy and the capability signature
+   and key status are valid;
 4. issuer, audience, expiry, not-before, JTI, and scope are valid;
 5. workload identity is syntactically valid;
 6. subject is not revoked;
@@ -99,6 +108,11 @@ tool, action, resource, and SPIFFE attributes.
 The server applies bounded headers, body size, read/write timeouts, strict JSON
 decoding, method checks, content-type checks, and `127.0.0.1:8080` as the safe
 default listen address.
+
+`cmd/aegis` accepts either `--jwks` for the local single-issuer reference path
+or `--trust-bundle` for issuer-scoped verifier configuration. `--check-config`
+loads policy, verifier keys, state, and audit configuration, then exits before
+serving traffic.
 
 ## Decision Record
 
