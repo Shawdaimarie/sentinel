@@ -14,6 +14,7 @@ import (
 type StateStore interface {
 	Health(context.Context) error
 	ReserveJTI(context.Context, string, time.Time) error
+	ReserveRateLimit(context.Context, string, RateLimitSpec, time.Time) error
 	RevokeJTI(context.Context, string, string, time.Time) error
 	RevokeSubject(context.Context, string, string) error
 	IsSubjectRevoked(context.Context, string) (bool, error)
@@ -29,8 +30,10 @@ type MemoryStateStore struct {
 	usedJTIs        map[string]time.Time
 	revokedJTIs     map[string]stateEntry
 	revokedSubjects map[string]string
+	rateBuckets     map[string]rateBucket
 	healthErr       error
 	reserveErr      error
+	rateLimitErr    error
 	clock           Clock
 }
 
@@ -39,6 +42,7 @@ func NewMemoryStateStore() *MemoryStateStore {
 		usedJTIs:        make(map[string]time.Time),
 		revokedJTIs:     make(map[string]stateEntry),
 		revokedSubjects: make(map[string]string),
+		rateBuckets:     make(map[string]rateBucket),
 		clock:           RealClock{},
 	}
 }
@@ -67,6 +71,28 @@ func (m *MemoryStateStore) ReserveJTI(_ context.Context, jti string, expiresAt t
 		return ErrReplay
 	}
 	m.usedJTIs[jti] = expiresAt
+	return nil
+}
+
+func (m *MemoryStateStore) ReserveRateLimit(_ context.Context, key string, spec RateLimitSpec, now time.Time) error {
+	if spec.Limit <= 0 || spec.WindowSeconds <= 0 {
+		return nil
+	}
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	if m.rateLimitErr != nil {
+		return m.rateLimitErr
+	}
+	bucket := m.rateBuckets[key]
+	if bucket.ResetAt.IsZero() || !now.Before(bucket.ResetAt) {
+		bucket = rateBucket{ResetAt: now.Add(time.Duration(spec.WindowSeconds) * time.Second)}
+	}
+	if bucket.Count >= spec.Limit {
+		m.rateBuckets[key] = bucket
+		return ErrRateLimited
+	}
+	bucket.Count++
+	m.rateBuckets[key] = bucket
 	return nil
 }
 
@@ -103,6 +129,12 @@ func (m *MemoryStateStore) InjectReserveFailure(err error) {
 	m.reserveErr = err
 }
 
+func (m *MemoryStateStore) InjectRateLimitFailure(err error) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	m.rateLimitErr = err
+}
+
 func (m *MemoryStateStore) SetClock(clock Clock) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -133,8 +165,10 @@ type stateEvent struct {
 	Type      string `json:"type"`
 	JTI       string `json:"jti,omitempty"`
 	Subject   string `json:"subject,omitempty"`
+	RateKey   string `json:"rate_key,omitempty"`
 	Reason    string `json:"reason,omitempty"`
 	ExpiresAt int64  `json:"expires_at,omitempty"`
+	ResetAt   int64  `json:"reset_at,omitempty"`
 	At        int64  `json:"at"`
 }
 
@@ -167,6 +201,26 @@ func (f *FileStateStore) ReserveJTI(ctx context.Context, jti string, expiresAt t
 		JTI:       jti,
 		ExpiresAt: expiresAt.Unix(),
 		At:        time.Now().UTC().Unix(),
+	})
+}
+
+func (f *FileStateStore) ReserveRateLimit(ctx context.Context, key string, spec RateLimitSpec, now time.Time) error {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	if err := f.memory.ReserveRateLimit(ctx, key, spec, now); err != nil {
+		return err
+	}
+	if spec.Limit <= 0 || spec.WindowSeconds <= 0 {
+		return nil
+	}
+	f.memory.mu.Lock()
+	bucket := f.memory.rateBuckets[key]
+	f.memory.mu.Unlock()
+	return f.append(stateEvent{
+		Type:    "reserve_rate_limit",
+		RateKey: key,
+		ResetAt: bucket.ResetAt.Unix(),
+		At:      time.Now().UTC().Unix(),
 	})
 }
 
@@ -221,6 +275,8 @@ func (f *FileStateStore) load() error {
 		switch event.Type {
 		case "reserve_jti":
 			f.memory.usedJTIs[event.JTI] = time.Unix(event.ExpiresAt, 0)
+		case "reserve_rate_limit":
+			f.loadRateLimitReservation(event)
 		case "revoke_jti":
 			f.memory.revokedJTIs[event.JTI] = stateEntry{
 				ExpiresAt: time.Unix(event.ExpiresAt, 0),
@@ -231,6 +287,23 @@ func (f *FileStateStore) load() error {
 		}
 	}
 	return scanner.Err()
+}
+
+func (f *FileStateStore) loadRateLimitReservation(event stateEvent) {
+	if event.RateKey == "" || event.ResetAt <= 0 {
+		return
+	}
+	resetAt := time.Unix(event.ResetAt, 0)
+	bucket := f.memory.rateBuckets[event.RateKey]
+	switch {
+	case bucket.ResetAt.Equal(resetAt):
+		bucket.Count++
+	case bucket.ResetAt.IsZero() || !resetAt.Before(bucket.ResetAt):
+		bucket = rateBucket{Count: 1, ResetAt: resetAt}
+	default:
+		return
+	}
+	f.memory.rateBuckets[event.RateKey] = bucket
 }
 
 func (f *FileStateStore) append(event stateEvent) error {

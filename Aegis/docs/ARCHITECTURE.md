@@ -18,7 +18,7 @@ human approval issuer ─► signed approval JWT ───┤
                        ┌────────────────────────┼────────────────────────┐
                        ▼                        ▼                        ▼
                 JWKS verification       deny-by-default policy       shared state
-                       │                 + policy hash binding       replay/revoke
+                       │                 + policy hash binding       replay/revoke/rate
                        └────────────────────────┬────────────────────────┘
                                                 ▼
                                   audit record + OTel event
@@ -50,13 +50,15 @@ resource against explicit rules. Only exact matches and bounded trailing
 wildcards are supported. The most specific rule wins, and deny wins ties.
 Absence of a matching allow rule denies the request.
 
-### Replay and Revocation State
+### Replay, Revocation, and Rate State
 
 `state.go` defines the production contract: state stores must provide atomic JTI
-reservation and revocation checks. The memory implementation is used for tests;
-the file-backed implementation records durable JSONL events for local reference
-runs. Multi-instance production deployments should replace it with a true
-distributed compare-and-set store.
+reservation, revocation checks, and rate-limit reservations. The memory
+implementation is used for tests; the file-backed implementation records durable
+JSONL events for local reference runs, including quota reservations that survive
+restart. Multi-instance production deployments should replace it with a true
+distributed compare-and-set store so replay, revocation, and rate limits are
+consistent across replicas.
 
 ### Authorization Path
 
@@ -72,7 +74,7 @@ distributed compare-and-set store.
 8. the active policy allows the requested scope;
 9. TTL is within policy;
 10. matching signed approval exists when required;
-11. rate limit is available;
+11. rate limit quota is reserved through state;
 12. capability JTI is atomically reserved; and
 13. decision audit append succeeds.
 

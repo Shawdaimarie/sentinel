@@ -44,8 +44,8 @@ Common reasons:
 | `approval_required` | Rule requires a signed approval JWT | Attach a matching approval token |
 | `approval_scope_mismatch` | Approval does not bind this capability and scope | Reissue approval for this exact request |
 | `replay_detected` | JTI was already consumed | Re-mint a new short-lived capability |
-| `rate_limited` | Workload exceeded policy rate | Wait for reset or review rule limits |
-| `state_unavailable` | Replay/revocation store is unhealthy | Keep fail-closed; repair state service |
+| `rate_limited` | Workload exceeded policy rate in shared state | Wait for reset or review rule limits |
+| `state_unavailable` | Replay/revocation/rate state is unhealthy | Keep fail-closed; repair state service |
 | `audit_unavailable` | Decision evidence could not be appended | Keep fail-closed; repair audit sink |
 
 ## Emergency Revocation

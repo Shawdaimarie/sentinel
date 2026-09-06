@@ -23,7 +23,7 @@ rate limits, state-store failure, and audit failure all deny the request.
 - Separate signed human-approval JWTs for approval-required actions.
 - Atomic replay protection and revocation interfaces for shared state stores.
 - Key rotation and key revocation support.
-- Fixed-window rate limits by workload, tool, and action.
+- State-backed fixed-window rate limits by workload, tool, and action.
 - Hash-chained decision audit records.
 - OpenTelemetry-shaped decision events with W3C `traceparent` propagation.
 - Bounded HTTP server defaults for method, content type, body size, headers,
@@ -84,7 +84,8 @@ database. Production use requires:
 
 - a trusted OIDC or workload-identity issuer;
 - managed JWKS rotation and emergency key removal;
-- an atomic distributed state adapter such as Redis, DynamoDB, Spanner, or etcd;
+- an atomic distributed state adapter such as Redis, DynamoDB, Spanner, or etcd
+  for replay, revocation, and rate-limit reservations;
 - external append-only audit storage and digest anchoring;
 - collector-backed OpenTelemetry export;
 - mTLS/network policy around the authorizer;

@@ -169,6 +169,16 @@ func TestRevocationKeyRotationRateLimitAndStateFailureDeny(t *testing.T) {
 	}
 
 	authorizer, keys, policy, now = testAuthorizer(t)
+	failedRateState := authorizer.State.(*MemoryStateStore)
+	failedRateState.InjectRateLimitFailure(ErrStateUnavailable)
+	result = authorizer.Authorize(context.Background(), AuthorizationRequest{
+		Token: mustSignCapability(t, keys, policy, readClaims(policy, "rate-state-fails", now)),
+	})
+	if result.Allowed || result.Reason != "state_unavailable" {
+		t.Fatalf("expected rate-limit state failure denial, got %+v", result)
+	}
+
+	authorizer, keys, policy, now = testAuthorizer(t)
 	rotated, err := GenerateKeyRecord("next", KeyRetired, now)
 	if err != nil {
 		t.Fatal(err)
