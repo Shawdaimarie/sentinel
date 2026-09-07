@@ -2,18 +2,12 @@
 
 ## Purpose
 
-The evaluator can emit newline-delimited JSON so automated systems can ingest review results without parsing Markdown. This supports pull-request comments, release dashboards, audit logs, model-comparison reports, calibration records, and scenario evidence packets.
+The evaluator can emit newline-delimited JSON and scenario JSON so automated systems can ingest review results without parsing Markdown. This supports pull-request comments, release dashboards, audit logs, model-comparison reports, calibration records, and universal-support packets.
 
-## Review Command
+## Command
 
 ```bash
 PYTHONPATH=packages/evaluator/src python3 -m governed_ai_code_eval packages/evaluator/examples/risky_candidate.py --jsonl
-```
-
-## Scenario Library Command
-
-```bash
-PYTHONPATH=packages/evaluator/src python3 -m governed_ai_code_eval --scenario-library
 ```
 
 ## Record Types
@@ -21,6 +15,7 @@ PYTHONPATH=packages/evaluator/src python3 -m governed_ai_code_eval --scenario-li
 | Record Type | Description |
 | --- | --- |
 | `summary` | One record per review with score, verdict, evidence level, promotion gate, risk index, and category counts. |
+| `metadata` | One record per review with file, detected or supplied language/surface, supported surfaces, and active rule count. |
 | `finding` | One record per detected issue with rule ID, category, severity, file, line, evidence, rationale, and recommendation. |
 | `calibration_summary` | One record per model-comparison report with winner, score spread, consensus gap, decision, and project name. |
 | `calibration_candidate` | One record per ranked candidate with score, risk index, promotion gate, severity signal, finding counts, and category counts. |
@@ -40,6 +35,17 @@ PYTHONPATH=packages/evaluator/src python3 -m governed_ai_code_eval --scenario-li
 | `promotion_gate` | Release decision gate. |
 | `category_counts` | Finding totals by category. |
 
+## Metadata Payload
+
+Each review payload includes metadata:
+
+| Field | Meaning |
+| --- | --- |
+| `file` | Reviewed file path or synthetic scenario file name. |
+| `language` | Detected or supplied language and surface label. |
+| `supported_surfaces` | Universal support matrix exposed by the evaluator. |
+| `rule_count` | Active default rules plus contextual scale-review signal. |
+
 ## Finding Payload
 
 | Field | Meaning |
@@ -54,21 +60,32 @@ PYTHONPATH=packages/evaluator/src python3 -m governed_ai_code_eval --scenario-li
 | `rationale` | Why the finding matters. |
 | `recommendation` | Minimum expected fix. |
 
-## Scenario Library Output
-
-The scenario-library command returns a JSON array. Each item contains:
-
-- `scenario`: sanitized scenario metadata, workflow name, review focus, synthetic code, evidence flags, expected rule IDs, and value signal.
-- `review`: the governed evaluator output for that scenario, including summary and findings.
-
-Use scenario output to show breadth across realistic AI/ML engineering review surfaces while keeping records synthetic and client-neutral.
-
 ## Hygiene Rules
 
-- Keep records deterministic and line-oriented where JSONL is used.
+- Keep records deterministic and line-oriented.
 - Preserve stable field names for downstream tools.
 - Avoid embedding secrets, account identifiers, private URLs, or proprietary snippets.
-- Treat JSONL and scenario JSON as machine-readable evidence, not as replacements for human review.
+- Treat JSONL, scenario JSON, and support metadata as machine-readable evidence, not as replacements for human review.
+
+## Scenario Library Output
+
+The command-line evaluator can emit the sanitized scenario library:
+
+```bash
+PYTHONPATH=packages/evaluator/src python3 -m governed_ai_code_eval --scenario-library
+```
+
+The output includes each scenario definition and its governed review payload. Use it for reviewer packets, dashboard seeds, or future pull-request summaries.
+
+## Supported Surface Output
+
+The command-line evaluator can emit the supported review surface list:
+
+```bash
+PYTHONPATH=packages/evaluator/src python3 -m governed_ai_code_eval --list-surfaces
+```
+
+The output includes the active rule count and supported surfaces for Python, TypeScript/JavaScript, SQL/data access, shell/release scripts, container images, infrastructure policy, AI/ML workflows, and agent tooling.
 
 ## Calibration Output
 

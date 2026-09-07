@@ -8,30 +8,31 @@ GitHub project package: [`projects/governed-ai-code-eval-system/README.md`](./go
 
 The Governed AI Code Evaluation System is a deployable application and public GitHub project package for advancement in AI engineering, AI infrastructure, software engineering, code-agent evaluation, and hands-on coding readiness.
 
-It treats AI-generated code as useful but untrusted until it passes governed review. The system turns candidate code and evidence into scored findings, required actions, a promotion decision, machine-readable JSONL output, comparative model-calibration evidence, a local calibration audit trail, and a sanitized AI/ML scenario evidence library.
+It treats AI-generated code as useful but untrusted until it passes governed review. The system turns candidate code and evidence into scored findings, required actions, a promotion decision, machine-readable JSONL output, comparative model-calibration evidence, a local calibration audit trail, universal support metadata, and a sanitized universal scenario evidence library.
 
 Current posture: **top-tier candidate readiness**. This means the project has strong inspectable evidence for serious technical review while keeping official ranking, certification, clearance, approval, or endorsement separate unless granted by an external authority.
 
-## Latest AI-Sector Upgrade
+## Latest Universal-Support Upgrade
 
-The current release adds a Scenario Evidence Library for realistic AI/ML engineering review workflows. This moves the project beyond one sample and proves broader evaluator coverage across model training, inference services, MLOps pipelines, and agent tooling.
+The current release expands the evaluator from AI/ML-only scenario evidence into a universal review surface for common software, AI, data, release, runtime, and infrastructure snippets.
 
 New capabilities include:
 
-- Four sanitized AI/ML workflow scenarios with expected governed findings.
-- New evaluator controls for evaluation-data leakage, mutable model and image aliases, model lifecycle risk, unseeded training splits, and runtime dependency installation.
-- Python `scenario_evidence_library()` and `review_scenario_library()` helpers.
-- Command-line scenario export through `python -m governed_ai_code_eval --scenario-library`.
-- Updated unit tests, CI workflow, app metrics, and project documentation.
+- Eight supported review surfaces: Python, TypeScript/JavaScript, SQL/data access, shell/release scripts, container images, infrastructure policy, AI/ML workflows, and agent tooling.
+- Eight sanitized workflow scenarios covering model training, inference services, MLOps pipelines, agent tooling, TypeScript/API integration, SQL/data access, release scripts, and container runtime hardening.
+- Thirty-two active review signals across default rules plus contextual scale-review logic.
+- Fourteen evaluator tests covering security, reliability, data quality, promotion gates, JSONL automation, model calibration, language detection, universal support, and scenario review.
+- JSONL metadata records with reviewed file, detected or supplied language/surface, supported surfaces, and rule count.
+- CI support-surface export through `python -m governed_ai_code_eval --list-surfaces`.
 
 ## High-Value Method Layer
 
-The project maps its proof to technology lanes with strong demand signals:
+The project maps its proof to technology lanes with strong public labor-market signals:
 
-- AI research and evaluation systems: deterministic model-output review, AI/ML scenario coverage, structured findings, comparative calibration, audit-ready decision evidence, and repeatable evaluator tests.
-- Secure AI and cybersecurity governance: unsafe execution checks, secret hygiene, prompt-injection boundaries, sensitive-log controls, runtime dependency checks, and threat-model discipline.
-- Software and platform engineering: typed application workflow, repeat production builds, release hygiene, promotion gates, artifact-pinning discipline, and lifecycle review.
-- Data quality and model-evaluation tooling: JSONL records, schema-validation expectations, data-leakage detection, and data-quality findings for generated or remote output.
+- AI research and evaluation systems: deterministic model-output review, universal scenario coverage, structured findings, comparative calibration, audit-ready decision evidence, and repeatable evaluator tests.
+- Secure AI and cybersecurity governance: unsafe execution checks, secret hygiene, prompt-injection boundaries, remote script checks, wildcard permission checks, sensitive-log controls, and threat-model discipline.
+- Software and platform engineering: typed application workflow, repeat production builds, release hygiene, promotion gates, cancellation checks, artifact-pinning discipline, and lifecycle review.
+- Data quality and model-evaluation tooling: JSONL records, schema-validation expectations, SQL/data-access boundary review, data-leakage detection, and data-quality findings for generated or remote output.
 - Executive technical review posture: claim boundaries, evidence ownership, and clear separation between readiness evidence and external credentialing.
 
 ## Application Upgrade
@@ -39,41 +40,46 @@ The project maps its proof to technology lanes with strong demand signals:
 The live project includes an interactive application workspace with:
 
 - Editable candidate-code review input.
+- Universal review sample loaders for Python, TypeScript/JavaScript, SQL/data access, shell/release scripts, and container runtime snippets.
 - Evidence controls for tests, threat model, and performance budget.
 - Scored readiness and risk index.
 - Governed findings across security, correctness, data quality, reliability, performance, maintainability, and evidence quality.
-- Promotion gate such as `Security Blocker`, `Remediation Required`, `Evidence Hold`, `Approve With Notes`, or `Promotion Ready`.
+- Promotion gates such as `Security Blocker`, `Remediation Required`, `Evidence Hold`, `Approve With Notes`, and `Promotion Ready`.
 - Model Calibration Lab for comparing candidate model outputs.
 - Local Audit Trail for preserving model-comparison snapshots in the browser without storing candidate source code.
-- Scenario Evidence Library section showing model training, inference service, MLOps, and agent-tool review coverage.
-- JSONL output suitable for CI comments, audit logs, dashboards, and model-comparison reports.
+- Universal Support Matrix section showing the eight supported surfaces.
+- Scenario Evidence Library section showing eight workflow scenarios and their rule coverage.
+- JSONL output suitable for CI comments, audit logs, dashboards, model-comparison reports, and support-surface records.
 
 ## Evidence Stack
 
 - Live React/Vinext application presenting the governed review workflow.
-- Browser-based evaluator with editable code, evidence controls, findings, score, risk index, JSONL output, model calibration, local audit snapshots, and scenario evidence.
+- Browser-based evaluator with editable code, evidence controls, findings, score, risk index, JSONL output, model calibration, local audit snapshots, universal support, and scenario evidence.
 - Runnable Python evaluator packaged in the deployed source state.
 - Reusable model-comparison calibration helper and calibration JSONL export.
 - Reusable scenario library helper and scenario review export.
+- Supported-surface export and metadata in review payloads.
 - Machine-readable JSONL schema for automation and audit use.
-- Unit-tested rule detection for security, correctness, reliability, performance, data quality, promotion gates, structured output, calibration ranking, calibration audit export, and scenario coverage.
-- Advanced AI-risk checks for prompt-injection bypass phrases, sensitive logging, unsafe parsing of model output, unsafe execution, secret-like values, runtime dependency installation, unsafe YAML/pickle deserialization, missing network timeouts, mutable artifact aliases, and training-data leakage.
-- Sanitized case studies and scenario evidence covering unsafe execution, unreliable integration, missing evidence, model training, inference, MLOps, and agent-tool failure modes.
-- Security policy, threat model, test strategy, deployment notes, structured-output schema, model calibration protocol, calibration audit trail, scenario evidence library, high-value method alignment, and governed approval rubric.
+- Unit-tested rule detection for security, correctness, reliability, performance, data quality, promotion gates, structured output, calibration ranking, calibration audit export, universal support, language detection, and scenario coverage.
+- Advanced AI-risk checks for prompt-injection bypass phrases, sensitive logging, unsafe parsing of model output, unsafe execution, secret-like values, runtime dependency installation, remote script execution, interpolated SQL, wildcard infrastructure permissions, root container users, unsafe YAML/pickle deserialization, missing network timeouts, missing fetch cancellation, mutable artifact aliases, and training-data leakage.
+- Sanitized case studies and scenario evidence covering unsafe execution, unreliable integration, missing evidence, model training, inference, MLOps, agent-tool, TypeScript/API, SQL/data-access, release-script, and container-runtime failure modes.
+- Security policy, threat model, test strategy, deployment notes, structured-output schema, model calibration protocol, calibration audit trail, scenario evidence library, universal support matrix, high-value method alignment, and governed approval rubric.
 - Handshake-ready project entry for AI engineering, AI infrastructure, software engineering, and coding evaluation roles.
 
 ## Current Proof Signals
 
-- Deployed Sites version: `13`.
-- Source commit: `782825fce0fa0eb60470733a2c3d24f41ee8cadf`.
-- Evaluator tests: `12` passing.
-- Scenario coverage: `4` AI/ML workflows.
-- Evaluator rule posture: `23` active review signals across default and contextual findings.
-- Sample governed review output: `15` JSONL records across summary and findings.
+- Deployed Sites version: `14`.
+- Source commit: `49c4bc0546cbd5c360a8c516ca18db4273363e4e`.
+- Evaluator tests: `14` passing.
+- Scenario coverage: `8` universal workflows.
+- Supported review surfaces: `8`.
+- Evaluator rule posture: `32` active review signals across default and contextual findings.
+- Sample governed review output: `16` JSONL records across summary, metadata, and findings.
 - Calibration proof: safer candidate ranked first with high consensus separation.
 - Audit proof: calibration report emits `calibration_summary` and ranked `calibration_candidate` JSONL records.
-- Scenario proof: scenario export covers model training, inference service, MLOps pipeline, and agent tooling.
-- Release quality gates: assurance, lint, production build twice, Python unit tests, JSONL evaluator output, calibration audit proof command, scenario-library export, Python compile check, clean publication scan.
+- Scenario proof: scenario export covers model training, inference service, MLOps pipeline, agent tooling, TypeScript/API integration, SQL/data access, release scripts, and container runtime hardening.
+- Universal proof: support-surface export lists Python, TypeScript/JavaScript, SQL/data access, shell/release scripts, container images, infrastructure policy, AI/ML workflows, and agent tooling.
+- Release quality gates: assurance, lint, production build twice, Python unit tests, JSONL evaluator output, calibration audit proof command, scenario-library export, support-surface export, Python compile check, clean publication scan.
 
 ## Assurance Standard
 
@@ -87,7 +93,7 @@ Assurance controls include:
 - Sanitized scenario records with synthetic code examples.
 - Local-first calibration snapshots that do not send records to a server and do not store candidate source code.
 - Private-by-default deployment posture.
-- Repeatable assurance, lint, production build, Python unit-test, JSONL output, calibration, audit-export, scenario-library, and evaluator compilation gates.
+- Repeatable assurance, lint, production build, Python unit-test, JSONL output, calibration, audit-export, scenario-library, support-surface, and evaluator compilation gates.
 - Claims tied to visible files, tests, review artifacts, or deployed surfaces.
 
 Reference alignment:
@@ -101,7 +107,7 @@ Reference alignment:
 
 ## Verification
 
-The application release was verified on September 6, 2026 with:
+The application release was verified on September 7, 2026 with:
 
 ```bash
 pnpm run assurance
@@ -112,6 +118,7 @@ python3 -m unittest discover -s packages/evaluator/tests
 PYTHONPATH=packages/evaluator/src python3 -m governed_ai_code_eval packages/evaluator/examples/risky_candidate.py --jsonl
 PYTHONPATH=packages/evaluator/src python3 -c "from governed_ai_code_eval import calibration_report_to_jsonl, compare_candidate_reviews; report = compare_candidate_reviews('calibration proof', [('safe', 'def ok():\n    return 1\n'), ('risky', 'result = eval(user_input)\n')], tests_present=True, threat_model_present=True, performance_budget_present=True); assert report.winner == 'safe'; assert 'calibration_summary' in calibration_report_to_jsonl(report)"
 PYTHONPATH=packages/evaluator/src python3 -m governed_ai_code_eval --scenario-library
+PYTHONPATH=packages/evaluator/src python3 -m governed_ai_code_eval --list-surfaces
 python3 -m compileall packages/evaluator/src packages/evaluator/tests packages/evaluator/examples
 ```
 
@@ -127,7 +134,7 @@ The release also passed a current-file scan for client-specific terms before dep
 
 ## Next Four-Step Advancement Loop
 
-1. Preserve JSONL evaluator, calibration, and scenario-library output as stable automation evidence.
-2. Add reviewer notes and dashboard-ready summaries to scenario evidence.
+1. Preserve JSONL evaluator, calibration, scenario-library, and support-surface output as stable automation evidence.
+2. Add reviewer notes and dashboard-ready summaries to universal scenario evidence.
 3. Connect evaluator output to automated pull-request summaries or a lightweight project dashboard.
 4. Refresh GitHub, Handshake, portfolio, and application language only when deployed evidence improves.

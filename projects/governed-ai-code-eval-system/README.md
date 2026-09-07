@@ -1,155 +1,114 @@
 # Governed AI Code Evaluation System
 
-Live application deployment: https://governed-ai-code-eval-system.shawdaimarie.chatgpt.site
+Live application: https://governed-ai-code-eval-system.shawdaimarie.chatgpt.site
 
-## Project Type
+This project is a deployable, assurance-backed proof system for advancement in AI engineering, AI infrastructure, software engineering, and coding.
 
-Interactive AI engineering and software engineering application for evaluating generated code, comparing model outputs, preserving governed calibration evidence, and demonstrating AI/ML workflow review judgment.
+It is built to show practical technical readiness: the ability to evaluate model-generated code across common engineering surfaces, compare candidate outputs, preserve calibration decisions, identify risks, produce runnable evidence, maintain release hygiene, and communicate engineering judgment clearly.
 
-## What It Does
+The current evidence posture is **top-tier candidate readiness**: strong enough for serious technical review, while leaving official approval, certification, or ranking to external reviewers and credentialing bodies.
 
-The application provides a reviewer-facing workspace where candidate code can be assessed before it is accepted, promoted, or used as proof of engineering quality.
+It presents a governed review system that evaluates AI-generated code through seven reviewer lenses:
 
-It produces:
+- Security
+- Correctness
+- Data quality
+- Reliability
+- Performance
+- Maintainability
+- Evidence quality
 
-- Readiness score.
-- Risk index.
-- Categorized findings.
-- Evidence maturity signal.
-- Promotion gate.
-- Required remediation actions.
-- Model-calibration ranking.
-- Local calibration audit snapshots.
-- Scenario-library review output.
-- Newline-delimited JSON output for automation.
+## What It Demonstrates
 
-## Technical Value
-
-This project demonstrates practical ability in high-demand technology areas:
-
-- AI engineering.
-- AI infrastructure.
-- Software engineering.
-- Secure coding.
-- Code-agent evaluation.
-- LLM application review.
-- Model-output adjudication.
-- Comparative model-output calibration.
-- Calibration audit evidence.
-- AI/ML scenario evaluation.
-- AI security and prompt-injection boundary review.
-- Data-quality validation for generated, remote, training, and evaluation output.
-- Structured technical communication.
-- Release hygiene and verification.
-
-## High-Value Method Layer
-
-The current version maps the application to market-supported technology methods:
-
-- AI research and evaluation systems.
-- Secure AI and cybersecurity governance.
-- Software and platform engineering.
-- Data quality and model-evaluation tooling.
-- Model-comparison calibration.
-- Calibration audit trail.
-- AI/ML scenario evidence.
-- Executive technical review and release governance.
-
-The project uses public labor-market sources from the U.S. Bureau of Labor Statistics to keep positioning grounded and accurate rather than inflated.
-
-See: [High-value method alignment](./docs/HIGH_VALUE_METHOD_ALIGNMENT.md).
-
-## Model Calibration Layer
-
-The current release includes a Model Calibration Lab, reusable Python comparison helper, and local calibration audit trail. This supports AI-sector work where multiple candidate outputs must be ranked with consistent criteria before one is advanced.
-
-Calibration criteria include:
-
-- AI security boundary.
-- Task correctness.
-- Data reliability.
-- Operational readiness.
-
-See: [Model calibration protocol](./docs/MODEL_CALIBRATION_PROTOCOL.md).
-
-## Scenario Evidence Library
-
-The current release adds a sanitized Scenario Evidence Library covering four AI/ML engineering workflows:
-
-- Model training leakage review.
-- Inference artifact control review.
-- MLOps supply-chain review.
-- Agent tool-boundary review.
-
-The Python proof pack exposes `scenario_evidence_library()` and `review_scenario_library()`, and the command-line interface can emit the full scenario review set through `--scenario-library`.
-
-See: [Scenario evidence library](./docs/SCENARIO_EVIDENCE_LIBRARY.md).
-
-## Calibration Audit Trail
-
-The live application can save calibration snapshots locally in the browser and copy audit JSON for review packets. The audit trail preserves review metadata, score spread, weights, candidate ranks, and decision gates without storing candidate source code.
-
-The Python proof pack also exposes `calibration_report_to_jsonl()` for line-oriented calibration evidence.
-
-See: [Calibration audit trail](./docs/CALIBRATION_AUDIT_TRAIL.md).
-
-## Application Workflow
-
-1. Name the review.
-2. Evaluate candidate code.
-3. Mark supporting evidence such as tests, threat model, and performance budget.
-4. Review scored findings and required actions.
-5. Use the promotion gate to decide whether the code can move forward.
-6. Compare candidate outputs in the calibration lab when more than one model or implementation is being evaluated.
-7. Save a local calibration snapshot or copy the audit JSON when comparison evidence should be preserved.
-8. Run or present scenario-library output when proving broader AI/ML workflow coverage.
-9. Preserve JSONL output as machine-readable evidence.
-
-## Evidence Package
-
-This GitHub project package includes:
-
-- [Application user guide](./docs/APPLICATION_USER_GUIDE.md).
-- [Governed approval rubric](./docs/GOVERNED_APPROVAL_RUBRIC.md).
-- [Structured output schema](./docs/STRUCTURED_OUTPUT_SCHEMA.md).
-- [High-value method alignment](./docs/HIGH_VALUE_METHOD_ALIGNMENT.md).
-- [Model calibration protocol](./docs/MODEL_CALIBRATION_PROTOCOL.md).
-- [Calibration audit trail](./docs/CALIBRATION_AUDIT_TRAIL.md).
-- [Scenario evidence library](./docs/SCENARIO_EVIDENCE_LIBRARY.md).
-- [Handshake-ready project entry](./docs/HANDSHAKE_PROJECT_ENTRY.md).
-- Security and publication boundaries.
-- Verification record for the application release.
-
-The deployed application source was committed locally as `782825fce0fa0eb60470733a2c3d24f41ee8cadf` and saved as Sites version 13.
+- A clear promotion gate for model-generated software.
+- An interactive application workspace for reviewing candidate code, toggling evidence controls, and producing reviewer-ready JSONL output.
+- Executable coding proof through a Python evaluator, model-comparison engine, universal scenario library, tests, and structured output.
+- Security-first review habits for generated code.
+- High-value method alignment for AI research systems, cybersecurity governance, software/platform engineering, and data-quality evaluation tooling.
+- Evidence-backed technical judgment, not just broad AI claims.
+- Portfolio-ready framing for AI engineering and infrastructure roles.
+- A deployment-ready web surface built with React, Vinext, Tailwind, and Sites.
+- A browser-based evaluator that mirrors the governed review flow with scored findings, risk index, evidence level, and promotion decision.
+- A packaged Python evaluator with unit tests and sample review artifacts.
+- Sanitized case studies, a threat model, a test strategy, and a security policy for reviewer confidence.
+- Machine-readable JSONL evaluator output for future CI, audit-log, dashboard, universal-support, and calibration integrations.
+- Prompt-injection, sensitive logging, model-output validation, SQL boundary, release-script, and container-hardening checks for stronger AI infrastructure readiness.
+- Model Calibration Lab for ranking candidate outputs by security, correctness, data reliability, and operational readiness.
+- Local calibration audit trail for saving reviewer decisions, weights, rankings, score spread, and decision gates without storing candidate source code.
+- Scenario evidence library covering model training, inference services, MLOps pipelines, agent tooling, TypeScript/JavaScript APIs, SQL/data access, shell release scripts, and container runtimes.
+- Universal support matrix covering Python, TypeScript/JavaScript, SQL/data access, shell/release scripts, container images, infrastructure policy, AI/ML workflows, and agent tooling.
+- A release hygiene cadence, advancement roadmap, and opportunity operating process for sustained growth.
+- A governed approval rubric that separates evidence-backed readiness from external certification or endorsement.
+- Accurate, client-neutral claims supported by repeatable release gates.
 
 ## Current Proof Signals
 
-- Evaluator tests: `12` passing.
-- Scenario coverage: `4` sanitized AI/ML workflows.
-- Evaluator rule posture: `23` active review signals across default and contextual findings.
-- Sample governed review output: `15` JSONL records across summary and findings.
-- Calibration proof ranks the safer candidate first with high consensus separation.
-- Calibration audit proof emits `calibration_summary` and ranked `calibration_candidate` JSONL records.
-- Scenario proof covers model training, inference service, MLOps pipeline, and agent tooling.
-- Advanced AI-risk checks include prompt-injection bypass phrases, sensitive logging, unsafe model-output parsing, unsafe execution, hardcoded secret-like values, runtime dependency installation, unsafe YAML/pickle deserialization, mutable model and image aliases, data leakage, unseeded splits, and missing network timeouts.
-- The release passed assurance, lint, production build twice, Python unit tests, JSONL evaluator output, calibration audit proof, scenario-library export, Python compilation, and a publication-boundary scan.
+- Deployed Sites version: `14`.
+- Source commit: `49c4bc0546cbd5c360a8c516ca18db4273363e4e`.
+- Evaluator tests: `14` passing.
+- Scenario coverage: `8` universal workflows.
+- Supported review surfaces: `8`.
+- Review signal posture: `32` active signals.
+- Sample JSONL output: `16` records across summary, metadata, and findings.
+- Verification date: September 7, 2026.
 
-## Verification Record
+## Verification
 
-Verified on September 6, 2026:
+The final source has been checked with:
 
 ```bash
 pnpm run assurance
 pnpm run lint
 pnpm run build
 pnpm run build
+```
+
+The companion evaluator was checked with:
+
+```bash
 python3 -m unittest discover -s packages/evaluator/tests
 PYTHONPATH=packages/evaluator/src python3 -m governed_ai_code_eval packages/evaluator/examples/risky_candidate.py --jsonl
-PYTHONPATH=packages/evaluator/src python3 -c "from governed_ai_code_eval import calibration_report_to_jsonl, compare_candidate_reviews; report = compare_candidate_reviews('calibration proof', [('safe', 'def ok():\n    return 1\n'), ('risky', 'result = eval(user_input)\n')], tests_present=True, threat_model_present=True, performance_budget_present=True); assert report.winner == 'safe'; assert 'calibration_summary' in calibration_report_to_jsonl(report)"
+PYTHONPATH=packages/evaluator/src python3 -c "from governed_ai_code_eval import calibration_report_to_jsonl, compare_candidate_reviews; report = compare_candidate_reviews('calibration proof', [('safe', 'def ok():\n    return 1\n'), ('risky', 'result = eval(user_input)\n')], tests_present=True, threat_model_present=True, performance_budget_present=True); assert 'calibration_summary' in calibration_report_to_jsonl(report)"
 PYTHONPATH=packages/evaluator/src python3 -m governed_ai_code_eval --scenario-library
+PYTHONPATH=packages/evaluator/src python3 -m governed_ai_code_eval --list-surfaces
 python3 -m compileall packages/evaluator/src packages/evaluator/tests packages/evaluator/examples
 ```
 
-## Claim Boundary
+## Core Proof Assets
 
-This project supports top-tier candidate readiness through visible, governed evidence. It does not claim external certification, clearance, employer approval, guaranteed ranking, or institutional endorsement unless such validation is separately granted by an external reviewer.
+- Runnable Evaluator Package
+- Interactive Application Workspace
+- Sanitized Case Study Library
+- Security Policy And Threat Model
+- Test Strategy And CI Gate
+- Research-Grade Evaluation Protocol
+- Structured Output Schema
+- Model Calibration Protocol
+- Calibration Audit Trail
+- Scenario Evidence Library
+- Universal Support Matrix
+- Release Hygiene Cadence
+- Advancement Roadmap
+- Opportunity Operating Process
+- Advancement Language Guide
+- Governed Approval Rubric
+- High-Value Method Alignment
+- Value Exposure Plan
+- Enterprise Assurance Review
+- Handshake Project Entry
+- Deployment And Security Notes
+- Application User Guide
+
+## Positioning
+
+This system is strongest for roles and projects involving:
+
+- Software engineering and coding assessment
+- AI code review
+- Coding-agent evaluation
+- AI model-output adjudication
+- Comparative model-output calibration
+- LLM application engineering
+- Secure AI infrastructure
+- Governed agentic systems
+- Technical QA for frontier coding models
