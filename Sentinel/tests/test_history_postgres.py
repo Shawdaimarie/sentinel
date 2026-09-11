@@ -83,7 +83,7 @@ def database_roles() -> Iterator[Database]:
 @pytest.fixture
 def database(database_roles: Database) -> Database:
     with psycopg.connect(database_roles.owner) as conn:
-        conn.execute("DROP SCHEMA sentinel_history CASCADE")
+        conn.execute("DROP SCHEMA IF EXISTS sentinel_history CASCADE")
     migrate(database_roles.owner)
     with psycopg.connect(database_roles.owner) as conn:
         conn.execute((Path(__file__).parents[1] / "history/roles.sql").read_text())
