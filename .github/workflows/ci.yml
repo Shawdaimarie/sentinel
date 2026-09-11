@@ -112,7 +112,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
-      - uses: actions/setup-go@v5
+      - uses: actions/setup-go@v7
         with:
           go-version: "1.23.x"
           cache-dependency-path: Sentinel/verifiers/go/go.mod
