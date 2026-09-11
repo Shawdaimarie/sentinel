@@ -83,6 +83,16 @@ sentinel-eval \
   --min-score 0.90
 ```
 
+## Protecting trace and evaluation evidence
+
+`sentinel-import-otel` and `sentinel-eval` reject output paths that alias an
+input or another output, including symbolic links and existing hard links.
+They exit with code `2` before writing any reports, preserving the source
+evidence. For example, `--runs runs.jsonl --json-out runs.jsonl` is rejected.
+Use distinct destinations for the run data, manifest, and evaluation reports.
+This preflight check prevents accidental overwrites; it does not make multiple
+report writes transactional or defend against concurrent filesystem changes.
+
 ## Training-data quality quick start
 
 ```bash

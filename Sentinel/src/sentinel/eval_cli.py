@@ -10,6 +10,7 @@ from typing import cast
 
 from pydantic import ValidationError
 
+from sentinel.artifact_paths import validate_artifact_paths
 from sentinel.evaluation import (
     AgentRun,
     EvalCase,
@@ -120,6 +121,14 @@ def main(argv: Sequence[str] | None = None) -> int:
         runs_path = Path(cast(str, args.runs))
         report_path = Path(cast(str, args.report))
         json_path = Path(cast(str, args.json_out))
+
+        inputs = {"--cases": cases_path, "--runs": runs_path}
+        outputs = {"--report": report_path, "--json-out": json_path}
+        if args.baseline_runs:
+            inputs["--baseline-runs"] = Path(args.baseline_runs)
+            if args.comparison_json:
+                outputs["--comparison-json"] = Path(args.comparison_json)
+        validate_artifact_paths(inputs, outputs)
 
         cases = load_jsonl(cases_path, EvalCase)
         runs = load_jsonl(runs_path, AgentRun)

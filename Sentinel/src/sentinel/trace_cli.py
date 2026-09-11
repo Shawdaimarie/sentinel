@@ -10,6 +10,7 @@ from typing import cast
 
 from pydantic import ValidationError
 
+from sentinel.artifact_paths import validate_artifact_paths
 from sentinel.trace_import import (
     TraceImportConfig,
     TraceImportError,
@@ -68,6 +69,10 @@ def _parser() -> argparse.ArgumentParser:
 def main(argv: Sequence[str] | None = None) -> int:
     args = _parser().parse_args(argv)
     try:
+        validate_artifact_paths(
+            {"--input": Path(args.input)},
+            {"--output": Path(args.output), "--manifest": Path(args.manifest)},
+        )
         config = TraceImportConfig(
             system=cast(str, args.system),
             case_id=cast(str | None, args.case_id),
