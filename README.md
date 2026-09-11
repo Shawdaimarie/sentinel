@@ -22,6 +22,10 @@ operational infrastructure. It combines:
 
 The implementation lives in [`Sentinel/`](Sentinel/).
 
+The optional [PostgreSQL evaluation history](Sentinel/docs/EVALUATION_HISTORY.md)
+stores minimized reports, supports release/case/tag queries, and replays paired
+release comparisons with recorded cost and latency changes.
+
 ## Engineering evidence
 
 | Capability | Inspectable evidence |

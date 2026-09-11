@@ -16,8 +16,10 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+history = ["psycopg[binary]>=3.2,<4"]
 llm = ["anthropic>=0.40"]
 dev = [
+    "psycopg[binary]>=3.2,<4",
     "mypy>=1.10",
     "pytest>=8.0",
     "ruff>=0.5",
@@ -25,6 +27,7 @@ dev = [
 ]
 
 [project.scripts]
+sentinel-history = "sentinel.history_cli:main"
 sentinel = "sentinel.cli:main"
 sentinel-eval = "sentinel.eval_cli:main"
 sentinel-code-review = "sentinel.code_review_cli:main"
@@ -36,6 +39,9 @@ sentinel-capsule = "sentinel.capsule_cli:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.setuptools.package-data]
+sentinel = ["migrations/*.sql"]
 
 [tool.ruff]
 line-length = 100
@@ -50,3 +56,4 @@ python_version = "3.11"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+markers = ["postgres: requires an isolated PostgreSQL database"]
