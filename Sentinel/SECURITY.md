@@ -138,6 +138,23 @@ anchor, or can suppress the complete log before anchoring. See §6.
 - **Type strictness** is treated as a security control: strict typing rejects
   untyped paths into the policy and evaluation boundaries.
 
+### Repository enforcement boundary
+
+The desired `main` ruleset is versioned in
+[`main.json`](../.github/rulesets/main.json). It requires current passing checks,
+pull requests, resolved review conversations, and verified signatures, and
+blocks force pushes and deletion. These protections are effective only after
+an administrator activates the ruleset in GitHub; a committed configuration
+does not establish enforcement. See the [release runbook](docs/RELEASE_RUNBOOK.md).
+
+`tests/test_release_ruleset.py` checks that required contexts have unique,
+unconditional PR jobs, including documentation-only changes. This tests
+configuration consistency, not the live GitHub settings or the semantic
+adequacy of every check. The initial single-maintainer ruleset does not require
+independent human approval. Administrators can edit the ruleset, and a
+contributor who can change workflows can change what a successful check means;
+workflow and ruleset changes therefore still need careful owner review.
+
 ## 6. Residual risk and production hardening
 
 The following are *not* mitigated by this repository and must be addressed by
