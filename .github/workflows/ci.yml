@@ -9,6 +9,59 @@ permissions:
   contents: read
 
 jobs:
+  evaluation-history:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: sentinel_history_test
+          POSTGRES_USER: postgres
+          # Disposable service credentials, never used by a deployed database.
+          POSTGRES_PASSWORD: sentinel-ci-only
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d sentinel_history_test"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      SENTINEL_HISTORY_TEST_DSN: postgresql://postgres:sentinel-ci-only@127.0.0.1:5432/sentinel_history_test
+    defaults:
+      run:
+        working-directory: Sentinel
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install PostgreSQL client and package
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y postgresql-client-16
+          python -m pip install --upgrade pip "setuptools>=83" wheel
+          python -m pip install ".[dev,history]"
+      - name: Verify migrations are packaged
+        working-directory: /tmp
+        run: |
+          python - <<'PY'
+          from importlib.resources import files
+          assert files("sentinel").joinpath("migrations", "001_history.sql").is_file()
+          assert files("sentinel").joinpath("migrations", "002_history_indexes.sql").is_file()
+          PY
+      - name: PostgreSQL transactions, roles, migrations, and restore
+        run: |
+          mkdir -p reports/history
+          pytest -q tests/test_history.py tests/test_history_postgres.py \
+            --junitxml=reports/history/integration.xml
+      - name: Upload database verification evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sentinel-history-integration
+          path: Sentinel/reports/history/
+          if-no-files-found: warn
+
   quality-and-evaluation:
     runs-on: ubuntu-latest
     strategy:

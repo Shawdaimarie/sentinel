@@ -157,6 +157,22 @@ workflow and ruleset changes therefore still need careful owner review.
 
 ## 6. Residual risk and production hardening
 
+### Evaluation history
+
+The optional PostgreSQL history layer stores minimized evaluation metadata and
+source hashes. Free-text metric details and failure diagnostics are omitted;
+operational identifiers must still be reviewed for sensitive content. The
+reader uses SELECT-only grants and read-only transactions, while the writer
+can append but cannot update, delete or change the schema. Owner credentials
+are reserved for migrations and retention. The CLI suppresses database exception
+details so connection strings and rejected input values do not enter its output.
+
+Role boundaries, atomic imports and restoration are exercised by the PostgreSQL
+integration tests. These are not protections against a malicious database owner,
+a compromised writer fabricating source reports, or inappropriate grants added
+outside this repository. See [evaluation history](docs/EVALUATION_HISTORY.md)
+for architecture, TLS guidance, retention and backup procedures.
+
 The following are *not* mitigated by this repository and must be addressed by
 the deployment.
 

@@ -22,6 +22,7 @@ Required contexts are **job names**, not workflow titles:
 | Workflow | Required contexts |
 | --- | --- |
 | CI | `quality-and-evaluation (3.11)`, `quality-and-evaluation (3.12)`, `Portable audit conformance`, `container-build` |
+| CI — evaluation history | `evaluation-history` |
 | Aegis CI | `aegis-go`, `aegis-container` |
 | Trace Import | `otlp-to-evaluation` |
 | CodeQL | `Analyze python`, `Analyze go` |
@@ -39,7 +40,8 @@ PR run before updating the live ruleset.
 
 ## Activation
 
-1. Let the safeguards PR finish all ten required checks, including `stability`.
+1. Let the release PR finish all eleven required checks, including `stability`
+   and `evaluation-history`.
    Confirm the check names and that they originate from GitHub Actions.
 2. Inspect existing repository and inherited rulesets first. Update the matching
    ruleset if one exists instead of creating a duplicate.
