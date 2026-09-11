@@ -54,3 +54,6 @@ go test ./...
 3. State which trust boundary or release criterion the change affects.
 4. Include tests and evaluation evidence before requesting review.
 5. Merge only after CI, CodeQL, conformance, and container gates are green.
+
+See the [release runbook](docs/RELEASE_RUNBOOK.md) for required check names,
+the single-maintainer review policy, activation, and recovery procedures.

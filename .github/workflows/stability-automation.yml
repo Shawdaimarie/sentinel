@@ -6,14 +6,8 @@ on:
     - cron: "17 11 * * 1-5"
   push:
     branches: [main]
-    paths:
-      - ".github/workflows/stability-automation.yml"
-      - "Sentinel/automation/**"
-      - "Sentinel/src/**"
-      - "Sentinel/tests/**"
-      - "Sentinel/examples/**"
-      - "Sentinel/docs/AUTOMATION.md"
-      - "Sentinel/pyproject.toml"
+  # Required checks must also run on documentation-only pull requests.
+  pull_request:
 
 permissions:
   contents: read
