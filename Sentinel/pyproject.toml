@@ -22,7 +22,7 @@ dev = [
     "psycopg[binary]>=3.2,<4",
     "mypy>=1.10",
     "pytest>=8.0",
-    "ruff>=0.5",
+    "ruff>=0.16.6",
     "types-PyYAML",
 ]
 
