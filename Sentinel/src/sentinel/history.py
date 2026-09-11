@@ -19,10 +19,11 @@ from importlib.resources import files
 from typing import Any, Literal
 
 import psycopg
+from psycopg import IsolationLevel
 from psycopg.rows import dict_row
 from psycopg.types.json import Jsonb
 
-from sentinel.evaluation import ComparisonReport, SuiteReport, compare_reports
+from sentinel.evaluation import ComparisonReport, RunEvaluation, SuiteReport, compare_reports
 
 MAX_REPORT_BYTES = 8 * 1024 * 1024
 MAX_RUNS = 10_000
@@ -90,6 +91,8 @@ def minimized_report(raw: bytes) -> tuple[SuiteReport, str]:
         report = SuiteReport.model_validate(payload)
     except ValueError as exc:
         raise HistoryError("invalid SuiteReport schema") from exc
+    # Pydantic can coerce a numeric string to infinity after JSON validation.
+    _canonical(report.model_dump())
     if report.schema_version != "sentinel.eval.v1":
         raise HistoryError("unsupported evaluation schema version")
     identifier(report.system)
@@ -110,7 +113,7 @@ def minimized_report(raw: bytes) -> tuple[SuiteReport, str]:
     if report.run_count != len(report.results):
         raise HistoryError("run count does not match report results")
     seen: set[tuple[str, str]] = set()
-    grouped: dict[str, list[Any]] = defaultdict(list)
+    grouped: dict[str, list[RunEvaluation]] = defaultdict(list)
     for run in report.results:
         identifier(run.case_id)
         identifier(run.run_id)
@@ -125,12 +128,13 @@ def minimized_report(raw: bytes) -> tuple[SuiteReport, str]:
             if metric.weight != report.config.weights[metric.name]:
                 raise HistoryError("metric weights do not match report configuration")
             metric.detail = "[omitted by history policy]"
-        expected_score = round(sum(m.value * m.weight for m in run.metrics), 6)
+        unrounded_score = sum(m.value * m.weight for m in run.metrics)
+        expected_score = round(unrounded_score, 6)
         if not math.isclose(run.score, expected_score, abs_tol=1e-6):
             raise HistoryError("run score does not match its metrics")
         if run.safety_passed != (not run.hard_failures):
             raise HistoryError("inconsistent safety result")
-        if run.passed and (not run.safety_passed or run.score < report.config.run_min_score):
+        if run.passed and (not run.safety_passed or unrounded_score < report.config.run_min_score):
             raise HistoryError("invalid passing run")
         if len(set(run.tags)) != len(run.tags):
             raise HistoryError("duplicate run tags")
@@ -181,6 +185,9 @@ def minimized_report(raw: bytes) -> tuple[SuiteReport, str]:
 def _connection(dsn: str, *, readonly: bool = True) -> Iterator[Connection]:
     """Bound each operation to one short transaction, read-only unless requested."""
     with psycopg.connect(dsn, row_factory=dict_row, connect_timeout=5) as conn:
+        conn.isolation_level = (
+            IsolationLevel.REPEATABLE_READ if readonly else IsolationLevel.READ_COMMITTED
+        )
         conn.read_only = readonly
         conn.execute("SET LOCAL statement_timeout = '30s'")
         conn.execute("SET LOCAL lock_timeout = '5s'")
@@ -254,14 +261,15 @@ def import_suite(dsn: str, raw: bytes, *, suite: str, release: str) -> dict[str,
             if existing is None or existing["id"] != report_id:
                 raise HistoryError("release already has a different report; use a new release ID")
             return {"id": report_id, "inserted": False}
-        for name, digest in report.input_hashes.items():
-            conn.execute(
-                "INSERT INTO sentinel_history.sources VALUES (%s, %s, %s)",
-                (report_id, name, digest),
-            )
-        for case_id in sorted({run.case_id for run in report.results}):
-            conn.execute("INSERT INTO sentinel_history.cases VALUES (%s, %s)", (report_id, case_id))
         with conn.cursor() as cursor:
+            cursor.executemany(
+                "INSERT INTO sentinel_history.sources VALUES (%s, %s, %s)",
+                [(report_id, name, digest) for name, digest in report.input_hashes.items()],
+            )
+            cursor.executemany(
+                "INSERT INTO sentinel_history.cases VALUES (%s, %s)",
+                [(report_id, case_id) for case_id in sorted({r.case_id for r in report.results})],
+            )
             cursor.executemany(
                 "INSERT INTO sentinel_history.runs VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
                 [

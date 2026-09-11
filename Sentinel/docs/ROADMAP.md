@@ -74,6 +74,11 @@ Exit criteria:
 
 Objective: make evaluation history queryable while preserving provenance.
 
+The optional `history` extra now implements PostgreSQL storage and a read-only
+CLI for this scope. See [evaluation history](EVALUATION_HISTORY.md) for the
+storage contract, migration and role setup, query examples, and recovery tests.
+This implementation does not expose an HTTP service or claim production readiness.
+
 - PostgreSQL schema for suites, cases, runs, metrics, releases, and input
   fingerprints.
 - Idempotent ingestion keyed by content digest.

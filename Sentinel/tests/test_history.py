@@ -6,6 +6,7 @@ import psycopg
 import pytest
 
 from sentinel import history_cli
+from sentinel.evaluation import AgentRun, EvalCase, EvaluationConfig, evaluate_suite
 from sentinel.history import HistoryError, identifier, minimized_report, query_history
 from tests.history_fixtures import history_report
 
@@ -51,6 +52,28 @@ def test_duplicate_runs_and_duplicate_json_keys_are_rejected() -> None:
         minimized_report(report.model_dump_json().encode())
     with pytest.raises(HistoryError):
         minimized_report(b'{"system":"first","system":"second"}')
+
+
+def test_numeric_strings_cannot_smuggle_nonfinite_values() -> None:
+    payload = history_report().model_dump(mode="json")
+    payload["total_cost_usd"] = "Infinity"
+    payload["results"][0]["cost_usd"] = "Infinity"
+    with pytest.raises(HistoryError, match="non-finite"):
+        minimized_report(json.dumps(payload).encode())
+
+
+def test_valid_gate_near_rounding_boundary_is_preserved() -> None:
+    case = EvalCase(id="latency", task="Bound latency", max_latency_ms=100)
+    run = AgentRun(case_id="latency", run_id="one", latency_ms=150)
+    report = evaluate_suite(
+        [case],
+        [run],
+        EvaluationConfig(run_min_score=0.9833333),
+        input_hashes={"cases": "a" * 64, "runs": "b" * 64},
+    )
+    assert report.results[0].score < report.config.run_min_score
+    assert report.results[0].passed
+    assert minimized_report(report.model_dump_json().encode())[0].gate_passed
 
 
 @pytest.mark.parametrize("value", ["", "a@company.example", "x' OR true--", "x" * 129])

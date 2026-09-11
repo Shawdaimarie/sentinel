@@ -18,6 +18,7 @@ import pytest
 from psycopg import sql
 from psycopg.conninfo import conninfo_to_dict, make_conninfo
 
+from sentinel import history
 from sentinel.history import (
     HistoryError,
     _connection,
@@ -133,6 +134,13 @@ def test_partial_import_rolls_back(database: Database) -> None:
 def test_roles_enforce_read_only_and_append_only(database: Database) -> None:
     report_id = ingest(database)
     assert get_report(database.reader, report_id)["release"] == "v1"
+    with pytest.raises(psycopg.errors.InsufficientPrivilege):
+        import_suite(
+            database.reader,
+            history_report().model_dump_json().encode(),
+            suite="demo",
+            release="v2",
+        )
     for dsn, statement in [
         (database.reader, "DELETE FROM sentinel_history.suites"),
         (database.writer, "UPDATE sentinel_history.suites SET release='rewritten'"),
@@ -190,15 +198,51 @@ def test_queries_and_release_replay(database: Database) -> None:
         )
 
 
-def test_incompatible_cases_cannot_be_compared(database: Database) -> None:
+@pytest.mark.parametrize("changed", ["cases", "config", "run_keys"])
+def test_incompatible_reports_cannot_be_compared(database: Database, changed: str) -> None:
     first = ingest(database)
     report = history_report()
-    report.input_hashes["cases"] = "d" * 64
+    if changed == "cases":
+        report.input_hashes["cases"] = "d" * 64
+    elif changed == "config":
+        report.config.run_min_score = 0.7
+    else:
+        report.results[0].run_id = "different-trial"
     second = import_suite(
         database.writer, report.model_dump_json().encode(), suite="demo", release="v2"
     )
     with pytest.raises(HistoryError, match="same suite"):
         compare_history(database.reader, first, second["id"])
+
+
+def test_owner_retention_cascades_comparisons(database: Database) -> None:
+    first, second = ingest(database), ingest(database, "v2", unsafe=True)
+    raw = json.dumps(compare_history(database.reader, first, second)["comparison"]).encode()
+    import_comparison(database.writer, raw, baseline_id=first, candidate_id=second)
+    with psycopg.connect(database.owner) as conn:
+        conn.execute("DELETE FROM sentinel_history.suites WHERE id=%s", (first,))
+    assert query_history(database.reader, suite="demo", view="comparisons")["items"] == []
+    assert get_report(database.reader, second)["release"] == "v2"
+    with psycopg.connect(database.owner) as conn:
+        assert conn.execute("SELECT count(*) FROM sentinel_history.regressions").fetchone() == (0,)
+        assert conn.execute("SELECT count(*) FROM sentinel_history.runs").fetchone() == (1,)
+
+
+def test_failed_migration_rolls_back_all_ddl(
+    database: Database,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    with psycopg.connect(database.owner) as conn:
+        conn.execute("DROP SCHEMA sentinel_history CASCADE")
+    shutil.copytree(Path(history.__file__).parent / "migrations", tmp_path / "migrations")
+    broken = tmp_path / "migrations/002_history_indexes.sql"
+    broken.write_text(broken.read_text() + "\nSELECT 1/0;\n")
+    monkeypatch.setattr(history, "files", lambda _: tmp_path)
+    with pytest.raises(psycopg.errors.DivisionByZero):
+        migrate(database.owner)
+    with psycopg.connect(database.owner) as conn:
+        assert conn.execute("SELECT to_regnamespace('sentinel_history')").fetchone() == (None,)
 
 
 def test_forward_upgrade_checksum_and_no_downgrade(database: Database) -> None:
@@ -278,10 +322,14 @@ def test_backup_restore_reproduces_comparison(database: Database, tmp_path: Path
         )
         restored = make_conninfo(database.owner, dbname=restore_name)
         assert migrate(restored) == 2
-        assert compare_history(restored, first, second) == before
-        assert len(query_history(restored, suite="demo", view="comparisons")["items"]) == 1
+        with psycopg.connect(restored) as conn:
+            conn.execute((Path(__file__).parents[1] / "history/roles.sql").read_text())
+        restored_reader = make_conninfo(database.reader, dbname=restore_name)
+        restored_writer = make_conninfo(database.writer, dbname=restore_name)
+        assert compare_history(restored_reader, first, second) == before
+        assert len(query_history(restored_reader, suite="demo", view="comparisons")["items"]) == 1
         assert not import_suite(
-            restored, history_report().model_dump_json().encode(), suite="demo", release="v1"
+            restored_writer, history_report().model_dump_json().encode(), suite="demo", release="v1"
         )["inserted"]
     finally:
         with psycopg.connect(database.owner, autocommit=True) as conn:
