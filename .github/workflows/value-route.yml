@@ -44,7 +44,7 @@ jobs:
             --min-score 0.70
       - name: Upload value route evidence
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: sentinel-value-route-gateway
           path: Sentinel/reports/value-route/
