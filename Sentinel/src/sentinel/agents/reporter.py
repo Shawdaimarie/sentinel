@@ -116,7 +116,8 @@ class Reporter(Agent):
             "A claim is *supported* only when a linked source contains the asserted quantity. "
             "*Unsupported* means no source is linked or the source does not contain it. "
             "*Unverifiable* means a source is linked but could not be retrieved. "
-            "Model suggestions remain unverifiable pending human evidence review. Controls are compared against thresholds declared in `policy.yaml`.",
+            "Model suggestions remain unverifiable pending human evidence review. "
+            "Controls are compared against thresholds declared in `policy.yaml`.",
             "",
         ]
         return "\n".join(lines)
