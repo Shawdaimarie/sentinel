@@ -11,17 +11,19 @@ The ruleset targets `main`, requires pull requests and current passing checks,
 blocks force pushes and branch deletion, requires verified commit signatures,
 and requires review conversations to be resolved. It has no bypass actors.
 
-The initial single-maintainer policy requires zero independent approvals.
-This makes PRs and their evidence mandatory without preventing the owner from
-merging their own work. It does not claim independent human review. When a
-second qualified maintainer is available, change the approval count to one and
-enable last-push approval in a reviewed configuration update.
+The proposed policy now requires one code-owner approval and approval of the
+latest push. It dismisses stale approvals. This supersedes the earlier zero-approval
+single-maintainer configuration at the owner's request for human-controlled sources.
+An owner cannot approve a PR authored under their own account. Add a second trusted
+human code owner (or use a separately attributed automation author) before activation.
+Do not substitute a bot review or passing checks for human approval.
 
 Required contexts are **job names**, not workflow titles:
 
 | Workflow | Required contexts |
 | --- | --- |
 | CI | `quality-and-evaluation (3.11)`, `quality-and-evaluation (3.12)`, `Portable audit conformance`, `container-build` |
+| Human authority configuration | `human-authority` |
 | CI — evaluation history | `evaluation-history` |
 | Aegis CI | `aegis-go`, `aegis-container` |
 | Trace Import | `otlp-to-evaluation` |
@@ -40,7 +42,7 @@ PR run before updating the live ruleset.
 
 ## Activation
 
-1. Let the release PR finish all eleven required checks, including `stability`
+1. Let the release PR finish all twelve required checks, including `stability`
    and `evaluation-history`.
    Confirm the check names and that they originate from GitHub Actions.
 2. Inspect existing repository and inherited rulesets first. Update the matching
@@ -90,7 +92,7 @@ edit rulesets; an empty bypass list does not remove that administrative power.
 
 ## Next milestone
 
-After release enforcement is verified, implement evaluation history under
-issue #12: versioned PostgreSQL migrations, digest-keyed idempotent imports,
-read-only release comparison, and an exercised backup/restore path. Keep this
-work in Sentinel and preserve the current evaluator contract.
+Evaluation history was implemented in PR #32. Before deployment, activate and test
+the human-review ruleset, provision the intended database under separate owner,
+writer and reader identities, and exercise the documented restore procedure there.
+See the repository-root HUMAN_AUTHORITY.md for the source/approval trust boundary.

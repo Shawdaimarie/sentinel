@@ -19,7 +19,7 @@ from urllib.parse import urljoin
 import httpx
 
 from sentinel.agents.base import Agent
-from sentinel.http import governed_get, make_client
+from sentinel.http import bounded_get, governed_get, make_client
 from sentinel.models import Claim
 
 _QUANTITY = re.compile(
@@ -83,11 +83,15 @@ class Crawler(Agent):
 
     def __init__(self, *args: Any, timeout: float = 15.0, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
-        self._client = make_client(timeout)
+        agent_policy = self.policy.document.agents.get(self.name)
+        self._client = make_client(
+            timeout,
+            allow_private_networks=bool(agent_policy and agent_policy.allow_private_networks),
+        )
         self.register("http.get", self._get)
 
     def _get(self, target: str, _: dict[str, Any]) -> httpx.Response:
-        return self._client.get(target)
+        return bounded_get(self._client, target)
 
     def crawl(self, url: str) -> list[Claim]:
         """Fetch one page and return the quantitative claims it makes."""

@@ -9,6 +9,7 @@ autonomy.
 from __future__ import annotations
 
 import json
+import math
 import subprocess
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
@@ -104,7 +105,7 @@ def _require_score(value: object, context: str) -> float:
     if isinstance(value, bool) or not isinstance(value, (int, float)):
         raise ValueError(f"{context} must be a number in [0.0, 1.0]")
     score = float(value)
-    if score < 0.0 or score > 1.0:
+    if not math.isfinite(score) or score < 0.0 or score > 1.0:
         raise ValueError(f"{context} must be in [0.0, 1.0]")
     return score
 
@@ -228,6 +229,9 @@ def run_task(
 ) -> TaskResult:
     """Plan or execute one task under benefit and command guardrails."""
 
+    _require_score(min_benefit_score, "min_benefit_score")
+    _require_score(task.benefit_score, "benefit_score")
+
     if task.benefit_score < min_benefit_score:
         return TaskResult(
             task=task,
@@ -258,7 +262,7 @@ def run_task(
 
     try:
         completed = subprocess.run(
-            list(task.command),
+            list(_validate_command(task.command)),
             cwd=str(cwd),
             text=True,
             capture_output=True,
@@ -297,7 +301,7 @@ def run_catalog(
 ) -> list[TaskResult]:
     """Run a sequence of tasks in catalog order."""
 
-    if min_benefit_score < 0.0 or min_benefit_score > 1.0:
+    if not math.isfinite(min_benefit_score) or min_benefit_score < 0.0 or min_benefit_score > 1.0:
         raise ValueError("min_benefit_score must be in [0.0, 1.0]")
     return [
         run_task(task, cwd=cwd, execute=execute, min_benefit_score=min_benefit_score)

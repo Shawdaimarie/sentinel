@@ -130,10 +130,13 @@ class Policy:
                 return self._deny(agent, action, target, reason)
 
         if action.startswith("fs."):
-            if not any(target.startswith(p) for p in agent_policy.allowed_paths):
-                return self._deny(agent, action, target, "path not in allowed_paths")
-            if ".." in Path(target).parts or Path(target).is_absolute():
+            path = Path(target)
+            if ".." in path.parts or path.is_absolute():
                 return self._deny(agent, action, target, "path traversal is not permitted")
+            if any(p.is_symlink() for p in (path, *path.parents)):
+                return self._deny(agent, action, target, "symlink paths are not permitted")
+            if not any(path.is_relative_to(Path(p)) for p in agent_policy.allowed_paths):
+                return self._deny(agent, action, target, "path not in allowed_paths")
 
         return Decision(allowed=True, agent=agent, action=action, target=target, reason="permitted")
 
@@ -153,8 +156,13 @@ class Policy:
                 addresses = self._resolver(host)
             except OSError:
                 return f"host {host!r} could not be resolved"
+            if not addresses:
+                return f"host {host!r} could not be resolved"
             for address in addresses:
-                ip = ipaddress.ip_address(address)
+                try:
+                    ip = ipaddress.ip_address(address)
+                except ValueError:
+                    return f"host {host!r} returned an invalid address"
                 if not ip.is_global:
                     return f"host {host!r} resolves to non-global address {address}"
         return None
