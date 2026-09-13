@@ -99,9 +99,7 @@ def document() -> dict[str, object]:
     return {
         "resourceSpans": [
             {
-                "resource": {
-                    "attributes": [attr("service.name", "stringValue", "candidate-v3")]
-                },
+                "resource": {"attributes": [attr("service.name", "stringValue", "candidate-v3")]},
                 "scopeSpans": [{"spans": [root, tool_1, tool_2, approval]}],
             }
         ]
@@ -178,10 +176,7 @@ def test_unknown_metadata_is_bounded_and_configurable() -> None:
         if key.startswith("vendor.field")
     }
     assert len(vendor_values) <= 3
-    assert all(
-        isinstance(value, str) and len(value) <= 16
-        for value in vendor_values.values()
-    )
+    assert all(isinstance(value, str) and len(value) <= 16 for value in vendor_values.values())
 
 
 def test_missing_output_marks_trace_partial_and_incomplete() -> None:
@@ -288,3 +283,33 @@ def test_path_and_cli_write_valid_jsonl_and_manifest(tmp_path: Path) -> None:
     assert evidence["traces"][0]["trace_id"] == TRACE_ID
     assert evidence["traces"][0]["metadata"]["deployment.environment"] == "[REDACTED]"
     assert evidence["source_sha256"] == hashlib.sha256(source.read_bytes()).hexdigest()
+
+
+@pytest.mark.parametrize(
+    ("payload", "message"),
+    [
+        (b'{"secret":"\xff"}', "invalid JSON encoding"),
+        (
+            b'{"nested":' + b"[" * 10000 + b"0" + b"]" * 10000 + b"}",
+            "JSON nesting exceeds parser limit",
+        ),
+    ],
+    ids=["invalid-encoding", "excessive-nesting"],
+)
+def test_invalid_json_transport_has_safe_error(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str], payload: bytes, message: str
+) -> None:
+    source = tmp_path / "trace.json"
+    output = tmp_path / "runs.jsonl"
+    manifest = tmp_path / "manifest.json"
+    source.write_bytes(payload)
+
+    with pytest.raises(TraceImportError, match=message):
+        import_otel_path(source)
+
+    assert main(["--input", str(source), "--output", str(output), "--manifest", str(manifest)]) == 2
+    captured = capsys.readouterr()
+    assert captured.out == ""
+    assert captured.err == f"sentinel-import-otel: {message}\n"
+    assert not output.exists()
+    assert not manifest.exists()

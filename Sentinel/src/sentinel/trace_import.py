@@ -874,6 +874,10 @@ def import_otel_path(path: Path, config: TraceImportConfig | None = None) -> Tra
         document = json.loads(source)
     except json.JSONDecodeError as exc:
         raise TraceImportError(f"{path}:{exc.lineno}:{exc.colno}: invalid JSON") from exc
+    except UnicodeDecodeError as exc:
+        raise TraceImportError("invalid JSON encoding") from exc
+    except RecursionError as exc:
+        raise TraceImportError("JSON nesting exceeds parser limit") from exc
     if not isinstance(document, Mapping):
         raise TraceImportError("OTLP export root must be a JSON object")
     return import_otel_document(document, source_bytes=source, config=config)
