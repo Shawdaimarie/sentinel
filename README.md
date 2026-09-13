@@ -40,6 +40,9 @@ release comparisons with recorded cost and latency changes.
 | Portable verification | Independent Python, TypeScript, and Go implementations share vectors |
 | Delivery discipline | Python 3.11/3.12, Ruff, strict mypy, pytest, `pip-audit`, CodeQL, Docker |
 
+For a first installation, follow the [wheel-based first-run guide](Sentinel/docs/FIRST_RUN.md).
+It checks installed commands and failure cases without API keys or a database.
+
 ## Trace-to-evaluation quick start
 
 ```bash
