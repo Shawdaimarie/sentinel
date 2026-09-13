@@ -14,7 +14,7 @@ from typing import Any
 import httpx
 
 from sentinel.agents.base import Agent
-from sentinel.http import make_client
+from sentinel.http import bounded_get, make_client
 from sentinel.models import ProbeResult
 
 
@@ -23,7 +23,11 @@ class Prober(Agent):
 
     def __init__(self, *args: Any, timeout: float = 10.0, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
-        self._client = make_client(timeout)
+        agent_policy = self.policy.document.agents.get(self.name)
+        self._client = make_client(
+            timeout,
+            allow_private_networks=bool(agent_policy and agent_policy.allow_private_networks),
+        )
         self.register("http.head", self._head)
         self.register("http.get", self._get)
 
@@ -31,7 +35,7 @@ class Prober(Agent):
         return self._client.head(target)
 
     def _get(self, target: str, _: dict[str, Any]) -> httpx.Response:
-        return self._client.get(target)
+        return bounded_get(self._client, target)
 
     def probe(self, url: str) -> ProbeResult:
         thresholds = self.policy.thresholds(self.name)

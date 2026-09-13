@@ -89,8 +89,8 @@ anchor, or can suppress the complete log before anchoring. See §6.
   requests crossing B1 outward pass policy evaluation, including each redirect
   hop.
 - **B2 — model.** Content sent across B2 is fenced and length-bounded; the
-  model's response is constrained to a verdict token and cannot upgrade a
-  claim that lacks a source.
+  model's response is advisory and cannot upgrade a claim to supported; a model
+  suggestion of support remains unverifiable pending human evidence review.
 - **Audit key.** Held outside the host. Its absence downgrades the log to a
   plain hash chain, which `verify-audit` reports explicitly. A verifier holding
   a key refuses every unkeyed record; the record never chooses the algorithm
@@ -104,21 +104,21 @@ anchor, or can suppress the complete log before anchoring. See §6.
 | Category | Threat | Control | Test or evidence |
 |---|---|---|---|
 | **Spoofing** | Lookalike host (`example.com.evil.io`) passes domain check | Suffix match requires a dot boundary | `test_domain_boundary_is_enforced` |
-| | DNS rebinding to an internal address | Resolution check rejects non-global addresses; unresolvable hosts denied | `test_private_address_resolution_is_denied`, `test_loopback_and_link_local_are_denied`, `test_unresolvable_host_is_denied` |
+| | DNS rebinding to an internal address | Policy and connection-time checks reject non-global addresses; connection uses the validated IP with the original Host/TLS name | `test_private_address_resolution_is_denied`, `test_loopback_and_link_local_are_denied`, `test_unresolvable_host_is_denied` |
 | **Tampering** | Audit record altered or deleted in the middle | Hash chain, sequence check, `verify-audit` | `test_content_tampering_is_detected`, `test_deletion_is_detected` |
 | | Audit chain recomputed after rewrite | HMAC-SHA256 with an external key | `test_keyed_chain_cannot_be_rechained_without_key` |
 | | `keyed` flipped to false and chain recomputed with SHA-256 | Verifier holding a key rejects any unkeyed record | `test_keyed_verifier_rejects_downgrade_to_unkeyed` and portable conformance tests |
 | | Writer implementation disagrees with the documented format | Normative vectors checked by Sentinel plus independent Python, TypeScript, and Go verifiers | `test_portable_spec.py` and `portable-audit-conformance` CI job |
 | | Policy substituted between review and run | Policy SHA-256 recorded; `--policy-sha256` refuses mismatch | `test_policy_fingerprint_pinning` |
 | **Repudiation** | Agent acts without a record | `Agent.act` writes the decision before dispatch; no other execution path | `test_allowed_action_is_logged_then_executed`, `test_denied_action_is_logged_and_raises` |
-| **Information disclosure** | Reporter writes outside `reports/` | Path prefix and traversal checks; absolute paths denied | `test_path_traversal_is_denied`, `test_reporter_writes_only_within_allowed_path` |
+| **Information disclosure** | Reporter writes outside `reports/` | Path-component and traversal checks; absolute paths and existing symlinks denied | `test_path_traversal_is_denied`, `test_reporter_writes_only_within_allowed_path` |
 | | Credentials leaked through URL userinfo | URLs with userinfo denied | `test_credentials_in_url_are_denied` |
 | **Denial of service** | Unbounded requests per run | Per-agent budgets; denials do not consume budget | `test_per_run_budget_is_enforced`, `test_denied_actions_do_not_consume_budget` |
 | | Redirect loop | Hop limit of five | `test_redirect_loop_is_bounded` |
-| | Oversized or binary response | 2 MiB body limit; textual content types only | `test_non_textual_content_is_rejected` |
+| | Oversized or binary response | 2 MiB decoded body limit enforced while streaming; exact textual media types only | `test_non_textual_content_is_rejected` |
 | **Elevation of privilege** | Redirect from allowed to foreign host | Redirects are manual; every hop is evaluated | `test_redirect_to_foreign_host_is_denied_and_logged` |
 | | Non-HTTP scheme (`file:`, `ftp:`) | Scheme allow-list | `test_non_http_schemes_are_denied` |
-| | Prompt injection through crawled content | Source fenced and truncated; delimiter collisions neutralized; output constrained; absent source cannot be overridden | `test_verifier_prompt_fences_untrusted_source` |
+| | Prompt injection through crawled content | Claim and source fenced and bounded; fixed system instructions; model suggestions remain unverifiable pending human review | `test_verifier_prompt_fences_untrusted_source` |
 | | Undeclared agent or action | Default deny | `test_default_is_deny_for_undeclared_agent`, `test_action_outside_allowed_set_is_denied` |
 
 ## 5. Controls in the delivery pipeline
@@ -150,8 +150,8 @@ does not establish enforcement. See the [release runbook](docs/RELEASE_RUNBOOK.m
 `tests/test_release_ruleset.py` checks that required contexts have unique,
 unconditional PR jobs, including documentation-only changes. This tests
 configuration consistency, not the live GitHub settings or the semantic
-adequacy of every check. The initial single-maintainer ruleset does not require
-independent human approval. Administrators can edit the ruleset, and a
+adequacy of every check. The proposed ruleset requires one human code-owner approval of the latest push;
+this is not active until an administrator enables and verifies it. Administrators can edit the ruleset, and a
 contributor who can change workflows can change what a successful check means;
 workflow and ruleset changes therefore still need careful owner review.
 
@@ -213,3 +213,23 @@ Findings in this reference implementation that would apply to a deployment are
 in scope. Findings requiring an adversary outside §2 are welcome but may be
 recorded as residual risk rather than treated as a defect in this reference
 implementation.
+
+## Human authority hardening
+
+The connection transport pins each connection to an IP validated at connection time,
+keeps the original HTTP Host and TLS verification name, and disables environment proxies
+and cross-host keepalive reuse. Response streaming bounds decoded bytes; decompressor
+internal allocations and slow senders still require process and ingress resource limits.
+Existing symlink paths are denied, but a hostile local process can still race filesystem
+changes: run with a private writable report directory and least-privilege filesystem access.
+Report text from sources and models is escaped and collapsed to inert lines.
+
+Regression tests in `test_source_authority.py` and `test_authority_execution.py` exercise
+these controls. Source authenticity remains a separate human judgment. Prompt delimiters
+are not a proof against prompt injection; the model has no authority to approve execution.
+
+Automation catalogs and test code are trusted executable inputs, not safe documents.
+The executable allowlist is not a sandbox: tools such as pytest can execute repository
+code. Only execute a catalog and checkout approved by the operator, inside an isolated
+environment without deployment credentials. Dispatch revalidates executable names and
+rejects non-finite benefit scores; neither check authenticates the catalog's author.

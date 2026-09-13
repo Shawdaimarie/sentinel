@@ -1,9 +1,12 @@
 package aegis
 
 import (
+	"bytes"
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
+	"fmt"
+	"io"
 	"os"
 	"sort"
 	"strings"
@@ -42,8 +45,13 @@ func LoadPolicy(path string) (Policy, error) {
 		return Policy{}, err
 	}
 	var policy Policy
-	if err := json.Unmarshal(data, &policy); err != nil {
+	decoder := json.NewDecoder(bytes.NewReader(data))
+	decoder.DisallowUnknownFields()
+	if err := decoder.Decode(&policy); err != nil {
 		return Policy{}, err
+	}
+	if err := decoder.Decode(new(any)); err != io.EOF {
+		return Policy{}, fmt.Errorf("policy must contain one JSON document")
 	}
 	return policy, nil
 }
@@ -164,6 +172,11 @@ func (p Policy) normalized() Policy {
 	normalized := p
 	normalized.Rules = append([]Rule(nil), p.Rules...)
 	for i := range normalized.Rules {
+		normalized.Rules[i].Subjects = append([]string(nil), p.Rules[i].Subjects...)
+		normalized.Rules[i].SPIFFETrustDomains = append([]string(nil), p.Rules[i].SPIFFETrustDomains...)
+		normalized.Rules[i].Tools = append([]string(nil), p.Rules[i].Tools...)
+		normalized.Rules[i].Actions = append([]string(nil), p.Rules[i].Actions...)
+		normalized.Rules[i].Resources = append([]string(nil), p.Rules[i].Resources...)
 		sort.Strings(normalized.Rules[i].Subjects)
 		sort.Strings(normalized.Rules[i].SPIFFETrustDomains)
 		sort.Strings(normalized.Rules[i].Tools)

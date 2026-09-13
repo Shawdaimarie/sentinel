@@ -3,6 +3,7 @@ package aegis
 import (
 	"context"
 	"encoding/json"
+	"io"
 	"net/http"
 	"strings"
 	"time"
@@ -91,6 +92,10 @@ func (h HTTPHandler) authorize(w http.ResponseWriter, r *http.Request) {
 	decoder.DisallowUnknownFields()
 	var request AuthorizationRequest
 	if err := decoder.Decode(&request); err != nil {
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid_json"})
+		return
+	}
+	if err := decoder.Decode(new(any)); err != io.EOF {
 		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid_json"})
 		return
 	}

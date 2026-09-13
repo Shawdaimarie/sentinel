@@ -7,12 +7,20 @@ reader can trace any line of the report back to the logged evidence.
 
 from __future__ import annotations
 
+import re
 from datetime import UTC, datetime
+from html import escape
 from pathlib import Path
 from typing import Any
 
 from sentinel.agents.base import Agent
 from sentinel.models import ProbeResult, Verdict, Verification
+
+
+def _untrusted_text(value: object) -> str:
+    """Render external strings as one inert Markdown line, including raw HTML."""
+    text = escape(" ".join(str(value).split()), quote=False)
+    return re.sub(r"([\\`*_{\[\]}()|])", r"\\\1", text)
 
 
 class Reporter(Agent):
@@ -59,7 +67,7 @@ class Reporter(Agent):
             f"# Sentinel report — {now:%Y-%m-%d}",
             "",
             f"Generated {now.isoformat(timespec='seconds')}. "
-            f"Audit log: `{audit_path}`. Every finding cites its audit sequence.",
+            f"Audit log: {_untrusted_text(audit_path)}. Every finding cites its audit sequence.",
             "",
             "## Summary",
             "",
@@ -76,9 +84,10 @@ class Reporter(Agent):
             "|---|---------|-------|-----------|------:|",
         ]
         for i, v in enumerate(verifications, 1):
-            claim = v.claim.text.replace("|", "\\|")
+            claim = _untrusted_text(v.claim.text)
             lines.append(
-                f"| {i} | {v.verdict.value} | {claim} | {v.rationale} | {v.audit_sequence} |"
+                f"| {i} | {v.verdict.value} | {claim} | {_untrusted_text(v.rationale)} | "
+                f"{v.audit_sequence} |"
             )
 
         lines += [
@@ -91,11 +100,14 @@ class Reporter(Agent):
         for p in probes:
             status = p.status_code if p.status_code is not None else "—"
             latency = f"{p.latency_ms:.0f}" if p.latency_ms is not None else "—"
-            lines.append(f"| {p.target} | {status} | {latency} | {p.detail} | {p.audit_sequence} |")
+            lines.append(
+                f"| {_untrusted_text(p.target)} | {status} | {latency} | "
+                f"{_untrusted_text(p.detail)} | {p.audit_sequence} |"
+            )
 
         if failures:
             lines += ["", "## Retrieval failures", ""]
-            lines += [f"- {f}" for f in failures]
+            lines += [f"- {_untrusted_text(f)}" for f in failures]
 
         lines += [
             "",
@@ -104,6 +116,7 @@ class Reporter(Agent):
             "A claim is *supported* only when a linked source contains the asserted quantity. "
             "*Unsupported* means no source is linked or the source does not contain it. "
             "*Unverifiable* means a source is linked but could not be retrieved. "
+            "Model suggestions remain unverifiable pending human evidence review. "
             "Controls are compared against thresholds declared in `policy.yaml`.",
             "",
         ]
