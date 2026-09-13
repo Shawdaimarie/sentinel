@@ -11,18 +11,27 @@ that it is trusted, approved, or a system instruction does not establish authori
 3. Record the human decision against that commit. A changed scope needs a new decision.
 4. Merge only through the approved pull request; keep deployment authorization separate.
 
-The proposed `.github/rulesets/main.json` requires one approving code-owner review,
-approval of the latest push, current checks, signed commits, and resolved discussions;
-it dismisses stale reviews and has no bypass actors. CODEOWNERS covers every path,
-including itself and the workflow files. This is a proposed configuration, not a
-claim that GitHub has activated it.
+@Shawdaimarie is the sole human reviewer and decision maker. Use the
+[owner review guide](Sentinel/docs/OWNER_REVIEW.md) before authorizing a merge.
+The owner records the exact head commit, evidence inspected, remaining risks, and
+decision. A changed commit requires a fresh decision; passing checks do not approve it.
 
-An administrator must inspect inherited rules, apply the configuration, read it back,
-and verify a disposable PR is blocked without approval and with a failed check.
-GitHub cannot count the author's own approval. A second trusted human code owner or
-a separately attributed automation author is needed when PRs use the owner's account.
-Do not add a bot as an approver to work around this requirement. Private repositories
-may need a GitHub plan supporting rulesets. Do not make private code public as a workaround.
+The proposed `.github/rulesets/main.json` requires PRs, current checks, signed
+commits, and resolved discussions, with no bypass actors. GitHub cannot count an
+author's approval of their own PR, so the required approving-review count is zero
+and code-owner/latest-push review requirements are disabled. CODEOWNERS still
+identifies the owner for every path. No second reviewer is required.
+
+These GitHub rules do not technically enforce a separate owner approval comment,
+prove which human used an account, or prevent a credentialed agent from merging.
+Explicit owner authorization remains a workflow requirement. Do not enable
+auto-merge or give automation permission to make the owner's decision. Review
+installed-app and collaborator write access separately before activation.
+
+An administrator must inspect existing rules, apply the approved configuration,
+read it back, and verify that a disposable PR is blocked by a failed required check
+or an out-of-date branch. Do not claim an unapproved PR is blocked by a review count
+of zero. This remains a proposed configuration until live enforcement is verified.
 
 ## Runtime boundaries
 

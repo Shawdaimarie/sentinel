@@ -11,12 +11,14 @@ The ruleset targets `main`, requires pull requests and current passing checks,
 blocks force pushes and branch deletion, requires verified commit signatures,
 and requires review conversations to be resolved. It has no bypass actors.
 
-The proposed policy now requires one code-owner approval and approval of the
-latest push. It dismisses stale approvals. This supersedes the earlier zero-approval
-single-maintainer configuration at the owner's request for human-controlled sources.
-An owner cannot approve a PR authored under their own account. Add a second trusted
-human code owner (or use a separately attributed automation author) before activation.
-Do not substitute a bot review or passing checks for human approval.
+The owner has selected a sole-reviewer workflow: @Shawdaimarie reviews the exact
+commit using [OWNER_REVIEW.md](OWNER_REVIEW.md) and explicitly authorizes the merge.
+GitHub cannot count an author's own approval, so this policy requires zero formal
+approving reviews and disables code-owner/latest-push approval requirements. PRs,
+current checks, signatures, resolved conversations, and no bypass actors remain.
+This supersedes the draft second-reviewer requirement. The owner decision is a
+workflow requirement, not a technical approval gate enforced by these rules.
+Do not enable auto-merge or substitute a bot review for the owner's decision.
 
 Required contexts are **job names**, not workflow titles:
 
