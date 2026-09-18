@@ -8,6 +8,10 @@ All notable changes to this project are documented here. The format follows
 
 ### Added
 
+- `release.yml` workflow that builds and publishes the `sentinel-eval` and
+  `aegis-authorizer` container images to GitHub Container Registry on pushes
+  to `main` (`edge` tag) and on `vX.Y.Z` tags (`latest`, `X.Y`, `X.Y.Z`), with
+  no external secrets required. See `RELEASING.md` for the release process.
 - Deployment capsule manifests for packaging public proof and private delivery
   assets with SHA-256 file evidence, visibility, license expression, required
   terms, blockers, next actions, and manifest digests.
