@@ -1,0 +1,20 @@
+# Vulnerability exceptions for the release gate in .github/workflows/release.yml.
+#
+# The gate blocks any high or critical finding that has a fix available. An
+# exception here lets a release proceed with a known finding, so each one is a
+# reviewed risk decision, not a way to make the build pass. Every entry needs:
+#
+#   - the vulnerability ID and, where possible, the affected package;
+#   - a comment giving why it is not exploitable here or why it is accepted;
+#   - a review date, after which the entry must be re-justified or removed.
+#
+# Example:
+#
+#   - vulnerability: CVE-2026-00000
+#     package:
+#       name: example-lib
+#     # Not reachable: the vulnerable parser is never invoked by sentinel-eval.
+#     # Owner: @Shawdaimarie. Review by 2026-12-31.
+#
+# Changes to this file are owned by CODEOWNERS and must be reviewed in a PR.
+ignore: []

@@ -73,6 +73,20 @@ succeeds, it runs the same verification a consumer would, with `release.yml`
 pinned as the only accepted signer and the run's own ref as the source. An
 image that cannot be verified fails the release.
 
+### Release order
+
+Nothing reaches the registry until it has passed every gate. For each image:
+
+1. **Build** into the runner's local Docker daemon only.
+2. **Inventory** the local image as an SPDX SBOM.
+3. **Gate** on that SBOM: any high or critical vulnerability with a fix
+   available fails the release. The full report is uploaded either way.
+4. **Push** the exact image that was scanned.
+5. **Attest** provenance and the same SBOM to the pushed digest.
+6. **Verify** both attestations as a consumer would.
+
+The signed SBOM and the vulnerability decision describe the same bytes.
+
 ### Threats addressed
 
 | Threat | Control | Residual risk |
@@ -82,50 +96,75 @@ image that cannot be verified fails the release.
 | Unreviewed branch code is signed as a release | `release-guard` allows only `main` and version tags | An administrator bypassing branch protection |
 | A version tag is placed on an unmerged commit | Tag must be an ancestor of `main` | A tag on an older `main` commit is still allowed |
 | Release version and package version disagree | Tag must equal `pyproject.toml` version | Only the Sentinel package version is checked |
+| A known, fixable vulnerability ships | Pre-publish gate on high and critical findings with a fix | Unfixed and lower-severity findings are reported, not blocked |
+| A base image or action tag is repointed upstream | Base images pinned by digest, actions by commit SHA | Dependabot update PRs still need human review |
 | Unknown contents | Signed SPDX SBOM per digest | An inventory is not a vulnerability assessment |
+| These controls are quietly weakened later | `tests/test_release_workflow.py` executes the guards and asserts every invariant above | Tests constrain this repository's files, not GitHub settings |
+
+### Vulnerability exceptions
+
+The gate blocks on findings you can act on: high or critical severity with a
+fix available. Unfixable findings do not block, because a gate nobody can pass
+gets bypassed. They stay visible in the uploaded report.
+
+To ship with a known finding, add it to [`.grype.yaml`](.grype.yaml). Give the
+reason it is not exploitable or is accepted, an owner, and a review date. The
+file is code-owned, so an exception is a reviewed risk decision in a PR, never
+a quiet way to make the build pass.
 
 ### Verifying an image yourself
 
-Resolve the tag to a digest, then verify the digest:
+```bash
+scripts/verify-image.sh ghcr.io/shawdaimarie/sentinel-eval:v0.7.0
+```
+
+The script resolves the tag to a digest, verifies the provenance and the SBOM
+with `release.yml` pinned as the signer, and prints the digest reference to
+deploy. It needs `gh` and `docker` with buildx.
+
+It infers the source ref only when the tag names it: `vX.Y.Z` means
+`refs/tags/vX.Y.Z` and `edge` means `refs/heads/main`. Floating tags
+(`latest`, `X.Y`), `sha-` tags, and digests can come from more than one ref,
+so the script refuses to guess. State what you expect:
 
 ```bash
-docker buildx imagetools inspect ghcr.io/shawdaimarie/sentinel-eval:latest --format '{{.Manifest.Digest}}'
+scripts/verify-image.sh ghcr.io/shawdaimarie/sentinel-eval:latest --source-ref refs/tags/v0.7.0
 ```
+
+The equivalent manual check is:
 
 ```bash
 gh attestation verify oci://ghcr.io/shawdaimarie/sentinel-eval@sha256:<digest> --repo Shawdaimarie/sentinel --signer-workflow Shawdaimarie/sentinel/.github/workflows/release.yml --source-ref refs/tags/v0.7.0
 ```
 
-`--source-ref` confirms the image was built from the release tag you expect.
-Use `refs/heads/main` for an `edge` image. Add
-`--predicate-type https://spdx.dev/Document/v2.3` to verify the SBOM instead
-of the provenance. Then deploy by digest (`image@sha256:…`), not by tag, so
-that what runs is exactly what was verified.
+Add `--predicate-type https://spdx.dev/Document/v2.3` to verify the SBOM. Then
+deploy by digest (`image@sha256:…`), not by tag, so that what runs is exactly
+what was verified.
 
 ### What this proves, and what it does not
 
 It proves that the image with this digest was built by this repository's
-`release.yml`, from the recorded commit and ref, on GitHub-hosted
-infrastructure. Because the attestation is bound to the digest, any change to
-the image breaks verification. It also proves what packages the image
-contains.
+`release.yml` from the recorded commit and ref on GitHub-hosted
+infrastructure. It proves the build used pinned inputs, and that the published
+bytes passed the vulnerability gate. Because the attestation is bound to the
+digest, any change to the image breaks verification. It also proves what
+packages the image contains.
 
 This meets [SLSA Build Level 2](https://slsa.dev/spec/v1.0/levels): hosted
 build, signed provenance. It does not claim Level 3, which would require the
 signing to happen in an isolated reusable workflow that the build steps cannot
 influence.
 
-It does **not** prove that the source is free of defects, that dependencies
-are free of known vulnerabilities, or that the build is reproducible. Base
-images (`python:3.12-slim`, `golang:1.23`) and third-party actions are
-referenced by tag, not digest, so they are trusted inputs rather than verified
-ones. The next hardening steps, in order:
+It does **not** prove that the source is free of defects, that the image is
+free of vulnerabilities, or that the build is bit-for-bit reproducible. A
+vulnerability database only knows what has been disclosed. OS packages
+installed at build time come from Debian's archive, which is not pinned. The
+remaining hardening steps, in order:
 
-1. Pin base images and actions by digest, with Dependabot keeping them current.
-2. Scan the SBOM for known vulnerabilities and block releases on
-   high-severity findings.
-3. Move signing into an isolated reusable workflow to reach SLSA Build
+1. Move signing into an isolated reusable workflow to reach SLSA Build
    Level 3.
+2. Re-scan published digests on a schedule, so a vulnerability disclosed after
+   release is surfaced, not only ones known at release time.
 
 ## First-time GHCR visibility
 

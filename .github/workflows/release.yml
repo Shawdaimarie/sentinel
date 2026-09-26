@@ -31,7 +31,7 @@ jobs:
               ;;
           esac
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         if: startsWith(github.ref, 'refs/tags/v')
         with:
           fetch-depth: 0
@@ -73,23 +73,23 @@ jobs:
             context: Aegis
             dockerfile: Aegis/Dockerfile
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
 
       - name: Resolve image name
         id: image
         # Registry references must be lowercase; the owner login is not.
         run: echo "ref=ghcr.io/$(echo "$GITHUB_REPOSITORY_OWNER" | tr "[:upper:]" "[:lower:]")/${{ matrix.name }}" >> "$GITHUB_OUTPUT"
 
-      - uses: docker/setup-buildx-action@v3
+      - uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3.12.0
 
-      - uses: docker/login-action@v3
+      - uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3.7.0
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - id: meta
-        uses: docker/metadata-action@v5
+        uses: docker/metadata-action@c299e40c65443455700f0fdfc63efafe5b349051 # v5.10.0
         with:
           images: ${{ steps.image.outputs.ref }}
           tags: |
@@ -99,12 +99,15 @@ jobs:
             type=raw,value=edge,enable=${{ github.ref == 'refs/heads/main' }}
             type=sha,format=long
 
+      # Build into the local daemon only. Nothing reaches the registry until
+      # the exact image that will be published has passed the scan below.
       - id: build
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8 # v6.19.2
         with:
           context: ${{ matrix.context }}
           file: ${{ matrix.dockerfile }}
-          push: true
+          load: true
+          push: false
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           # BuildKit's own provenance and SBOM are unsigned. Disable them so the
@@ -114,25 +117,62 @@ jobs:
           sbom: false
 
       - name: Generate SBOM (SPDX)
-        uses: anchore/sbom-action@v0
+        uses: anchore/sbom-action@e22c389904149dbc22b58101806040fa8d37a610 # v0.24.0
         with:
-          image: ${{ steps.image.outputs.ref }}@${{ steps.build.outputs.digest }}
+          image: ${{ steps.image.outputs.ref }}:sha-${{ github.sha }}
           format: spdx-json
           output-file: ${{ matrix.name }}.spdx.json
           upload-artifact: false
 
+      # Scan the SBOM that will be attested, so the signed inventory and the
+      # vulnerability decision describe the same bytes. Block on high or
+      # critical findings that have a fix available; accepted exceptions live
+      # in .grype.yaml with a written justification.
+      - name: Vulnerability gate
+        id: scan
+        uses: anchore/scan-action@e1165082ffb1fe366ebaf02d8526e7c4989ea9d2 # v7.4.0
+        with:
+          sbom: ${{ matrix.name }}.spdx.json
+          fail-build: true
+          severity-cutoff: high
+          only-fixed: true
+          output-format: json
+          output-file: ${{ matrix.name }}.vulnerabilities.json
+
+      - name: Upload vulnerability report
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: vulnerabilities-${{ matrix.name }}
+          path: ${{ matrix.name }}.vulnerabilities.json
+          if-no-files-found: warn
+
+      - name: Publish scanned image
+        id: push
+        env:
+          IMAGE: ${{ steps.image.outputs.ref }}
+        run: |
+          docker push --all-tags "$IMAGE"
+          repo_digest="$(docker inspect --format '{{index .RepoDigests 0}}' "${IMAGE}:sha-${GITHUB_SHA}")"
+          digest="${repo_digest#*@}"
+          case "$digest" in
+            sha256:*) ;;
+            *) echo "::error::Could not resolve the pushed digest for ${IMAGE}."; exit 1 ;;
+          esac
+          echo "digest=${digest}" >> "$GITHUB_OUTPUT"
+
       - name: Attest build provenance
-        uses: actions/attest-build-provenance@v2
+        uses: actions/attest-build-provenance@e8998f949152b193b063cb0ec769d69d929409be # v2.4.0
         with:
           subject-name: ${{ steps.image.outputs.ref }}
-          subject-digest: ${{ steps.build.outputs.digest }}
+          subject-digest: ${{ steps.push.outputs.digest }}
           push-to-registry: true
 
       - name: Attest SBOM
-        uses: actions/attest-sbom@v2
+        uses: actions/attest-sbom@bd218ad0dbcb3e146bd073d1d9c6d78e08aa8a0b # v2.4.0
         with:
           subject-name: ${{ steps.image.outputs.ref }}
-          subject-digest: ${{ steps.build.outputs.digest }}
+          subject-digest: ${{ steps.push.outputs.digest }}
           sbom-path: ${{ matrix.name }}.spdx.json
           push-to-registry: true
 
@@ -141,7 +181,7 @@ jobs:
       - name: Verify attestations as a consumer
         env:
           GH_TOKEN: ${{ github.token }}
-          IMAGE: ${{ steps.image.outputs.ref }}@${{ steps.build.outputs.digest }}
+          IMAGE: ${{ steps.image.outputs.ref }}@${{ steps.push.outputs.digest }}
           SIGNER: ${{ github.repository }}/.github/workflows/release.yml
         run: |
           gh attestation verify "oci://${IMAGE}" \
@@ -155,7 +195,7 @@ jobs:
       - name: Record release evidence
         env:
           IMAGE: ${{ steps.image.outputs.ref }}
-          DIGEST: ${{ steps.build.outputs.digest }}
+          DIGEST: ${{ steps.push.outputs.digest }}
           TAGS: ${{ steps.meta.outputs.tags }}
         run: |
           {
@@ -169,6 +209,7 @@ jobs:
             echo "| Source ref | \`${GITHUB_REF}\` |"
             echo "| Provenance | SLSA v1, Sigstore-signed, verified |"
             echo "| SBOM | SPDX 2.3, Sigstore-signed, verified |"
+            echo "| Vulnerability gate | No fixable high or critical findings |"
             echo
             echo "Tags:"
             echo
@@ -177,7 +218,7 @@ jobs:
             echo '```'
           } >> "$GITHUB_STEP_SUMMARY"
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: sbom-${{ matrix.name }}
           path: ${{ matrix.name }}.spdx.json
