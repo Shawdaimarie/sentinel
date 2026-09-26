@@ -143,8 +143,11 @@ docker run --rm -p 8080:8080 ghcr.io/shawdaimarie/aegis-authorizer:latest
 ```
 
 `main` builds publish under the `edge` tag; version tags publish `latest`,
-`X.Y`, and `X.Y.Z`. See [RELEASING.md](RELEASING.md) for how to cut a
-versioned release.
+`X.Y`, and `X.Y.Z`. Each image carries Sigstore-signed SLSA build provenance
+and an SPDX SBOM bound to its digest. The release job verifies both before it
+succeeds. See [RELEASING.md](RELEASING.md#supply-chain-evidence) for how to
+verify an image yourself, what that proves, and how to cut a versioned
+release.
 
 ## Reviewer path
 

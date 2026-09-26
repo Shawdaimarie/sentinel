@@ -12,6 +12,14 @@ All notable changes to this project are documented here. The format follows
   `aegis-authorizer` container images to GitHub Container Registry on pushes
   to `main` (`edge` tag) and on `vX.Y.Z` tags (`latest`, `X.Y`, `X.Y.Z`), with
   no external secrets required. See `RELEASING.md` for the release process.
+- Supply-chain evidence for published images: Sigstore-signed SLSA v1 build
+  provenance and SPDX 2.3 SBOM attestations bound to each image digest,
+  verified in the release job with `release.yml` pinned as the only trusted
+  signer, plus `sha-<commit>` tags and a per-run summary of digest, commit,
+  and ref.
+- `release-guard` job that fails closed when a release runs from any ref other
+  than `main` or a version tag, when a version tag points at a commit outside
+  `main`, or when the tag does not match the declared package version.
 - Deployment capsule manifests for packaging public proof and private delivery
   assets with SHA-256 file evidence, visibility, license expression, required
   terms, blockers, next actions, and manifest digests.

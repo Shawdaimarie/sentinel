@@ -14,11 +14,55 @@ permissions:
   contents: read
 
 jobs:
+  # Fail closed before anything is published. Every image this workflow signs
+  # is trusted by consumers who pin release.yml as the signer, so it must only
+  # ever sign reviewed code: main, or a version tag on a commit from main that
+  # matches the version the package declares.
+  release-guard:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ref is main or a version tag
+        run: |
+          case "$GITHUB_REF" in
+            refs/heads/main|refs/tags/v*) ;;
+            *)
+              echo "::error::Refusing to publish from ${GITHUB_REF}. Only main and v*.*.* tags are releasable."
+              exit 1
+              ;;
+          esac
+
+      - uses: actions/checkout@v4
+        if: startsWith(github.ref, 'refs/tags/v')
+        with:
+          fetch-depth: 0
+
+      - name: Tagged commit is on main
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: |
+          git fetch --no-tags origin main
+          if ! git merge-base --is-ancestor "$GITHUB_SHA" origin/main; then
+            echo "::error::Tag ${GITHUB_REF_NAME} points at ${GITHUB_SHA}, which is not on main."
+            exit 1
+          fi
+
+      - name: Tag matches declared package version
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: |
+          declared="$(python3 -c 'import tomllib; print(tomllib.load(open("Sentinel/pyproject.toml","rb"))["project"]["version"])')"
+          if [ "v${declared}" != "${GITHUB_REF_NAME}" ]; then
+            echo "::error::Tag ${GITHUB_REF_NAME} does not match Sentinel/pyproject.toml version ${declared}."
+            exit 1
+          fi
+
   publish:
+    needs: release-guard
     runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
+      # Keyless Sigstore signing of provenance and SBOM attestations.
+      id-token: write
+      attestations: write
     strategy:
       matrix:
         include:
@@ -31,6 +75,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Resolve image name
+        id: image
+        # Registry references must be lowercase; the owner login is not.
+        run: echo "ref=ghcr.io/$(echo "$GITHUB_REPOSITORY_OWNER" | tr "[:upper:]" "[:lower:]")/${{ matrix.name }}" >> "$GITHUB_OUTPUT"
+
       - uses: docker/setup-buildx-action@v3
 
       - uses: docker/login-action@v3
@@ -42,17 +91,94 @@ jobs:
       - id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ghcr.io/${{ github.repository_owner }}/${{ matrix.name }}
+          images: ${{ steps.image.outputs.ref }}
           tags: |
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
             type=raw,value=latest,enable=${{ startsWith(github.ref, 'refs/tags/v') }}
             type=raw,value=edge,enable=${{ github.ref == 'refs/heads/main' }}
+            type=sha,format=long
 
-      - uses: docker/build-push-action@v6
+      - id: build
+        uses: docker/build-push-action@v6
         with:
           context: ${{ matrix.context }}
           file: ${{ matrix.dockerfile }}
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+          # BuildKit's own provenance and SBOM are unsigned. Disable them so the
+          # signed attestations below are the single source of truth and the
+          # tag resolves to a plain image manifest.
+          provenance: false
+          sbom: false
+
+      - name: Generate SBOM (SPDX)
+        uses: anchore/sbom-action@v0
+        with:
+          image: ${{ steps.image.outputs.ref }}@${{ steps.build.outputs.digest }}
+          format: spdx-json
+          output-file: ${{ matrix.name }}.spdx.json
+          upload-artifact: false
+
+      - name: Attest build provenance
+        uses: actions/attest-build-provenance@v2
+        with:
+          subject-name: ${{ steps.image.outputs.ref }}
+          subject-digest: ${{ steps.build.outputs.digest }}
+          push-to-registry: true
+
+      - name: Attest SBOM
+        uses: actions/attest-sbom@v2
+        with:
+          subject-name: ${{ steps.image.outputs.ref }}
+          subject-digest: ${{ steps.build.outputs.digest }}
+          sbom-path: ${{ matrix.name }}.spdx.json
+          push-to-registry: true
+
+      # Prove the claim instead of asserting it: verify the published digest
+      # exactly as a consumer would, pinned to this workflow and ref.
+      - name: Verify attestations as a consumer
+        env:
+          GH_TOKEN: ${{ github.token }}
+          IMAGE: ${{ steps.image.outputs.ref }}@${{ steps.build.outputs.digest }}
+          SIGNER: ${{ github.repository }}/.github/workflows/release.yml
+        run: |
+          gh attestation verify "oci://${IMAGE}" \
+            --repo "$GITHUB_REPOSITORY" --signer-workflow "$SIGNER" \
+            --source-ref "$GITHUB_REF"
+          gh attestation verify "oci://${IMAGE}" \
+            --repo "$GITHUB_REPOSITORY" --signer-workflow "$SIGNER" \
+            --source-ref "$GITHUB_REF" \
+            --predicate-type https://spdx.dev/Document/v2.3
+
+      - name: Record release evidence
+        env:
+          IMAGE: ${{ steps.image.outputs.ref }}
+          DIGEST: ${{ steps.build.outputs.digest }}
+          TAGS: ${{ steps.meta.outputs.tags }}
+        run: |
+          {
+            echo "### ${{ matrix.name }}"
+            echo
+            echo "| Field | Value |"
+            echo "| --- | --- |"
+            echo "| Image | \`${IMAGE}\` |"
+            echo "| Digest | \`${DIGEST}\` |"
+            echo "| Source commit | \`${GITHUB_SHA}\` |"
+            echo "| Source ref | \`${GITHUB_REF}\` |"
+            echo "| Provenance | SLSA v1, Sigstore-signed, verified |"
+            echo "| SBOM | SPDX 2.3, Sigstore-signed, verified |"
+            echo
+            echo "Tags:"
+            echo
+            echo '```'
+            echo "${TAGS}"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sbom-${{ matrix.name }}
+          path: ${{ matrix.name }}.spdx.json
+          if-no-files-found: error
