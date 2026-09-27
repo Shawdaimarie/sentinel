@@ -4,6 +4,7 @@
 
 [![CI](https://github.com/Shawdaimarie/sentinel/actions/workflows/ci.yml/badge.svg)](https://github.com/Shawdaimarie/sentinel/actions/workflows/ci.yml)
 [![Trace import](https://github.com/Shawdaimarie/sentinel/actions/workflows/trace-import.yml/badge.svg)](https://github.com/Shawdaimarie/sentinel/actions/workflows/trace-import.yml)
+[![Release images](https://github.com/Shawdaimarie/sentinel/actions/workflows/release.yml/badge.svg)](https://github.com/Shawdaimarie/sentinel/actions/workflows/release.yml)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-3776AB)](https://www.python.org/)
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue)](LICENSE)
 
@@ -125,6 +126,34 @@ agent proposal ──> deny-by-default policy ──> audit decision ──> exe
 
 training examples ──> schema + privacy + split checks ──> data gate report
 ```
+
+## Container images
+
+Every push to `main` and every `vX.Y.Z` tag builds and publishes both service
+images to the GitHub Container Registry via
+[`release.yml`](.github/workflows/release.yml) — no external accounts or
+secrets required, it authenticates with the repo's own `GITHUB_TOKEN`.
+
+```bash
+docker pull ghcr.io/shawdaimarie/sentinel-eval:latest
+docker pull ghcr.io/shawdaimarie/aegis-authorizer:latest
+
+docker run --rm ghcr.io/shawdaimarie/sentinel-eval:latest --help
+docker run --rm -p 8080:8080 ghcr.io/shawdaimarie/aegis-authorizer:latest
+```
+
+`main` builds publish under the `edge` tag; version tags publish `latest`,
+`X.Y`, and `X.Y.Z`. Every build input is pinned. Images must pass a
+vulnerability gate before they are pushed. Each carries Sigstore-signed SLSA
+build provenance and an SPDX SBOM bound to its digest, and the release job
+verifies both before it succeeds. Verify an image before you run it:
+
+```bash
+scripts/verify-image.sh ghcr.io/shawdaimarie/sentinel-eval:v0.7.0
+```
+
+See [RELEASING.md](RELEASING.md#supply-chain-evidence) for what that proves,
+what it does not, and how to cut a versioned release.
 
 ## Reviewer path
 

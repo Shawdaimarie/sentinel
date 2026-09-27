@@ -23,15 +23,22 @@ def test_required_checks_have_unconditional_pull_request_jobs() -> None:
         for job_id, job in workflow["jobs"].items():
             matrix = job.get("strategy", {}).get("matrix", {})
             axes = list(matrix)
-            if "include" in axes or "exclude" in axes:
+            if axes == ["include"]:
+                # An include-only matrix yields exactly one job per entry.
+                entries = [dict(entry) for entry in matrix["include"]]
+            elif "include" in axes or "exclude" in axes:
                 raise AssertionError(f"Extend context expansion for {path.name}: {job_id}")
-            combinations = itertools.product(*(matrix[axis] for axis in axes))
-            for values in combinations:
+            else:
+                entries = [
+                    dict(zip(axes, values, strict=True))
+                    for values in itertools.product(*(matrix[axis] for axis in axes))
+                ]
+            for entry in entries or [{}]:
                 name = job.get("name", job_id)
-                for axis, value in zip(axes, values, strict=True):
+                for axis, value in entry.items():
                     name = name.replace("${{ matrix." + axis + " }}", value)
-                if axes and "name" not in job:
-                    name += " (" + ", ".join(values) + ")"
+                if entry and "name" not in job:
+                    name += " (" + ", ".join(entry.values()) + ")"
                 if name not in contexts:
                     continue
                 producers[name] += 1
