@@ -85,3 +85,10 @@ language, identifier redaction, evidence presence, or structured state. More
 open-ended quality dimensions should add repeated trials, calibrated human
 review, and validated model-based grading only where its uncertainty is
 measured.
+
+## Repeated-run diagnostics
+
+Use `--trials-json reports/trials.json` to inspect per-case sample counts,
+score dispersion, and intermittent safety failures. See
+[Repeated evaluation diagnostics](REPEATED_TRIALS.md) for execution provenance,
+missing-sample behavior, and statistical limitations.

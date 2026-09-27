@@ -24,6 +24,7 @@ from sentinel.evaluation import (
     write_json,
     write_markdown,
 )
+from sentinel.trials import summarize_trials
 
 
 def _parser() -> argparse.ArgumentParser:
@@ -70,6 +71,7 @@ def _parser() -> argparse.ArgumentParser:
         "--comparison-json",
         help="optional JSON destination for baseline comparison",
     )
+    parser.add_argument("--trials-json", help="optional per-case repeated-run diagnostics")
     parser.add_argument("--min-score", type=float, default=0.90, help="minimum suite score")
     parser.add_argument(
         "--run-min-score",
@@ -169,6 +171,10 @@ def main(argv: Sequence[str] | None = None) -> int:
             comparison_json_raw = cast(str | None, args.comparison_json)
             if comparison_json_raw:
                 write_json(Path(comparison_json_raw), comparison)
+
+        trials_path = cast(str | None, args.trials_json)
+        if trials_path:
+            write_json(Path(trials_path), summarize_trials(report))
 
         write_json(json_path, report)
         write_markdown(report_path, render_markdown(report, comparison))
