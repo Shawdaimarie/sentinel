@@ -17,6 +17,7 @@ the evaluator's core contract.
 
 Trace files are untrusted input. The importer:
 
+- rejects files larger than 16 MiB before JSON decoding;
 - never executes trace content;
 - never opens a URL found in a span;
 - never contacts an observability or model provider;
@@ -177,3 +178,25 @@ The current importer does not provide:
 A production pipeline should enforce collection policy upstream, preserve raw
 exports in access-controlled storage, review domain-specific sensitive fields,
 and anchor source/manifests in an independently controlled evidence store.
+
+## File size and resource limits
+
+The file importer and `sentinel-import-otel` accept at most **16 MiB
+(16,777,216 bytes)** of encoded JSON per file, including whitespace. A file at
+the limit is accepted if valid. Larger files raise `TraceImportError`; the CLI
+returns exit code 2 before creating run or manifest output. Existing output
+files remain unchanged on this rejection.
+
+The reader requests at most the limit plus one byte, so it does not load the
+entire file or trust an earlier file-size check that could become stale. The
+16 MiB ceiling is a conservative default for this offline reference importer,
+not a workload-derived performance guarantee. Previously accepted larger files
+now fail explicitly. Export smaller batches containing complete traces; splitting
+a trace's parent/child spans arbitrarily can invalidate its topology.
+
+This bounds raw file input only. Parsed objects, normalization, and output can
+consume additional memory and time. The in-memory `import_otel_document` API
+receives an already loaded object and is outside this file-read limit. This
+change does not add a streaming parser, span-count budget, processing deadline,
+or protection against blocking device/pipe reads. Production callers must also
+control input sources and set process resource limits.
