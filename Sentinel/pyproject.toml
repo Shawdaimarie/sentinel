@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "sentinel"
 version = "0.6.0"
-description = "Governed agent execution, deterministic evaluation, data gates, automation, value routing, and deployment capsules."
+description = "Governed agent execution, deterministic evaluation, data gates, automation, value routing, financial-content governance, and deployment capsules."
 readme = "README.md"
 requires-python = ">=3.11"
 license = { text = "Apache-2.0" }
@@ -36,6 +36,7 @@ sentinel-data-gate = "sentinel.data_gate_cli:main"
 sentinel-automation = "sentinel.automation_cli:main"
 sentinel-value-router = "sentinel.value_router_cli:main"
 sentinel-capsule = "sentinel.capsule_cli:main"
+sentinel-financial-gate = "sentinel.financial_gate_cli:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]

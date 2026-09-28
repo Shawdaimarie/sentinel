@@ -41,6 +41,30 @@ Read the
 [coding-agent review rubric](../docs/CODING_AGENT_REVIEW_RUBRIC.md) and inspect
 the machine-readable contracts in [`../schemas/`](../schemas/).
 
+## Financial-content gate
+
+`financial_content_cases.json` covers grounded, personalized-advice,
+ungrounded, stale, and sensitive-data-exposed financial or market content. The
+expected outcomes exercise `ready_for_human_release`, `release_with_edits`,
+`needs_human_design`, and `reject`. Explicit critical findings demonstrate that
+a polished, well-sourced item cannot average away a personalized trade
+directive, a guaranteed-return claim, an unlicensed-advisor claim, fabricated
+figures, exposed account data, or a missing risk disclosure.
+
+```bash
+sentinel-financial-gate \
+  --cases examples/financial_content_cases.json \
+  --json-out examples/reports/financial_content_scorecard.json \
+  --markdown-out examples/reports/financial_content_scorecard.md
+```
+
+Read the
+[financial-content gate rubric](../docs/FINANCIAL_CONTENT_GATE.md). This gate
+does not give financial advice, predict markets, or execute trades; its
+strongest outcome routes content to the human financial-release decision that
+[`docs/VALUE_ROUTE_GATEWAY.md`](../docs/VALUE_ROUTE_GATEWAY.md) already
+declares as a human-only boundary.
+
 The fixture data are illustrative. A production benchmark should capture real
 system traces, use repeated trials, include domain-specific red-team cases, and
 add calibrated human review for open-ended semantic quality.
