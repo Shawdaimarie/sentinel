@@ -88,6 +88,20 @@ All notable changes to this project are documented here. The format follows
 
 ### Fixed
 
+- The trace importer's protection against deeply nested JSON relied on Python
+  raising `RecursionError`. Python 3.14 parses such input without error, so on
+  3.14 the protection silently disappeared. The CI job added for 3.14 caught
+  this. Nesting is now limited explicitly to `MAX_JSON_DEPTH` (64) before
+  parsing, independent of the interpreter, and covered by boundary tests.
+- The first Release Images run (36326317967) was blocked by its own
+  vulnerability gate, and nothing was published. `aegis-authorizer` was built
+  with Go 1.23.12, which is past support. It had 56 blocking findings in the
+  standard library (3 critical, 53 high), all with fixes available. `sentinel-
+  eval` shipped CPython 3.12.14, affected by CVE-2026-82049 (`tarfile`
+  extraction filter), which is fixed in 3.14. Aegis now builds with Go 1.27
+  and CI tests with Go 1.27.x. The Sentinel image now uses Python 3.14, and CI
+  adds Python 3.14 to its test matrix, so the shipped runtime is the tested
+  runtime. The gate itself is unchanged.
 - `test_release_ruleset.py` rejected any workflow with an `include` matrix,
   which failed CI once `release.yml` was added. It now expands include-only
   matrices into the job names GitHub reports.
