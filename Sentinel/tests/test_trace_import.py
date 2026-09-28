@@ -8,6 +8,7 @@ import pytest
 
 from sentinel.trace_cli import main
 from sentinel.trace_import import (
+    MAX_JSON_DEPTH,
     TraceImportConfig,
     TraceImportError,
     import_otel_document,
@@ -313,3 +314,28 @@ def test_invalid_json_transport_has_safe_error(
     assert captured.err == f"sentinel-import-otel: {message}\n"
     assert not output.exists()
     assert not manifest.exists()
+
+
+def test_nesting_limit_is_enforced_before_parsing(tmp_path: Path) -> None:
+    """The limit must not depend on a Python version's parser recursion behavior."""
+
+    source = tmp_path / "trace.json"
+    inner = MAX_JSON_DEPTH - 1  # the root object is the first level
+    source.write_bytes(b'{"resourceSpans":[],"extra":' + b"[" * inner + b"]" * inner + b"}")
+    with pytest.raises(TraceImportError) as accepted:
+        import_otel_path(source)
+    assert "nesting" not in str(accepted.value)
+
+    over = MAX_JSON_DEPTH
+    source.write_bytes(b'{"resourceSpans":[],"extra":' + b"[" * over + b"]" * over + b"}")
+    with pytest.raises(TraceImportError, match="JSON nesting exceeds parser limit"):
+        import_otel_path(source)
+
+
+def test_brackets_inside_strings_do_not_count_toward_nesting(tmp_path: Path) -> None:
+    source = tmp_path / "trace.json"
+    brackets = "[{" * (MAX_JSON_DEPTH * 2)
+    source.write_text(json.dumps({"resourceSpans": [], "note": brackets, "q": 'a\\"[['}))
+    with pytest.raises(TraceImportError) as excinfo:
+        import_otel_path(source)
+    assert "nesting" not in str(excinfo.value)

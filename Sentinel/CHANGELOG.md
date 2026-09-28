@@ -88,6 +88,11 @@ All notable changes to this project are documented here. The format follows
 
 ### Fixed
 
+- The trace importer's protection against deeply nested JSON relied on Python
+  raising `RecursionError`. Python 3.14 parses such input without error, so on
+  3.14 the protection silently disappeared. The CI job added for 3.14 caught
+  this. Nesting is now limited explicitly to `MAX_JSON_DEPTH` (64) before
+  parsing, independent of the interpreter, and covered by boundary tests.
 - The first Release Images run (36326317967) was blocked by its own
   vulnerability gate, and nothing was published. `aegis-authorizer` was built
   with Go 1.23.12, which is past support. It had 56 blocking findings in the

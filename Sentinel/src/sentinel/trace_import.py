@@ -81,6 +81,11 @@ EVIDENCE_KEYS = (
 )
 APPROVAL_KEYS = ("sentinel.approval.status", "approval.status", "approval.decision")
 
+# OTLP JSON nests far less than this. Enforced before parsing, so the limit does
+# not depend on how a given Python version's JSON parser handles deep input.
+MAX_JSON_DEPTH = 64
+_JSON_STRUCTURE = re.compile(rb'"[^"\\]*(?:\\.[^"\\]*)*"|[\[\]{}]')
+
 
 class TraceImportError(ValueError):
     """Raised when an OTLP export cannot be normalized without invention."""
@@ -870,6 +875,8 @@ def import_otel_path(path: Path, config: TraceImportConfig | None = None) -> Tra
     """Read and normalize an OTLP JSON export from disk."""
 
     source = path.read_bytes()
+    if _json_depth(source) > MAX_JSON_DEPTH:
+        raise TraceImportError("JSON nesting exceeds parser limit")
     try:
         document = json.loads(source)
     except json.JSONDecodeError as exc:
@@ -881,6 +888,20 @@ def import_otel_path(path: Path, config: TraceImportConfig | None = None) -> Tra
     if not isinstance(document, Mapping):
         raise TraceImportError("OTLP export root must be a JSON object")
     return import_otel_document(document, source_bytes=source, config=config)
+
+
+def _json_depth(source: bytes) -> int:
+    """Return the maximum array/object nesting depth, ignoring string contents."""
+
+    depth = deepest = 0
+    for match in _JSON_STRUCTURE.finditer(source):
+        token = match.group()
+        if token in (b"[", b"{"):
+            depth += 1
+            deepest = max(deepest, depth)
+        elif token in (b"]", b"}"):
+            depth -= 1
+    return deepest
 
 
 def write_runs_jsonl(path: Path, runs: Sequence[AgentRun]) -> None:
