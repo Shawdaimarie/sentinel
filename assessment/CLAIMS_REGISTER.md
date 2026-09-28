@@ -42,6 +42,7 @@ Last reviewed: 2026-09-27.
 | C18 | Required checks and signed commits protect `main` | Repository governance | `tests/test_release_ruleset.py` (checks that the configuration matches the jobs) | Ruleset API returns `[]` | The ruleset is committed but **not active** | Planned (plan step 5) |
 | C19 | "Informed by" NIST AI RMF and OWASP AI Agent Security guidance | Design references | — | `docs/NIST_AI_RMF_CROSSWALK.md` | A design reference, not a compliance or certification claim | Not a verifiable claim (reference only) |
 | C20 | Any claim about capacity, latency under load, availability, or user value | — | — | — | Not measured | Planned (plan steps 13–18) |
+| C21 | The published images can be run with the commands in the README | Container usage docs | `image-smoke-test` CI job running `scripts/smoke-test-images.sh` (INSTALLING.md) | Found broken during step 7: the documented Aegis command could not start (no policy in the image) and listened only on the container loopback. Replaced by tested commands. | CI runs freshly built images; verification against a *published* digest by another person is pending (#55) | Tested (once the install-guide PR merges); live **unverified** |
 
 ## Profile claims
 
