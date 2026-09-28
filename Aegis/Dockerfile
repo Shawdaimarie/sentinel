@@ -8,12 +8,16 @@ COPY internal ./internal
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build \
     -trimpath \
     -ldflags="-s -w -buildid=" \
-    -o /out/aegis ./cmd/aegis
+    -o /out/aegis ./cmd/aegis \
+    && mkdir -p /out/data
 
 FROM scratch
 
 COPY --from=build /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 COPY --from=build /out/aegis /aegis
+# Writable home for the audit and replay-state logs. A named volume mounted
+# here inherits this ownership, so the non-root user can write to it.
+COPY --from=build --chown=65532:65532 /out/data /data
 
 USER 65532:65532
 EXPOSE 8080

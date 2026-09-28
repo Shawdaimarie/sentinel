@@ -167,6 +167,20 @@ jobs:
           test "${{ steps.code_review.outcome }}" = "success"
           test "${{ steps.financial_gate.outcome }}" = "success"
 
+  image-smoke-test:
+    # Runs the same script INSTALLING.md gives users, against freshly built
+    # images, so the published run instructions cannot drift from reality.
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - name: Build both images
+        run: |
+          docker build --progress=plain -t sentinel-eval:smoke Sentinel
+          docker build --progress=plain -t aegis-authorizer:smoke Aegis
+      - name: Smoke-test images as a user would run them
+        run: bash scripts/smoke-test-images.sh sentinel-eval:smoke aegis-authorizer:smoke
+
   portable-audit-conformance:
     name: Portable audit conformance
     runs-on: ubuntu-latest
