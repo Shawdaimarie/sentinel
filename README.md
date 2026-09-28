@@ -140,8 +140,11 @@ docker pull ghcr.io/shawdaimarie/sentinel-eval:latest
 docker pull ghcr.io/shawdaimarie/aegis-authorizer:latest
 
 docker run --rm ghcr.io/shawdaimarie/sentinel-eval:latest --help
-docker run --rm -p 8080:8080 ghcr.io/shawdaimarie/aegis-authorizer:latest
 ```
+
+Aegis ships without policy or keys and refuses to start until you supply
+them. [INSTALLING.md](INSTALLING.md) gives tested commands to verify, run,
+smoke-test, and roll back both images.
 
 `main` builds publish under the `edge` tag; version tags publish `latest`,
 `X.Y`, and `X.Y.Z`. Every build input is pinned. Images must pass a

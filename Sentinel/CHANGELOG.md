@@ -17,6 +17,11 @@ All notable changes to this project are documented here. The format follows
   data, sensitive-data exposure, and missing disclosures. Its strongest
   outcome routes content to a required human release decision rather than
   authorizing publication on its own.
+- `INSTALLING.md`: verify, run, smoke-test, compatibility, and recovery
+  instructions for released images.
+- `scripts/smoke-test-images.sh`, run by the new `image-smoke-test` CI job
+  against freshly built images. The documented run commands are the tested
+  ones.
 - `release.yml` workflow that builds and publishes the `sentinel-eval` and
   `aegis-authorizer` container images to GitHub Container Registry on pushes
   to `main` (`edge` tag) and on `vX.Y.Z` tags (`latest`, `X.Y`, `X.Y.Z`), with
@@ -111,6 +116,10 @@ All notable changes to this project are documented here. The format follows
   and CI tests with Go 1.27.x. The Sentinel image now uses Python 3.14, and CI
   adds Python 3.14 to its test matrix, so the shipped runtime is the tested
   runtime. The gate itself is unchanged.
+- The README's `docker run` command for Aegis could not work. The image has
+  no policy or keys, so Aegis refused to start, and it listened only on the
+  container's loopback address. The image now has a `/data` directory owned
+  by its non-root user, and the documented commands are exercised in CI.
 - `test_release_ruleset.py` rejected any workflow with an `include` matrix,
   which failed CI once `release.yml` was added. It now expands include-only
   matrices into the job names GitHub reports.
