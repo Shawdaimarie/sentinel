@@ -8,6 +8,15 @@ All notable changes to this project are documented here. The format follows
 
 ### Added
 
+- Financial-content compliance gate (`sentinel-financial-gate`) that converts
+  the Value Route Gateway's declared "financial decisions" human-only boundary
+  into a deterministic release-readiness check for AI-generated financial and
+  market content, scoring grounding, advice boundary, disclosure, data
+  sensitivity, recency, and clarity, with hard gates on personalized trade
+  directives, guaranteed-return claims, unlicensed-advisor claims, fabricated
+  data, sensitive-data exposure, and missing disclosures. Its strongest
+  outcome routes content to a required human release decision rather than
+  authorizing publication on its own.
 - `release.yml` workflow that builds and publishes the `sentinel-eval` and
   `aegis-authorizer` container images to GitHub Container Registry on pushes
   to `main` (`edge` tag) and on `vX.Y.Z` tags (`latest`, `X.Y`, `X.Y.Z`), with

@@ -1,4 +1,4 @@
-.PHONY: install quality test import-otel evaluate compare code-review data-gate automation value-route capsules docker
+.PHONY: install quality test import-otel evaluate compare code-review data-gate automation value-route capsules financial-gate docker
 
 install:
 	python -m pip install -e ".[dev]"
@@ -76,6 +76,12 @@ capsules:
 		--json-out reports/capsules/deployment_capsules.json \
 		--markdown-out reports/capsules/deployment_capsules.md \
 		--min-score 0.68
+
+financial-gate:
+	sentinel-financial-gate \
+		--cases examples/financial_content_cases.json \
+		--json-out reports/financial-gate/scorecard.json \
+		--markdown-out reports/financial-gate/scorecard.md
 
 docker:
 	docker build -t sentinel-eval .

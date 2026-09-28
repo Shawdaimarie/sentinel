@@ -18,6 +18,10 @@ Delivered:
 - versioned benchmark cases and machine-readable reports;
 - training-data quality gates for schema, source notes, privacy posture, split
   hygiene, and AI-agent safety coverage;
+- a financial-content compliance gate that turns the declared financial-
+  decisions human-only boundary into a deterministic, testable check with
+  hard gates on personalized advice, guaranteed-return claims, and sensitive-
+  data exposure;
 - portable audit profile with independent Python, TypeScript, and Go
   verification;
 - Python 3.11/3.12 CI, strict typing, dependency audit, CodeQL, and a non-root

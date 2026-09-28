@@ -131,6 +131,16 @@ jobs:
             --json-out reports/code-review/scorecard.json \
             --markdown-out reports/code-review/scorecard.md \
             2>&1 | tee reports/diagnostics/code-review.txt
+      - name: Financial-content gate
+        id: financial_gate
+        continue-on-error: true
+        run: |
+          set -o pipefail
+          sentinel-financial-gate \
+            --cases examples/financial_content_cases.json \
+            --json-out reports/financial-gate/scorecard.json \
+            --markdown-out reports/financial-gate/scorecard.md \
+            2>&1 | tee reports/diagnostics/financial-gate.txt
       - name: Upload verification evidence
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
@@ -143,6 +153,8 @@ jobs:
             Sentinel/reports/comparison.json
             Sentinel/reports/code-review/scorecard.md
             Sentinel/reports/code-review/scorecard.json
+            Sentinel/reports/financial-gate/scorecard.md
+            Sentinel/reports/financial-gate/scorecard.json
           if-no-files-found: warn
       - name: Enforce quality gates
         if: always()
@@ -153,6 +165,7 @@ jobs:
           test "${{ steps.audit.outcome }}" = "success"
           test "${{ steps.evaluation.outcome }}" = "success"
           test "${{ steps.code_review.outcome }}" = "success"
+          test "${{ steps.financial_gate.outcome }}" = "success"
 
   portable-audit-conformance:
     name: Portable audit conformance

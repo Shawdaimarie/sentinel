@@ -1,0 +1,84 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Shawdaimarie/sentinel/blob/main/Sentinel/schemas/financial_content_cases.schema.json",
+  "title": "Sentinel financial-content gate case collection",
+  "description": "Versioned human-review evidence used by the deterministic financial-content compliance gate. This gate evaluates AI-generated financial and market content; it does not give financial advice, predict markets, or execute trades.",
+  "type": "array",
+  "minItems": 1,
+  "items": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "id",
+      "case_class",
+      "summary",
+      "expected_decision",
+      "scores"
+    ],
+    "properties": {
+      "id": {
+        "type": "string",
+        "minLength": 1,
+        "pattern": "^[a-z0-9][a-z0-9-]*$"
+      },
+      "case_class": {
+        "type": "string",
+        "enum": [
+          "grounded",
+          "personalized_advice",
+          "ungrounded",
+          "stale",
+          "sensitive_data_exposed"
+        ]
+      },
+      "summary": {
+        "type": "string",
+        "minLength": 1
+      },
+      "expected_decision": {
+        "type": "string",
+        "enum": [
+          "ready_for_human_release",
+          "release_with_edits",
+          "needs_human_design",
+          "reject"
+        ]
+      },
+      "critical_findings": {
+        "type": "array",
+        "uniqueItems": true,
+        "items": {
+          "type": "string",
+          "enum": [
+            "personalized_trade_directive",
+            "guaranteed_return_claim",
+            "unlicensed_advisor_claim",
+            "fabricated_financial_data",
+            "sensitive_data_exposure",
+            "missing_required_disclosure"
+          ]
+        }
+      },
+      "scores": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "grounding",
+          "advice_boundary",
+          "disclosure",
+          "data_sensitivity",
+          "recency",
+          "clarity"
+        ],
+        "properties": {
+          "grounding": {"type": "number", "minimum": 0.0, "maximum": 1.0},
+          "advice_boundary": {"type": "number", "minimum": 0.0, "maximum": 1.0},
+          "disclosure": {"type": "number", "minimum": 0.0, "maximum": 1.0},
+          "data_sensitivity": {"type": "number", "minimum": 0.0, "maximum": 1.0},
+          "recency": {"type": "number", "minimum": 0.0, "maximum": 1.0},
+          "clarity": {"type": "number", "minimum": 0.0, "maximum": 1.0}
+        }
+      }
+    }
+  }
+}

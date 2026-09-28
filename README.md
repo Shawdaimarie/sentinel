@@ -38,6 +38,7 @@ release comparisons with recorded cost and latency changes.
 | Sensitive-data handling | Configurable redaction and bounded unknown-provider metadata |
 | Training data readiness | JSONL examples are checked for schema, source, privacy, splits, and risk coverage |
 | Evaluation engineering | Versioned cases, hard safety gates, slices, and baseline comparison |
+| Financial-content governance | Deterministic grounding, advice-boundary, disclosure, and data-sensitivity gate that routes AI-generated financial content to a required human release decision |
 | Portable verification | Independent Python, TypeScript, and Go implementations share vectors |
 | Delivery discipline | Python 3.11/3.12, Ruff, strict mypy, pytest, `pip-audit`, CodeQL, Docker |
 
