@@ -324,13 +324,20 @@ def test_trace_at_file_size_limit_is_accepted(tmp_path: Path) -> None:
     assert result.manifest.source_sha256 == hashlib.sha256(source.read_bytes()).hexdigest()
 
 
+@pytest.mark.parametrize("existing_evidence", [False, True])
 def test_oversize_trace_rejected_before_parsing_or_output(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+    existing_evidence: bool,
 ) -> None:
     source = tmp_path / "oversize.json"
     with source.open("wb") as handle:
         handle.truncate(16 * 1024 * 1024 + 1)
     output, manifest = tmp_path / "runs.jsonl", tmp_path / "manifest.json"
+    if existing_evidence:
+        output.write_bytes(b"previous run evidence\n")
+        manifest.write_bytes(b"previous manifest evidence\n")
 
     def reject_parse(*args: object, **kwargs: object) -> object:
         raise AssertionError("oversize content reached JSON parser")
@@ -342,5 +349,9 @@ def test_oversize_trace_rejected_before_parsing_or_output(
     assert capsys.readouterr().err == (
         "sentinel-import-otel: trace file exceeds 16777216-byte limit\n"
     )
-    assert not output.exists()
-    assert not manifest.exists()
+    if existing_evidence:
+        assert output.read_bytes() == b"previous run evidence\n"
+        assert manifest.read_bytes() == b"previous manifest evidence\n"
+    else:
+        assert not output.exists()
+        assert not manifest.exists()

@@ -8,6 +8,35 @@ All notable changes to this project are documented here. The format follows
 
 ### Added
 
+- Offline `sentinel-assess` demonstration with 20 labeled synthetic traces,
+  deterministic JSON/Markdown evidence, input and implementation fingerprints,
+  and a bounded reliability-assessment proposal.
+- Packaged runtime smoke checks before publication and after pulling a verified
+  image digest: assessment conformance and Aegis startup/credential rejection.
+- Maintenance, compatibility, recovery, and user-value measurement guidance.
+- `release.yml` workflow that builds and publishes the `sentinel-eval` and
+  `aegis-authorizer` container images to GitHub Container Registry on pushes
+  to `main` (`edge` tag) and on `vX.Y.Z` tags (`latest`, `X.Y`, `X.Y.Z`), with
+  no external secrets required. See `RELEASING.md` for the release process.
+- Supply-chain evidence for published images: Sigstore-signed SLSA v1 build
+  provenance and SPDX 2.3 SBOM attestations bound to each image digest,
+  verified in the release job with `release.yml` pinned as the only trusted
+  signer, plus `sha-<commit>` tags and a per-run summary of digest, commit,
+  and ref.
+- `release-guard` job that fails closed when a release runs from any ref other
+  than `main` or a version tag, when a version tag points at a commit outside
+  `main`, or when the tag does not match the declared package version.
+- Pre-publish vulnerability gate: images are built locally, inventoried, and
+  blocked on fixable high or critical findings before anything is pushed.
+  Exceptions require a justified, code-owned entry in `.grype.yaml`.
+- Every GitHub Action pinned to a commit SHA, and every base and service image
+  pinned by digest, with Dependabot tracking Docker and Compose updates.
+- `scripts/verify-image.sh`: one-command consumer verification that resolves a
+  tag to its digest, verifies provenance and SBOM against the pinned signer and
+  source ref, and refuses to guess the ref for floating tags.
+- `tests/test_release_workflow.py` executes the release guards and asserts the
+  pipeline's supply-chain invariants; `tests/test_verify_image_script.py`
+  covers the verification script offline.
 - Deployment capsule manifests for packaging public proof and private delivery
   assets with SHA-256 file evidence, visibility, license expression, required
   terms, blockers, next actions, and manifest digests.
@@ -62,6 +91,18 @@ All notable changes to this project are documented here. The format follows
 - Project positioning now includes deployment capsules in addition to governed
   execution, deterministic evaluation, code-review scoring, trace normalization,
   trust communication, benefit-gated automation, and value routing.
+
+### Fixed
+
+- Trace file imports reject raw inputs over 16 MiB before JSON parsing or
+  writing evidence. Existing reports remain intact on rejection; larger exports
+  must be split into complete-trace batches. This bounds file reads, not the
+  parser's total memory or execution time.
+- Incomplete or errored runs cannot pass evaluation through a high weighted
+  score. This tightens release acceptance; safety and completion remain distinct.
+- `test_release_ruleset.py` rejected any workflow with an `include` matrix,
+  which failed CI once `release.yml` was added. It now expands include-only
+  matrices into the job names GitHub reports.
 
 ## [0.3.0] - 2026-09-04
 

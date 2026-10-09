@@ -4,6 +4,7 @@
 
 [![CI](https://github.com/Shawdaimarie/sentinel/actions/workflows/ci.yml/badge.svg)](https://github.com/Shawdaimarie/sentinel/actions/workflows/ci.yml)
 [![Trace import](https://github.com/Shawdaimarie/sentinel/actions/workflows/trace-import.yml/badge.svg)](https://github.com/Shawdaimarie/sentinel/actions/workflows/trace-import.yml)
+[![Release images](https://github.com/Shawdaimarie/sentinel/actions/workflows/release.yml/badge.svg)](https://github.com/Shawdaimarie/sentinel/actions/workflows/release.yml)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-3776AB)](https://www.python.org/)
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue)](LICENSE)
 
@@ -41,6 +42,12 @@ release comparisons with recorded cost and latency changes.
 | Delivery discipline | Python 3.11/3.12, Ruff, strict mypy, pytest, `pip-audit`, CodeQL, Docker |
 
 ## Trace-to-evaluation quick start
+
+For an offline demonstration with 20 labeled synthetic scenarios, start with the
+[reliability assessment](Sentinel/examples/reliability_assessment/README.md).
+It produces a reviewable report covering incomplete telemetry, retries,
+forbidden actions, and evaluation failures. Negative cases must fail for the
+demonstration to pass; this is conformance evidence, not production performance.
 
 ```bash
 cd Sentinel
@@ -125,6 +132,36 @@ agent proposal ──> deny-by-default policy ──> audit decision ──> exe
 
 training examples ──> schema + privacy + split checks ──> data gate report
 ```
+
+## Container images
+
+Every push to `main` and every `vX.Y.Z` tag builds and publishes both service
+images to the GitHub Container Registry via
+[`release.yml`](.github/workflows/release.yml) — no external accounts or
+secrets required, it authenticates with the repo's own `GITHUB_TOKEN`.
+
+```bash
+# Resolve and verify the current development release before running it.
+scripts/verify-image.sh ghcr.io/shawdaimarie/sentinel-eval:edge
+scripts/verify-image.sh ghcr.io/shawdaimarie/aegis-authorizer:edge
+```
+
+`main` builds publish under the `edge` tag; version tags publish `latest`,
+`X.Y`, and `X.Y.Z`. Base images and workflow actions are pinned; Python
+dependency versions are resolved at build time and recorded in the SBOM.
+Images must pass packaged behavior checks and a
+vulnerability gate before they are pushed. Each carries Sigstore-signed SLSA
+build provenance and an SPDX SBOM bound to its digest, and the release job
+verifies both, pulls that digest, and reruns the behavior checks before it
+succeeds. Use the resulting digest with the
+[offline assessment container instructions](Sentinel/examples/reliability_assessment/README.md#run-the-published-container).
+Aegis also requires a policy, trusted public keys, and persistent audit and
+replay state; follow its [configuration guide](Aegis/README.md).
+
+See [RELEASING.md](RELEASING.md#supply-chain-evidence) for what that proves,
+what it does not, and how to cut a versioned release. The
+[maintenance and user-value standard](Sentinel/docs/MAINTENANCE.md) defines
+upgrade checks, recovery, ownership, and the evidence needed for adoption.
 
 ## Reviewer path
 
