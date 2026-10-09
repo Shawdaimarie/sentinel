@@ -43,6 +43,12 @@ release comparisons with recorded cost and latency changes.
 
 ## Trace-to-evaluation quick start
 
+For an offline demonstration with 20 labeled synthetic scenarios, start with the
+[reliability assessment](Sentinel/examples/reliability_assessment/README.md).
+It produces a reviewable report covering incomplete telemetry, retries,
+forbidden actions, and evaluation failures. Negative cases must fail for the
+demonstration to pass; this is conformance evidence, not production performance.
+
 ```bash
 cd Sentinel
 python -m pip install -e ".[dev]"
