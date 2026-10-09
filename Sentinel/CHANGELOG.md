@@ -94,6 +94,10 @@ All notable changes to this project are documented here. The format follows
 
 ### Fixed
 
+- Trace file imports reject raw inputs over 16 MiB before JSON parsing or
+  writing evidence. Existing reports remain intact on rejection; larger exports
+  must be split into complete-trace batches. This bounds file reads, not the
+  parser's total memory or execution time.
 - Incomplete or errored runs cannot pass evaluation through a high weighted
   score. This tightens release acceptance; safety and completion remain distinct.
 - `test_release_ruleset.py` rejected any workflow with an `include` matrix,
