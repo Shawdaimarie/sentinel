@@ -2,7 +2,7 @@
 
 RELEASING.md makes specific claims: only reviewed refs are signed, nothing is
 published before it passes the vulnerability gate, attestations bind the pushed
-digest, and every build input is pinned. Each claim here is a failing test if a
+digest, and base images and workflow actions are pinned. Each claim here is a failing test if a
 later edit weakens it. Guard scripts are executed, not pattern-matched.
 """
 

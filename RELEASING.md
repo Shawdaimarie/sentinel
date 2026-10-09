@@ -145,7 +145,7 @@ a quiet way to make the build pass.
 ### Verifying an image yourself
 
 ```bash
-scripts/verify-image.sh ghcr.io/shawdaimarie/sentinel-eval:v0.7.0
+scripts/verify-image.sh ghcr.io/shawdaimarie/sentinel-eval:0.7.0
 ```
 
 The script resolves the tag to a digest, verifies the provenance and the SBOM
