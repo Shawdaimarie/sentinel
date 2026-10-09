@@ -1,0 +1,118 @@
+name: Published Image Rescan
+
+on:
+  schedule:
+    - cron: "43 9 * * 1"
+  workflow_dispatch:
+  # Exercise changes to this read-only workflow before merging them.
+  pull_request:
+    paths:
+      - .github/workflows/published-image-rescan.yml
+      - scripts/verify-image.sh
+      - scripts/summarize-vulnerabilities.py
+      - .grype.yaml
+
+permissions:
+  contents: read
+
+concurrency:
+  group: published-image-rescan-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  rescan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        component: [sentinel-eval, aegis-authorizer]
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
+
+      - name: Resolve and verify the published digest
+        id: verified
+        shell: bash
+        env:
+          COMPONENT: ${{ matrix.component }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          case "$COMPONENT" in
+            sentinel-eval|aegis-authorizer) ;;
+            *) echo "::error::Unsupported component"; exit 1 ;;
+          esac
+          mkdir -p rescan-evidence
+          image="ghcr.io/shawdaimarie/${COMPONENT}"
+          digest="$(docker buildx imagetools inspect "${image}:edge" --format '{{.Manifest.Digest}}')"
+          if [[ ! "$digest" =~ ^sha256:[0-9a-f]{64}$ ]]; then
+            echo "::error::Registry did not return a valid sha256 digest"
+            exit 1
+          fi
+          subject="${image}@${digest}"
+          printf '%s\n' "$subject" > rescan-evidence/subject.txt
+          bash scripts/verify-image.sh "$subject" --source-ref refs/heads/main \
+            | tee rescan-evidence/verification.txt
+          echo "ref=${subject}" >> "$GITHUB_OUTPUT"
+
+      - name: Pull the verified digest without executing it
+        env:
+          IMAGE: ${{ steps.verified.outputs.ref }}
+        run: |
+          docker pull --platform linux/amd64 "$IMAGE"
+          docker image inspect "$IMAGE" --format '{{json .Config.Labels}}' \
+            > rescan-evidence/image-labels.json
+
+      - name: Inventory the published bytes
+        uses: anchore/sbom-action@e22c389904149dbc22b58101806040fa8d37a610 # v0.24.0
+        with:
+          image: ${{ steps.verified.outputs.ref }}
+          format: spdx-json
+          output-file: rescan-evidence/image.spdx.json
+          upload-artifact: false
+          upload-release-assets: false
+
+      - name: Scan with updated vulnerability data
+        uses: anchore/scan-action@e1165082ffb1fe366ebaf02d8526e7c4989ea9d2 # v7.4.0
+        env:
+          GRYPE_DB_AUTO_UPDATE: "true"
+          GRYPE_DB_REQUIRE_UPDATE_CHECK: "true"
+          GRYPE_DB_VALIDATE_AGE: "true"
+          GRYPE_DB_MAX_ALLOWED_BUILT_AGE: "120h"
+        with:
+          sbom: rescan-evidence/image.spdx.json
+          config: .grype.yaml
+          fail-build: true
+          severity-cutoff: high
+          only-fixed: true
+          cache-db: false
+          output-format: json
+          output-file: rescan-evidence/vulnerabilities.json
+
+      - name: Summarize the dated result
+        if: always()
+        env:
+          COMPONENT: ${{ matrix.component }}
+          VERIFIED_IMAGE: ${{ steps.verified.outputs.ref }}
+        run: |
+          {
+            echo "## Published image rescan: ${COMPONENT}"
+            echo
+            echo "Checked at: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            echo "Verified image: ${VERIFIED_IMAGE:-not established}"
+            echo "Workflow revision: ${GITHUB_SHA}"
+            echo
+            python3 scripts/summarize-vulnerabilities.py rescan-evidence/vulnerabilities.json
+            echo
+            echo "A missing inventory, verification, or scan is not a clean result. Inspect every job step."
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Retain rescan evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: published-rescan-${{ matrix.component }}
+          path: rescan-evidence/
+          if-no-files-found: warn
+          retention-days: 30
