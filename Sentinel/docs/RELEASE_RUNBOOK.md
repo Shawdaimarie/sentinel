@@ -5,6 +5,11 @@ The desired GitHub configuration is versioned in
 activate protection. A repository administrator must apply it in GitHub and
 verify the effective rules before issue #29 can be considered complete.
 
+The [live ruleset](https://github.com/Shawdaimarie/sentinel/rules/24076890) was
+read back on 2026-10-09: active on main, eleven required checks, verified
+signatures, resolved review threads, and no bypass actors. Recheck the live
+settings before relying on this dated observation.
+
 ## Protection policy
 
 The ruleset targets `main`, requires pull requests and current passing checks,
@@ -88,9 +93,8 @@ commit and compensating verification. Restore the versioned policy immediately
 afterward and verify it by reading the live rules. Administrators can still
 edit rulesets; an empty bypass list does not remove that administrative power.
 
-## Next milestone
+## Operating the release
 
-After release enforcement is verified, implement evaluation history under
-issue #12: versioned PostgreSQL migrations, digest-keyed idempotent imports,
-read-only release comparison, and an exercised backup/restore path. Keep this
-work in Sentinel and preserve the current evaluator contract.
+Evaluation history and its PostgreSQL migration/restore checks are implemented.
+Follow the [maintenance standard](MAINTENANCE.md) for digest promotion, rollback,
+evidence retention, support boundaries, and validation with an actual user team.

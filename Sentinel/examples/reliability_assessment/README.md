@@ -38,6 +38,33 @@ Exit codes: `0` means every observed outcome and evidence assertion matched its
 label; `1` means at least one mismatch; `2` means invalid input or an I/O error.
 Unexpected exceptions remain errors; they are not counted as successful rejection.
 
+## Run the published container
+
+Use a checkout of the source commit recorded by the release so that code and
+fixtures match. From the repository root, verify `sentinel-eval:edge` with
+`scripts/verify-image.sh` as described in [RELEASING.md](../../../RELEASING.md).
+Set `SENTINEL_IMAGE` to the verified `ghcr.io/shawdaimarie/sentinel-eval@sha256:...`
+reference printed by that script. These Linux containers currently target
+`linux/amd64`; other hosts need a compatible engine or emulation.
+
+```bash
+mkdir -p reports
+docker run --rm --platform linux/amd64 --network none --read-only \
+  --cap-drop ALL --security-opt no-new-privileges \
+  --user "$(id -u):$(id -g)" \
+  --mount "type=bind,src=$PWD/Sentinel/examples/reliability_assessment/suite.json,dst=/suite.json,readonly" \
+  --mount "type=bind,src=$PWD/reports,dst=/evidence" \
+  --entrypoint sentinel-assess "$SENTINEL_IMAGE" \
+  --suite /suite.json --output-dir /evidence/assessment-demo
+```
+
+Run this from a non-root Linux or macOS account. Choose a new output directory
+each time. The suite is read-only, network access is disabled, and only the
+reports folder is writable. Windows users can use the Python instructions above
+or adapt mounts and permissions for their Docker setup. A successful release
+runs this packaged assessment before publication and after pulling its verified
+digest. That is a bounded smoke check, not a customer acceptance test.
+
 ## What the 20 cases establish
 
 | Category | Five cases |
