@@ -6,9 +6,11 @@ digest, and every build input is pinned. Each claim here is a failing test if a
 later edit weakens it. Guard scripts are executed, not pattern-matched.
 """
 
+import json
 import os
 import re
 import subprocess
+import sys
 from pathlib import Path
 from typing import Any
 
@@ -172,6 +174,90 @@ def test_attestations_bind_the_pushed_digest() -> None:
         step = _step("publish", name)
         assert step["with"]["subject-digest"] == pushed, name
         assert step["with"]["push-to-registry"] == "true", name
+
+
+def test_preflight_scans_release_candidates_without_publish_permissions() -> None:
+    preflight = _load(WORKFLOWS / "container-preflight.yml")
+    assert set(preflight["on"]) == {"pull_request", "workflow_dispatch"}
+    assert preflight["permissions"] == {"contents": "read"}
+    assert set(preflight["jobs"]) == {"scan"}
+    job = preflight["jobs"]["scan"]
+    assert "permissions" not in job
+    assert job["strategy"] == _load(RELEASE)["jobs"]["publish"]["strategy"]
+    assert job["strategy"]["fail-fast"] == "false"
+    steps = {step.get("name"): step for step in job["steps"]}
+    scan = steps["Vulnerability gate"]
+    release_scan = _step("publish", "Vulnerability gate")
+    assert scan["uses"] == release_scan["uses"]
+    assert scan["with"] == release_scan["with"]
+    assert "continue-on-error" not in scan and "if" not in scan
+    build = steps["Build candidate image"]
+    assert build["with"]["push"] == "false"
+    assert build["with"]["load"] == "true"
+    for key in ("context", "file", "provenance", "sbom"):
+        assert build["with"][key] == _step("publish", "build")["with"][key]
+    assert not any("login-action" in step.get("uses", "") for step in job["steps"])
+    assert not any("attest-" in step.get("uses", "") for step in job["steps"])
+    assert steps["Upload scan evidence"]["if"] == "always()"
+
+
+def test_failed_release_preserves_inventory_and_report() -> None:
+    upload = _step("publish", "Upload vulnerability report")
+    assert upload["if"] == "always()"
+    assert "${{ matrix.name }}.vulnerabilities.json" in upload["with"]["path"]
+    assert "${{ matrix.name }}.spdx.json" in upload["with"]["path"]
+    assert _index("publish", "Upload vulnerability report") < _index(
+        "publish", "Publish scanned image"
+    )
+
+
+def test_summary_exposes_active_fixable_findings_only(tmp_path: Path) -> None:
+    def finding(severity: str, state: str, identifier: str) -> dict[str, Any]:
+        return {
+            "vulnerability": {
+                "id": identifier,
+                "severity": severity,
+                "fix": {"state": state, "versions": ["2.0"]},
+            },
+            "artifact": {"name": "package|name", "version": "1.0"},
+        }
+
+    active = finding("High", "fixed", "CVE-active")
+    report = {
+        "matches": [
+            active,
+            active,
+            finding("Low", "fixed", "CVE-low"),
+            finding("Critical", "not-fixed", "CVE-unfixed"),
+        ],
+        "ignoredMatches": [{"match": finding("High", "fixed", "CVE-ignored")}],
+    }
+    path = tmp_path / "report.json"
+    path.write_text(json.dumps(report))
+    result = subprocess.run(
+        [sys.executable, str(ROOT / "scripts/summarize-vulnerabilities.py"), str(path)],
+        capture_output=True,
+        text=True,
+        check=True,
+    )
+    assert "**1**" in result.stdout
+    assert "CVE-active" in result.stdout and "package\\|name" in result.stdout
+    assert all(value not in result.stdout for value in ("CVE-low", "CVE-unfixed", "CVE-ignored"))
+
+
+def test_missing_scan_report_never_claims_clean_result(tmp_path: Path) -> None:
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(ROOT / "scripts/summarize-vulnerabilities.py"),
+            str(tmp_path / "missing"),
+        ],
+        capture_output=True,
+        text=True,
+        check=True,
+    )
+    assert "Report unavailable" in result.stdout
+    assert "**0**" not in result.stdout
 
 
 def test_release_verifies_like_a_consumer() -> None:
