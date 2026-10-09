@@ -27,6 +27,7 @@ dev = [
 ]
 
 [project.scripts]
+sentinel-assess = "sentinel.assessment_cli:main"
 sentinel-history = "sentinel.history_cli:main"
 sentinel = "sentinel.cli:main"
 sentinel-eval = "sentinel.eval_cli:main"

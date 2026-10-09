@@ -43,6 +43,12 @@ release comparisons with recorded cost and latency changes.
 
 ## Trace-to-evaluation quick start
 
+For an offline demonstration with 20 labeled synthetic scenarios, start with the
+[reliability assessment](Sentinel/examples/reliability_assessment/README.md).
+It produces a reviewable report covering incomplete telemetry, retries,
+forbidden actions, and evaluation failures. Negative cases must fail for the
+demonstration to pass; this is conformance evidence, not production performance.
+
 ```bash
 cd Sentinel
 python -m pip install -e ".[dev]"
@@ -135,25 +141,27 @@ images to the GitHub Container Registry via
 secrets required, it authenticates with the repo's own `GITHUB_TOKEN`.
 
 ```bash
-docker pull ghcr.io/shawdaimarie/sentinel-eval:latest
-docker pull ghcr.io/shawdaimarie/aegis-authorizer:latest
-
-docker run --rm ghcr.io/shawdaimarie/sentinel-eval:latest --help
-docker run --rm -p 8080:8080 ghcr.io/shawdaimarie/aegis-authorizer:latest
+# Resolve and verify the current development release before running it.
+scripts/verify-image.sh ghcr.io/shawdaimarie/sentinel-eval:edge
+scripts/verify-image.sh ghcr.io/shawdaimarie/aegis-authorizer:edge
 ```
 
 `main` builds publish under the `edge` tag; version tags publish `latest`,
-`X.Y`, and `X.Y.Z`. Every build input is pinned. Images must pass a
+`X.Y`, and `X.Y.Z`. Base images and workflow actions are pinned; Python
+dependency versions are resolved at build time and recorded in the SBOM.
+Images must pass packaged behavior checks and a
 vulnerability gate before they are pushed. Each carries Sigstore-signed SLSA
 build provenance and an SPDX SBOM bound to its digest, and the release job
-verifies both before it succeeds. Verify an image before you run it:
-
-```bash
-scripts/verify-image.sh ghcr.io/shawdaimarie/sentinel-eval:v0.7.0
-```
+verifies both, pulls that digest, and reruns the behavior checks before it
+succeeds. Use the resulting digest with the
+[offline assessment container instructions](Sentinel/examples/reliability_assessment/README.md#run-the-published-container).
+Aegis also requires a policy, trusted public keys, and persistent audit and
+replay state; follow its [configuration guide](Aegis/README.md).
 
 See [RELEASING.md](RELEASING.md#supply-chain-evidence) for what that proves,
-what it does not, and how to cut a versioned release.
+what it does not, and how to cut a versioned release. The
+[maintenance and user-value standard](Sentinel/docs/MAINTENANCE.md) defines
+upgrade checks, recovery, ownership, and the evidence needed for adoption.
 
 ## Reviewer path
 

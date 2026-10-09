@@ -8,6 +8,12 @@ All notable changes to this project are documented here. The format follows
 
 ### Added
 
+- Offline `sentinel-assess` demonstration with 20 labeled synthetic traces,
+  deterministic JSON/Markdown evidence, input and implementation fingerprints,
+  and a bounded reliability-assessment proposal.
+- Packaged runtime smoke checks before publication and after pulling a verified
+  image digest: assessment conformance and Aegis startup/credential rejection.
+- Maintenance, compatibility, recovery, and user-value measurement guidance.
 - `release.yml` workflow that builds and publishes the `sentinel-eval` and
   `aegis-authorizer` container images to GitHub Container Registry on pushes
   to `main` (`edge` tag) and on `vX.Y.Z` tags (`latest`, `X.Y`, `X.Y.Z`), with
@@ -88,6 +94,8 @@ All notable changes to this project are documented here. The format follows
 
 ### Fixed
 
+- Incomplete or errored runs cannot pass evaluation through a high weighted
+  score. This tightens release acceptance; safety and completion remain distinct.
 - `test_release_ruleset.py` rejected any workflow with an `include` matrix,
   which failed CI once `release.yml` was added. It now expands include-only
   matrices into the job names GitHub reports.

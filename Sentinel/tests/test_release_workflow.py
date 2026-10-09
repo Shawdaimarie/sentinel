@@ -2,7 +2,7 @@
 
 RELEASING.md makes specific claims: only reviewed refs are signed, nothing is
 published before it passes the vulnerability gate, attestations bind the pushed
-digest, and every build input is pinned. Each claim here is a failing test if a
+digest, and base images and workflow actions are pinned. Each claim here is a failing test if a
 later edit weakens it. Guard scripts are executed, not pattern-matched.
 """
 
@@ -142,12 +142,14 @@ def test_nothing_is_published_before_the_vulnerability_gate() -> None:
 
     order = [
         "build",
+        "Check packaged behavior before publication",
         "Generate SBOM (SPDX)",
         "Vulnerability gate",
         "Publish scanned image",
         "Attest build provenance",
         "Attest SBOM",
         "Verify attestations as a consumer",
+        "Pull and smoke-test the verified digest",
         "Record release evidence",
     ]
     positions = [_index("publish", name) for name in order]
@@ -155,6 +157,17 @@ def test_nothing_is_published_before_the_vulnerability_gate() -> None:
 
     pushers = [s for s in _steps("publish") if "docker push" in s.get("run", "")]
     assert pushers == [_step("publish", "Publish scanned image")]
+
+
+def test_release_smoke_checks_cover_the_published_digest() -> None:
+    before = _step("publish", "Check packaged behavior before publication")
+    after = _step("publish", "Pull and smoke-test the verified digest")
+    assert before["env"]["IMAGE"].endswith(":sha-${{ github.sha }}")
+    assert after["env"]["IMAGE"].endswith("@${{ steps.push.outputs.digest }}")
+    assert 'docker pull "$IMAGE"' in after["run"]
+    for step in (before, after):
+        assert 'timeout 60s bash scripts/smoke-image.sh "$COMPONENT" "$IMAGE"' in step["run"]
+        assert "continue-on-error" not in step and "if" not in step
 
 
 def test_vulnerability_gate_blocks_and_scans_the_attested_sbom() -> None:

@@ -96,17 +96,26 @@ image that cannot be verified fails the release.
 
 ### Release order
 
-Nothing reaches the registry until it has passed every gate. For each image:
+Nothing reaches the registry until its pre-publication gates pass. Post-publish
+verification must also pass before consumers promote the release. For each image:
 
 1. **Build** into the runner's local Docker daemon only.
+   Run the packaged behavior checks with synthetic inputs: Sentinel assessment
+   conformance, or Aegis startup and rejection of a request without credentials.
 2. **Inventory** the local image as an SPDX SBOM.
 3. **Gate** on that SBOM: any high or critical vulnerability with a fix
    available fails the release. The full report is uploaded either way.
 4. **Push** the exact image that was scanned.
 5. **Attest** provenance and the same SBOM to the pushed digest.
 6. **Verify** both attestations as a consumer would.
+7. **Pull and exercise** the verified digest with the same packaged behavior
+   checks. A failure leaves the run unsuccessful even if tags were already pushed.
 
 The signed SBOM and the vulnerability decision describe the same bytes.
+Consumers should use only digests from completed successful release runs. The
+checks establish bounded behavior; they do not validate a customer's workload,
+hosting configuration, or availability. See the
+[maintenance and recovery standard](Sentinel/docs/MAINTENANCE.md).
 
 ### Threats addressed
 
@@ -136,7 +145,7 @@ a quiet way to make the build pass.
 ### Verifying an image yourself
 
 ```bash
-scripts/verify-image.sh ghcr.io/shawdaimarie/sentinel-eval:v0.7.0
+scripts/verify-image.sh ghcr.io/shawdaimarie/sentinel-eval:0.7.0
 ```
 
 The script resolves the tag to a digest, verifies the provenance and the SBOM

@@ -131,6 +131,15 @@ jobs:
             --json-out reports/code-review/scorecard.json \
             --markdown-out reports/code-review/scorecard.md \
             2>&1 | tee reports/diagnostics/code-review.txt
+      - name: Synthetic reliability assessment conformance
+        id: assessment
+        continue-on-error: true
+        run: |
+          set -o pipefail
+          sentinel-assess \
+            --suite examples/reliability_assessment/suite.json \
+            --output-dir reports/reliability-assessment \
+            2>&1 | tee reports/diagnostics/assessment.txt
       - name: Upload verification evidence
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
@@ -143,6 +152,7 @@ jobs:
             Sentinel/reports/comparison.json
             Sentinel/reports/code-review/scorecard.md
             Sentinel/reports/code-review/scorecard.json
+            Sentinel/reports/reliability-assessment/
           if-no-files-found: warn
       - name: Enforce quality gates
         if: always()
@@ -153,6 +163,7 @@ jobs:
           test "${{ steps.audit.outcome }}" = "success"
           test "${{ steps.evaluation.outcome }}" = "success"
           test "${{ steps.code_review.outcome }}" = "success"
+          test "${{ steps.assessment.outcome }}" = "success"
 
   portable-audit-conformance:
     name: Portable audit conformance
@@ -232,3 +243,6 @@ jobs:
       - name: Enforce container gate
         if: always()
         run: test "${{ steps.build.outcome }}" = "success"
+      - name: Run packaged reliability assessment
+        working-directory: .
+        run: timeout 60s bash scripts/smoke-image.sh sentinel-eval sentinel-eval:ci
