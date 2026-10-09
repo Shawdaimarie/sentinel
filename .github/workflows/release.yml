@@ -64,6 +64,7 @@ jobs:
       id-token: write
       attestations: write
     strategy:
+      fail-fast: false
       matrix:
         include:
           - name: sentinel-eval
@@ -139,12 +140,18 @@ jobs:
           output-format: json
           output-file: ${{ matrix.name }}.vulnerabilities.json
 
+      - name: Summarize vulnerability findings
+        if: always()
+        run: python3 scripts/summarize-vulnerabilities.py "${{ matrix.name }}.vulnerabilities.json" >> "$GITHUB_STEP_SUMMARY"
+
       - name: Upload vulnerability report
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: vulnerabilities-${{ matrix.name }}
-          path: ${{ matrix.name }}.vulnerabilities.json
+          path: |
+            ${{ matrix.name }}.vulnerabilities.json
+            ${{ matrix.name }}.spdx.json
           if-no-files-found: warn
 
       - name: Publish scanned image

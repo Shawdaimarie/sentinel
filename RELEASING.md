@@ -51,6 +51,27 @@ run's own `GITHUB_TOKEN` (`packages: write` permission, scoped to this repo).
 
 ## Supply-chain evidence
 
+### Checking a candidate before merge
+
+[`container-preflight.yml`](.github/workflows/container-preflight.yml) builds both
+Dockerfiles on every pull request and applies the same SBOM scan and severity
+policy as the release workflow. It has only `contents: read` permission and does
+not log in to a registry, publish images, or sign attestations.
+
+Both workflows allow each image's scan to finish independently. Even when a
+scan fails, they retain the vulnerability report and its input SBOM as artifacts.
+The run summary lists active, fixable High/Critical findings with installed and
+fixed versions; the scanner remains the authority for the gate result. If no
+report was produced, the summary says so rather than claiming a clean scan.
+
+For a failing candidate, update the affected base image or dependency and rerun
+the preflight. Keep image digests pinned and leave the vulnerability threshold
+intact. A passing preflight is evidence about that build at that time: the release
+rebuilds and rescans before publication because dependencies and vulnerability
+databases can change between runs.
+
+### Evidence carried by a published image
+
 Sentinel's central rule is that a persuasive claim never substitutes for
 evidence. The same rule applies to its own artifacts. A registry tag is a
 mutable pointer. It says nothing about what was built, from which commit, or by
@@ -145,7 +166,7 @@ what was verified.
 
 It proves that the image with this digest was built by this repository's
 `release.yml` from the recorded commit and ref on GitHub-hosted
-infrastructure. It proves the build used pinned inputs, and that the published
+infrastructure. It proves the build used pinned base images and workflow actions, and that the published
 bytes passed the vulnerability gate. Because the attestation is bound to the
 digest, any change to the image breaks verification. It also proves what
 packages the image contains.
@@ -156,7 +177,9 @@ signing to happen in an isolated reusable workflow that the build steps cannot
 influence.
 
 It does **not** prove that the source is free of defects, that the image is
-free of vulnerabilities, or that the build is bit-for-bit reproducible. A
+free of vulnerabilities, or that the build is bit-for-bit reproducible. Python
+dependencies use version ranges and are resolved during each build; they are not
+locked by this pipeline. A
 vulnerability database only knows what has been disclosed. OS packages
 installed at build time come from Debian's archive, which is not pinned. The
 remaining hardening steps, in order:
