@@ -160,7 +160,9 @@ verifies both, pulls that digest, and reruns the behavior checks before it
 succeeds. Use the resulting digest with the
 [offline assessment container instructions](Sentinel/examples/reliability_assessment/README.md#run-the-published-container).
 Aegis also requires a policy, trusted public keys, and persistent audit and
-replay state; follow its [configuration guide](Aegis/README.md).
+replay state; follow the [container installation guide](INSTALLING.md) for volume
+ownership, loopback-only startup, and recovery, and its
+[configuration guide](Aegis/README.md) for identity integration.
 
 See [RELEASING.md](RELEASING.md#supply-chain-evidence) for what that proves,
 what it does not, and how to cut a versioned release. The

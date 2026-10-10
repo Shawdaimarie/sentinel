@@ -56,3 +56,21 @@ jobs:
           test "$(docker image inspect aegis-authorizer:ci --format '{{.Config.User}}')" = "65532:65532"
       - name: Start packaged service and reject missing credentials
         run: timeout 60s bash scripts/smoke-image.sh aegis-authorizer aegis-authorizer:ci
+      - name: Reject the previous image layout without a writable data directory
+        run: |
+          python3 - <<'PY'
+          import os
+          from pathlib import Path
+          text = Path("Aegis/Dockerfile").read_text()
+          line = "COPY --from=build --chown=65532:65532 /out/data /data\n"
+          assert text.count(line) == 1
+          Path(os.environ["RUNNER_TEMP"], "Dockerfile.no-data").write_text(text.replace(line, ""))
+          PY
+          docker build --progress=plain -f "$RUNNER_TEMP/Dockerfile.no-data" -t aegis-authorizer:no-data Aegis
+          if timeout 60s bash scripts/smoke-image.sh aegis-authorizer aegis-authorizer:no-data > "$RUNNER_TEMP/aegis-no-data.log" 2>&1; then
+            cat "$RUNNER_TEMP/aegis-no-data.log"
+            echo "The smoke check accepted an image without writable audit storage" >&2
+            exit 1
+          fi
+          cat "$RUNNER_TEMP/aegis-no-data.log"
+          grep -F 'audit_unavailable' "$RUNNER_TEMP/aegis-no-data.log"

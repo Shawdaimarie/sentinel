@@ -8,6 +8,12 @@ All notable changes to this project are documented here. The format follows
 
 ### Added
 
+- Container installation and recovery guide with verified-digest usage and
+  persistent Aegis storage. Packaged Aegis checks now require successful audit
+  writes and linked records across container replacement; CI rejects the prior
+  image layout without a writable data directory.
+- A `/data` directory owned by Aegis's existing non-root user, allowing a fresh
+  Docker named volume to retain audit and state files without root execution.
 - Wheel-based first-run guide and installed-command checks on Python 3.11/3.12:
   a passing synthetic trace, a specifically identified forbidden-action failure,
   and malformed input that creates no output. Checks run outside the source tree.
