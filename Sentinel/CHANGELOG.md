@@ -8,6 +8,8 @@ All notable changes to this project are documented here. The format follows
 
 ### Added
 
+- Weekly and manual rescanning of verified, immutable published `edge` image
+  digests, with a fresh vulnerability database check and retained evidence.
 - Offline `sentinel-assess` demonstration with 20 labeled synthetic traces,
   deterministic JSON/Markdown evidence, input and implementation fingerprints,
   and a bounded reliability-assessment proposal.
