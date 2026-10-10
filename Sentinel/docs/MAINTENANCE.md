@@ -37,9 +37,11 @@ sustain. Keep independent review status explicit.
 - Treat suite/report schema identifiers as contracts. Preserve older evidence;
   review labels, thresholds, parser changes, and dependency changes together.
   A major schema change needs a new identifier and a documented migration.
-- Base images and Actions use pinned references. Python dependency ranges still
-  resolve at build time. Reuse a verified image digest to replay the same installed
-  environment; rebuilding the same source is not a bit-for-bit guarantee.
+- Base images and Actions use pinned references. Container Python build and
+  runtime dependencies use [reviewed versions and checksums](DEPENDENCIES.md).
+  Development tools and optional extras remain separate. Reuse a verified image
+  digest to replay the same installed environment; rebuilding the same source is
+  not a bit-for-bit guarantee.
 
 ## Release and recovery
 
@@ -116,7 +118,7 @@ available vulnerability data, not a guarantee that an image is permanently safe.
 
 ## Remaining engineering work
 
-Track fully locked Python build inputs, isolated signing, expanded platform
+Track isolated signing, expanded platform
 coverage, and independent reproduction as separate improvements. Release scans
 describe build-time findings; published-image rescans provide later snapshots.
 Prioritize work using actual deployment needs and failure evidence rather than
