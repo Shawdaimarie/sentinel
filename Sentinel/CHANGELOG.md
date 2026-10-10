@@ -8,20 +8,28 @@ All notable changes to this project are documented here. The format follows
 
 ### Added
 
-- Financial-content compliance gate (`sentinel-financial-gate`) that converts
-  the Value Route Gateway's declared "financial decisions" human-only boundary
-  into a deterministic release-readiness check for AI-generated financial and
-  market content, scoring grounding, advice boundary, disclosure, data
-  sensitivity, recency, and clarity, with hard gates on personalized trade
-  directives, guaranteed-return claims, unlicensed-advisor claims, fabricated
-  data, sensitive-data exposure, and missing disclosures. Its strongest
-  outcome routes content to a required human release decision rather than
-  authorizing publication on its own.
-- `INSTALLING.md`: verify, run, smoke-test, compatibility, and recovery
-  instructions for released images.
-- `scripts/smoke-test-images.sh`, run by the new `image-smoke-test` CI job
-  against freshly built images. The documented run commands are the tested
-  ones.
+- Container installation and recovery guide with verified-digest usage and
+  persistent Aegis storage. Packaged Aegis checks now require successful audit
+  writes and linked records across container replacement; CI rejects the prior
+  image layout without a writable data directory.
+- A `/data` directory owned by Aegis's existing non-root user, allowing a fresh
+  Docker named volume to retain audit and state files without root execution.
+- Wheel-based first-run guide and installed-command checks on Python 3.11/3.12:
+  a passing synthetic trace, a specifically identified forbidden-action failure,
+  and malformed input that creates no output. Checks run outside the source tree.
+- Version- and hash-locked Python build/runtime dependencies for the Sentinel
+  container, retaining the prior release's runtime versions. Required Python 3.12
+  CI checks a fresh installation, modified-wheel and missing-pin rejection, and
+  installed assessment conformance. Development tools and optional extras remain
+  outside these locks; full image byte reproducibility is not claimed.
+- Weekly and manual rescanning of verified, immutable published `edge` image
+  digests, with a fresh vulnerability database check and retained evidence.
+- Offline `sentinel-assess` demonstration with 20 labeled synthetic traces,
+  deterministic JSON/Markdown evidence, input and implementation fingerprints,
+  and a bounded reliability-assessment proposal.
+- Packaged runtime smoke checks before publication and after pulling a verified
+  image digest: assessment conformance and Aegis startup/credential rejection.
+- Maintenance, compatibility, recovery, and user-value measurement guidance.
 - `release.yml` workflow that builds and publishes the `sentinel-eval` and
   `aegis-authorizer` container images to GitHub Container Registry on pushes
   to `main` (`edge` tag) and on `vX.Y.Z` tags (`latest`, `X.Y`, `X.Y.Z`), with
@@ -102,24 +110,12 @@ All notable changes to this project are documented here. The format follows
 
 ### Fixed
 
-- The trace importer's protection against deeply nested JSON relied on Python
-  raising `RecursionError`. Python 3.14 parses such input without error, so on
-  3.14 the protection silently disappeared. The CI job added for 3.14 caught
-  this. Nesting is now limited explicitly to `MAX_JSON_DEPTH` (64) before
-  parsing, independent of the interpreter, and covered by boundary tests.
-- The first Release Images run (36326317967) was blocked by its own
-  vulnerability gate, and nothing was published. `aegis-authorizer` was built
-  with Go 1.23.12, which is past support. It had 56 blocking findings in the
-  standard library (3 critical, 53 high), all with fixes available. `sentinel-
-  eval` shipped CPython 3.12.14, affected by CVE-2026-82049 (`tarfile`
-  extraction filter), which is fixed in 3.14. Aegis now builds with Go 1.27
-  and CI tests with Go 1.27.x. The Sentinel image now uses Python 3.14, and CI
-  adds Python 3.14 to its test matrix, so the shipped runtime is the tested
-  runtime. The gate itself is unchanged.
-- The README's `docker run` command for Aegis could not work. The image has
-  no policy or keys, so Aegis refused to start, and it listened only on the
-  container's loopback address. The image now has a `/data` directory owned
-  by its non-root user, and the documented commands are exercised in CI.
+- Trace file imports reject raw inputs over 16 MiB before JSON parsing or
+  writing evidence. Existing reports remain intact on rejection; larger exports
+  must be split into complete-trace batches. This bounds file reads, not the
+  parser's total memory or execution time.
+- Incomplete or errored runs cannot pass evaluation through a high weighted
+  score. This tightens release acceptance; safety and completion remain distinct.
 - `test_release_ruleset.py` rejected any workflow with an `include` matrix,
   which failed CI once `release.yml` was added. It now expands include-only
   matrices into the job names GitHub reports.

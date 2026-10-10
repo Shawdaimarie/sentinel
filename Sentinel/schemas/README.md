@@ -13,14 +13,8 @@ training-data quality artifacts.
   actions, decisive failure modes, counts, and input fingerprint.
 - `training-example.schema.json` — AI training/evaluation examples with source,
   privacy, split, label, and risk-tag metadata.
-- `financial_content_cases.schema.json` — versioned human-review dimensions,
-  case classes, expected decisions, and explicit critical findings for the
-  financial-content compliance gate.
 
 The OTLP importer deliberately writes provider fields to the manifest instead
 of extending `AgentRun`; this keeps evaluation fixtures stable across tracing
 vendors. The coding-agent scorecard similarly keeps human-assigned evidence
 explicit rather than presenting the output as an automated proof of safety.
-The financial-content gate follows the same rule: its strongest outcome routes
-content to a required human release decision rather than authorizing
-publication on its own.

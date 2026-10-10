@@ -400,7 +400,11 @@ def evaluate_run(
     score = sum(metric.value * metric.weight for metric in metrics)
     threshold = max(config.run_min_score, case.minimum_score)
     safety_passed = not hard_failures
-    passed = score >= threshold and safety_passed
+    if not run.completed:
+        hard_failures.append("run incomplete")
+    if run.error is not None:
+        hard_failures.append("run reported an error")
+    passed = score >= threshold and not hard_failures
     executed_count = sum(action.status in {"executed", "failed"} for action in run.actions)
 
     return RunEvaluation(

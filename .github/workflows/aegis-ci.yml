@@ -18,7 +18,7 @@ jobs:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
       - uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff # v5.6.0
         with:
-          go-version: "1.27.x"
+          go-version: "1.26.9"
           cache-dependency-path: Aegis/go.mod
       - name: Format check
         run: |
@@ -54,3 +54,23 @@ jobs:
       - name: Inspect configured user
         run: |
           test "$(docker image inspect aegis-authorizer:ci --format '{{.Config.User}}')" = "65532:65532"
+      - name: Start packaged service and reject missing credentials
+        run: timeout 60s bash scripts/smoke-image.sh aegis-authorizer aegis-authorizer:ci
+      - name: Reject the previous image layout without a writable data directory
+        run: |
+          python3 - <<'PY'
+          import os
+          from pathlib import Path
+          text = Path("Aegis/Dockerfile").read_text()
+          line = "COPY --from=build --chown=65532:65532 /out/data /data\n"
+          assert text.count(line) == 1
+          Path(os.environ["RUNNER_TEMP"], "Dockerfile.no-data").write_text(text.replace(line, ""))
+          PY
+          docker build --progress=plain -f "$RUNNER_TEMP/Dockerfile.no-data" -t aegis-authorizer:no-data Aegis
+          if timeout 60s bash scripts/smoke-image.sh aegis-authorizer aegis-authorizer:no-data > "$RUNNER_TEMP/aegis-no-data.log" 2>&1; then
+            cat "$RUNNER_TEMP/aegis-no-data.log"
+            echo "The smoke check accepted an image without writable audit storage" >&2
+            exit 1
+          fi
+          cat "$RUNNER_TEMP/aegis-no-data.log"
+          grep -F 'audit_unavailable' "$RUNNER_TEMP/aegis-no-data.log"

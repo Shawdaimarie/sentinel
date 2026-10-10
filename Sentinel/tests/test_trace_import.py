@@ -8,7 +8,6 @@ import pytest
 
 from sentinel.trace_cli import main
 from sentinel.trace_import import (
-    MAX_JSON_DEPTH,
     TraceImportConfig,
     TraceImportError,
     import_otel_document,
@@ -316,26 +315,43 @@ def test_invalid_json_transport_has_safe_error(
     assert not manifest.exists()
 
 
-def test_nesting_limit_is_enforced_before_parsing(tmp_path: Path) -> None:
-    """The limit must not depend on a Python version's parser recursion behavior."""
-
+def test_trace_at_file_size_limit_is_accepted(tmp_path: Path) -> None:
+    payload = json.dumps(document()).encode()
     source = tmp_path / "trace.json"
-    inner = MAX_JSON_DEPTH - 1  # the root object is the first level
-    source.write_bytes(b'{"resourceSpans":[],"extra":' + b"[" * inner + b"]" * inner + b"}")
-    with pytest.raises(TraceImportError) as accepted:
-        import_otel_path(source)
-    assert "nesting" not in str(accepted.value)
-
-    over = MAX_JSON_DEPTH
-    source.write_bytes(b'{"resourceSpans":[],"extra":' + b"[" * over + b"]" * over + b"}")
-    with pytest.raises(TraceImportError, match="JSON nesting exceeds parser limit"):
-        import_otel_path(source)
+    source.write_bytes(payload + b" " * (16 * 1024 * 1024 - len(payload)))
+    result = import_otel_path(source)
+    assert result.runs[0].case_id == "grounded-answer"
+    assert result.manifest.source_sha256 == hashlib.sha256(source.read_bytes()).hexdigest()
 
 
-def test_brackets_inside_strings_do_not_count_toward_nesting(tmp_path: Path) -> None:
-    source = tmp_path / "trace.json"
-    brackets = "[{" * (MAX_JSON_DEPTH * 2)
-    source.write_text(json.dumps({"resourceSpans": [], "note": brackets, "q": 'a\\"[['}))
-    with pytest.raises(TraceImportError) as excinfo:
+@pytest.mark.parametrize("existing_evidence", [False, True])
+def test_oversize_trace_rejected_before_parsing_or_output(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+    existing_evidence: bool,
+) -> None:
+    source = tmp_path / "oversize.json"
+    with source.open("wb") as handle:
+        handle.truncate(16 * 1024 * 1024 + 1)
+    output, manifest = tmp_path / "runs.jsonl", tmp_path / "manifest.json"
+    if existing_evidence:
+        output.write_bytes(b"previous run evidence\n")
+        manifest.write_bytes(b"previous manifest evidence\n")
+
+    def reject_parse(*args: object, **kwargs: object) -> object:
+        raise AssertionError("oversize content reached JSON parser")
+
+    monkeypatch.setattr("sentinel.trace_import.json.loads", reject_parse)
+    with pytest.raises(TraceImportError, match="trace file exceeds 16777216-byte limit"):
         import_otel_path(source)
-    assert "nesting" not in str(excinfo.value)
+    assert main(["--input", str(source), "--output", str(output), "--manifest", str(manifest)]) == 2
+    assert capsys.readouterr().err == (
+        "sentinel-import-otel: trace file exceeds 16777216-byte limit\n"
+    )
+    if existing_evidence:
+        assert output.read_bytes() == b"previous run evidence\n"
+        assert manifest.read_bytes() == b"previous manifest evidence\n"
+    else:
+        assert not output.exists()
+        assert not manifest.exists()

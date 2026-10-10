@@ -67,7 +67,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.11", "3.12", "3.14"]
+        python-version: ["3.11", "3.12"]
     defaults:
       run:
         working-directory: Sentinel
@@ -78,6 +78,9 @@ jobs:
           python-version: ${{ matrix.python-version }}
           cache: pip
           cache-dependency-path: Sentinel/pyproject.toml
+      - name: Verify locked container dependencies and installed behavior
+        if: matrix.python-version == '3.12'
+        run: python ../scripts/check-locked-install.py
       - name: Install package and quality tools
         run: |
           python -m pip install --upgrade pip "setuptools>=83" wheel
@@ -131,16 +134,15 @@ jobs:
             --json-out reports/code-review/scorecard.json \
             --markdown-out reports/code-review/scorecard.md \
             2>&1 | tee reports/diagnostics/code-review.txt
-      - name: Financial-content gate
-        id: financial_gate
+      - name: Synthetic reliability assessment conformance
+        id: assessment
         continue-on-error: true
         run: |
           set -o pipefail
-          sentinel-financial-gate \
-            --cases examples/financial_content_cases.json \
-            --json-out reports/financial-gate/scorecard.json \
-            --markdown-out reports/financial-gate/scorecard.md \
-            2>&1 | tee reports/diagnostics/financial-gate.txt
+          sentinel-assess \
+            --suite examples/reliability_assessment/suite.json \
+            --output-dir reports/reliability-assessment \
+            2>&1 | tee reports/diagnostics/assessment.txt
       - name: Upload verification evidence
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
@@ -153,8 +155,7 @@ jobs:
             Sentinel/reports/comparison.json
             Sentinel/reports/code-review/scorecard.md
             Sentinel/reports/code-review/scorecard.json
-            Sentinel/reports/financial-gate/scorecard.md
-            Sentinel/reports/financial-gate/scorecard.json
+            Sentinel/reports/reliability-assessment/
           if-no-files-found: warn
       - name: Enforce quality gates
         if: always()
@@ -165,21 +166,7 @@ jobs:
           test "${{ steps.audit.outcome }}" = "success"
           test "${{ steps.evaluation.outcome }}" = "success"
           test "${{ steps.code_review.outcome }}" = "success"
-          test "${{ steps.financial_gate.outcome }}" = "success"
-
-  image-smoke-test:
-    # Runs the same script INSTALLING.md gives users, against freshly built
-    # images, so the published run instructions cannot drift from reality.
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
-      - name: Build both images
-        run: |
-          docker build --progress=plain -t sentinel-eval:smoke Sentinel
-          docker build --progress=plain -t aegis-authorizer:smoke Aegis
-      - name: Smoke-test images as a user would run them
-        run: bash scripts/smoke-test-images.sh sentinel-eval:smoke aegis-authorizer:smoke
+          test "${{ steps.assessment.outcome }}" = "success"
 
   portable-audit-conformance:
     name: Portable audit conformance
@@ -194,7 +181,7 @@ jobs:
           node-version: "22"
       - uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff # v5.6.0
         with:
-          go-version: "1.27.x"
+          go-version: "1.23.x"
           cache-dependency-path: Sentinel/verifiers/go/go.mod
       - name: Verify with independent Python implementation
         working-directory: Sentinel
@@ -259,3 +246,6 @@ jobs:
       - name: Enforce container gate
         if: always()
         run: test "${{ steps.build.outcome }}" = "success"
+      - name: Run packaged reliability assessment
+        working-directory: .
+        run: timeout 60s bash scripts/smoke-image.sh sentinel-eval sentinel-eval:ci

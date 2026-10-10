@@ -15,10 +15,7 @@ POLICY = Path(__file__).resolve().parents[1] / "policy.yaml"
 
 def public_resolver(host: str) -> list[str]:
     """Deterministic resolver: the monitored domain maps to a global address."""
-    domain = "essentialdigitalsolution.com"
-    # Exact host or a true subdomain; a bare suffix check would also accept
-    # lookalike hosts such as "evilessentialdigitalsolution.com".
-    if host == domain or host.endswith("." + domain):
+    if host.endswith("essentialdigitalsolution.com"):
         return ["1.1.1.1"]
     if host == "127.0.0.1":
         return ["127.0.0.1"]

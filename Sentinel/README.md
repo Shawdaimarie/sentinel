@@ -1,6 +1,6 @@
 # Sentinel
 
-**Governed agent execution, deterministic evaluation, training-data quality gates, benefit-gated automation, value routing, financial-content governance, and deployment capsules for high-consequence AI workflows.**
+**Governed agent execution, deterministic evaluation, training-data quality gates, benefit-gated automation, value routing, and deployment capsules for high-consequence AI workflows.**
 
 Every proposed action is evaluated against policy. Every decision is logged
 before a side effect. Every release can be gated on versioned correctness,
@@ -215,38 +215,6 @@ sentinel-value-router \
   --min-score 0.70
 ```
 
-## Financial Content Gate
-
-`sentinel-financial-gate` turns the Value Route Gateway's declared
-"financial decisions" human-only boundary into a deterministic, testable
-check for AI-generated financial or market content. It does not give
-financial advice, predict markets, or execute trades, and its strongest
-outcome still routes content to a required human release decision rather than
-authorizing publication on its own.
-
-Gate dimensions:
-
-- grounding;
-- advice boundary;
-- disclosure;
-- data sensitivity;
-- recency; and
-- clarity.
-
-Advice-boundary and data-sensitivity failures are hard gates. A well-sourced,
-fluent item cannot average away a personalized trade directive, a
-guaranteed-return claim, an unlicensed-advisor claim, fabricated figures,
-exposed account data, or a missing risk disclosure.
-
-```bash
-sentinel-financial-gate \
-  --cases examples/financial_content_cases.json \
-  --json-out reports/financial-gate/scorecard.json \
-  --markdown-out reports/financial-gate/scorecard.md
-```
-
-See [`docs/FINANCIAL_CONTENT_GATE.md`](docs/FINANCIAL_CONTENT_GATE.md).
-
 ## Deployment Capsules
 
 `sentinel-capsule` packages evidence for public proof or private delivery into a
@@ -282,9 +250,7 @@ See:
 - [`docs/TRUST_AND_COMMUNICATION_STANDARD.md`](docs/TRUST_AND_COMMUNICATION_STANDARD.md)
   for the safest-yes communication standard;
 - [`docs/CODING_AGENT_REVIEW_RUBRIC.md`](docs/CODING_AGENT_REVIEW_RUBRIC.md)
-  for the coding-agent review protocol;
-- [`docs/FINANCIAL_CONTENT_GATE.md`](docs/FINANCIAL_CONTENT_GATE.md) for the
-  financial-content compliance gate; and
+  for the coding-agent review protocol; and
 - [`docs/AUTOMATION.md`](docs/AUTOMATION.md) for benefit-gated automation.
 
 ## Automation and workflows
@@ -318,7 +284,6 @@ src/sentinel/
   automation.py                 benefit-gated stability task runner
   value_router.py               deployable value routing gateway
   capsule.py                    deployment capsule manifests and hash evidence
-  financial_gate.py             financial-content compliance gate
   *_cli.py                      command-line interfaces
 tests/                          unit, security, evaluation, conformance tests
 examples/                       cases, baseline runs, route items, capsules
@@ -338,7 +303,6 @@ make compare
 make automation
 make value-route
 make capsules
-make financial-gate
 make docker
 ```
 

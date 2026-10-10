@@ -1,4 +1,4 @@
-FROM golang:1.27@sha256:3680233e3204827fbdc66088528ae6d4b3d034f51d03a99d454f6de034888244 AS build
+FROM golang:1.26.9-trixie@sha256:f89535b7caea67fa9ff0ba009894bff8f3be915e49cb635477c8ce04e045db5d AS build
 
 WORKDIR /src
 COPY go.mod ./
@@ -8,15 +8,14 @@ COPY internal ./internal
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build \
     -trimpath \
     -ldflags="-s -w -buildid=" \
-    -o /out/aegis ./cmd/aegis \
-    && mkdir -p /out/data
+    -o /out/aegis ./cmd/aegis && \
+    mkdir -p /out/data && chmod 750 /out/data
 
 FROM scratch
 
 COPY --from=build /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 COPY --from=build /out/aegis /aegis
-# Writable home for the audit and replay-state logs. A named volume mounted
-# here inherits this ownership, so the non-root user can write to it.
+# A fresh named volume inherits this directory's non-root ownership.
 COPY --from=build --chown=65532:65532 /out/data /data
 
 USER 65532:65532

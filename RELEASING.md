@@ -51,6 +51,29 @@ run's own `GITHUB_TOKEN` (`packages: write` permission, scoped to this repo).
 
 ## Supply-chain evidence
 
+### Checking a candidate before merge
+
+[`container-preflight.yml`](.github/workflows/container-preflight.yml) builds both
+Dockerfiles on every pull request and applies the same SBOM scan and severity
+policy as the release workflow. It has only `contents: read` permission and does
+not log in to a registry, publish images, or sign attestations.
+
+Both workflows allow each image's scan to finish independently. Even when a
+scan fails, they retain the vulnerability report and its input SBOM as artifacts.
+The run summary lists active, fixable High/Critical findings with installed and
+fixed versions; the scanner remains the authority for the gate result. If no
+report was produced, the summary says so rather than claiming a clean scan.
+
+For a failing candidate, update the affected base image or dependency and rerun
+the preflight. Keep image digests pinned and leave the vulnerability threshold
+intact. A passing preflight is evidence about that build at that time: the release
+rebuilds and rescans before publication because vulnerability information can
+change between runs. Sentinel's container Python dependencies are version- and
+hash-locked; [DEPENDENCIES.md](Sentinel/docs/DEPENDENCIES.md) describes their scope,
+update process, and installed-package checks.
+
+### Evidence carried by a published image
+
 Sentinel's central rule is that a persuasive claim never substitutes for
 evidence. The same rule applies to its own artifacts. A registry tag is a
 mutable pointer. It says nothing about what was built, from which commit, or by
@@ -75,17 +98,26 @@ image that cannot be verified fails the release.
 
 ### Release order
 
-Nothing reaches the registry until it has passed every gate. For each image:
+Nothing reaches the registry until its pre-publication gates pass. Post-publish
+verification must also pass before consumers promote the release. For each image:
 
 1. **Build** into the runner's local Docker daemon only.
+   Run the packaged behavior checks with synthetic inputs: Sentinel assessment
+   conformance, or Aegis startup and rejection of a request without credentials.
 2. **Inventory** the local image as an SPDX SBOM.
 3. **Gate** on that SBOM: any high or critical vulnerability with a fix
    available fails the release. The full report is uploaded either way.
 4. **Push** the exact image that was scanned.
 5. **Attest** provenance and the same SBOM to the pushed digest.
 6. **Verify** both attestations as a consumer would.
+7. **Pull and exercise** the verified digest with the same packaged behavior
+   checks. A failure leaves the run unsuccessful even if tags were already pushed.
 
 The signed SBOM and the vulnerability decision describe the same bytes.
+Consumers should use only digests from completed successful release runs. The
+checks establish bounded behavior; they do not validate a customer's workload,
+hosting configuration, or availability. See the
+[maintenance and recovery standard](Sentinel/docs/MAINTENANCE.md).
 
 ### Threats addressed
 
@@ -115,7 +147,7 @@ a quiet way to make the build pass.
 ### Verifying an image yourself
 
 ```bash
-scripts/verify-image.sh ghcr.io/shawdaimarie/sentinel-eval:v0.7.0
+scripts/verify-image.sh ghcr.io/shawdaimarie/sentinel-eval:0.7.0
 ```
 
 The script resolves the tag to a digest, verifies the provenance and the SBOM
@@ -145,7 +177,7 @@ what was verified.
 
 It proves that the image with this digest was built by this repository's
 `release.yml` from the recorded commit and ref on GitHub-hosted
-infrastructure. It proves the build used pinned inputs, and that the published
+infrastructure. It proves the build used pinned base images and workflow actions, and that the published
 bytes passed the vulnerability gate. Because the attestation is bound to the
 digest, any change to the image breaks verification. It also proves what
 packages the image contains.
@@ -156,15 +188,17 @@ signing to happen in an isolated reusable workflow that the build steps cannot
 influence.
 
 It does **not** prove that the source is free of defects, that the image is
-free of vulnerabilities, or that the build is bit-for-bit reproducible. A
-vulnerability database only knows what has been disclosed. OS packages
-installed at build time come from Debian's archive, which is not pinned. The
-remaining hardening steps, in order:
+free of vulnerabilities, or that the build is bit-for-bit reproducible. The
+container's Python build and runtime wheels use committed versions and hashes;
+development tools and optional extras are outside those locks. Build timestamps,
+platform behavior, and any future OS installation steps still require separate
+reproducibility controls. A vulnerability database only knows what has been
+disclosed. The remaining hardening steps include:
 
 1. Move signing into an isolated reusable workflow to reach SLSA Build
    Level 3.
-2. Re-scan published digests on a schedule, so a vulnerability disclosed after
-   release is surfaced, not only ones known at release time.
+2. Extend [scheduled published-image rescanning](.github/workflows/published-image-rescan.yml)
+   beyond the two current `edge` images when historical deployed digests are tracked.
 
 ## First-time GHCR visibility
 
