@@ -8,6 +8,11 @@ All notable changes to this project are documented here. The format follows
 
 ### Added
 
+- Version- and hash-locked Python build/runtime dependencies for the Sentinel
+  container, retaining the prior release's runtime versions. Required Python 3.12
+  CI checks a fresh installation, modified-wheel and missing-pin rejection, and
+  installed assessment conformance. Development tools and optional extras remain
+  outside these locks; full image byte reproducibility is not claimed.
 - Weekly and manual rescanning of verified, immutable published `edge` image
   digests, with a fresh vulnerability database check and retained evidence.
 - Offline `sentinel-assess` demonstration with 20 labeled synthetic traces,

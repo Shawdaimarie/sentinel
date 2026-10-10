@@ -147,8 +147,9 @@ scripts/verify-image.sh ghcr.io/shawdaimarie/aegis-authorizer:edge
 ```
 
 `main` builds publish under the `edge` tag; version tags publish `latest`,
-`X.Y`, and `X.Y.Z`. Base images and workflow actions are pinned; Python
-dependency versions are resolved at build time and recorded in the SBOM.
+`X.Y`, and `X.Y.Z`. Base images and workflow actions are pinned. Sentinel's
+container build and runtime Python dependencies use reviewed versions and
+checksums; see the [dependency update guide](Sentinel/docs/DEPENDENCIES.md).
 Images must pass packaged behavior checks and a
 vulnerability gate before they are pushed. Each carries Sigstore-signed SLSA
 build provenance and an SPDX SBOM bound to its digest, and the release job

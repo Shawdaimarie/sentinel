@@ -67,8 +67,10 @@ report was produced, the summary says so rather than claiming a clean scan.
 For a failing candidate, update the affected base image or dependency and rerun
 the preflight. Keep image digests pinned and leave the vulnerability threshold
 intact. A passing preflight is evidence about that build at that time: the release
-rebuilds and rescans before publication because dependencies and vulnerability
-databases can change between runs.
+rebuilds and rescans before publication because vulnerability information can
+change between runs. Sentinel's container Python dependencies are version- and
+hash-locked; [DEPENDENCIES.md](Sentinel/docs/DEPENDENCIES.md) describes their scope,
+update process, and installed-package checks.
 
 ### Evidence carried by a published image
 
@@ -186,17 +188,17 @@ signing to happen in an isolated reusable workflow that the build steps cannot
 influence.
 
 It does **not** prove that the source is free of defects, that the image is
-free of vulnerabilities, or that the build is bit-for-bit reproducible. Python
-dependencies use version ranges and are resolved during each build; they are not
-locked by this pipeline. A
-vulnerability database only knows what has been disclosed. OS packages
-installed at build time come from Debian's archive, which is not pinned. The
-remaining hardening steps, in order:
+free of vulnerabilities, or that the build is bit-for-bit reproducible. The
+container's Python build and runtime wheels use committed versions and hashes;
+development tools and optional extras are outside those locks. Build timestamps,
+platform behavior, and any future OS installation steps still require separate
+reproducibility controls. A vulnerability database only knows what has been
+disclosed. The remaining hardening steps include:
 
 1. Move signing into an isolated reusable workflow to reach SLSA Build
    Level 3.
-2. Re-scan published digests on a schedule, so a vulnerability disclosed after
-   release is surfaced, not only ones known at release time.
+2. Extend [scheduled published-image rescanning](.github/workflows/published-image-rescan.yml)
+   beyond the two current `edge` images when historical deployed digests are tracked.
 
 ## First-time GHCR visibility
 
