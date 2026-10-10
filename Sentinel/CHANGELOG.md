@@ -8,6 +8,9 @@ All notable changes to this project are documented here. The format follows
 
 ### Added
 
+- Wheel-based first-run guide and installed-command checks on Python 3.11/3.12:
+  a passing synthetic trace, a specifically identified forbidden-action failure,
+  and malformed input that creates no output. Checks run outside the source tree.
 - Version- and hash-locked Python build/runtime dependencies for the Sentinel
   container, retaining the prior release's runtime versions. Required Python 3.12
   CI checks a fresh installation, modified-wheel and missing-pin rejection, and
