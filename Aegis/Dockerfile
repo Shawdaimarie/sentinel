@@ -1,4 +1,4 @@
-FROM golang:1.23 AS build
+FROM golang:1.26.9-trixie@sha256:f89535b7caea67fa9ff0ba009894bff8f3be915e49cb635477c8ce04e045db5d AS build
 
 WORKDIR /src
 COPY go.mod ./

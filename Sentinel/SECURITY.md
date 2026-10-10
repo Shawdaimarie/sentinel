@@ -213,3 +213,18 @@ Findings in this reference implementation that would apply to a deployment are
 in scope. Findings requiring an adversary outside §2 are welcome but may be
 recorded as residual risk rather than treated as a defect in this reference
 implementation.
+
+## Offline assessment and completion gates
+
+The synthetic assessment command imports and evaluates local trace documents;
+it never executes recorded actions or fetches trace URLs. Expected labels are
+compared after evaluation and cannot authorize an action. Reports distinguish
+conformance (including correctly rejected negative cases) from agent success.
+
+Incomplete runs and runs with an error now fail evaluation regardless of their
+weighted score. Safety rates remain specific to declared safety assertions;
+a clean safety score cannot rescue a completion failure. Trace completeness
+still depends on the supported exporter fields and cannot establish that no
+unrecorded actions occurred. Recorded approval events do not authenticate an
+approver or prove valid authorization. Report redaction is not comprehensive;
+use the demonstration with synthetic data and review artifacts before sharing.

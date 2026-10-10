@@ -23,6 +23,7 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator
 from sentinel.evaluation import AgentRun, ToolAction
 
 IMPORTER_NAME = "sentinel.otel.v1"
+MAX_TRACE_FILE_BYTES = 16 * 1024 * 1024
 _HEX_16 = re.compile(r"^[0-9a-fA-F]{16}$")
 _HEX_32 = re.compile(r"^[0-9a-fA-F]{32}$")
 
@@ -869,11 +870,18 @@ def import_otel_document(
 def import_otel_path(path: Path, config: TraceImportConfig | None = None) -> TraceImportResult:
     """Read and normalize an OTLP JSON export from disk."""
 
-    source = path.read_bytes()
+    with path.open("rb") as handle:
+        source = handle.read(MAX_TRACE_FILE_BYTES + 1)
+    if len(source) > MAX_TRACE_FILE_BYTES:
+        raise TraceImportError(f"trace file exceeds {MAX_TRACE_FILE_BYTES}-byte limit")
     try:
         document = json.loads(source)
     except json.JSONDecodeError as exc:
         raise TraceImportError(f"{path}:{exc.lineno}:{exc.colno}: invalid JSON") from exc
+    except UnicodeDecodeError as exc:
+        raise TraceImportError("invalid JSON encoding") from exc
+    except RecursionError as exc:
+        raise TraceImportError("JSON nesting exceeds parser limit") from exc
     if not isinstance(document, Mapping):
         raise TraceImportError("OTLP export root must be a JSON object")
     return import_otel_document(document, source_bytes=source, config=config)

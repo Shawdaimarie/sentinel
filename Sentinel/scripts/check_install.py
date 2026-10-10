@@ -1,15 +1,16 @@
 """Exercise a non-editable installation using offline fixtures and temporary output."""
+
 import argparse
 import importlib.metadata
 import json
 import os
-from pathlib import Path
 import subprocess
 import sys
 import tempfile
+from pathlib import Path
 
 
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--fixtures", type=Path, required=True)
     args = parser.parse_args()
@@ -24,37 +25,96 @@ def main():
     with tempfile.TemporaryDirectory(prefix="sentinel-install-") as directory:
         work = Path(directory)
 
-        def run(command, *arguments, expected=0):
+        def run(command: str, *arguments: str | Path, expected: int = 0) -> str:
             result = subprocess.run(
                 [str(bindir / (command + suffix)), *map(str, arguments)],
-                cwd=work, env=env, text=True, capture_output=True, timeout=60,
+                cwd=work,
+                env=env,
+                text=True,
+                capture_output=True,
+                timeout=60,
+                check=False,
             )
             if result.returncode != expected:
                 raise RuntimeError(
                     f"{command}: expected exit {expected}, got {result.returncode}\n"
                     f"{result.stdout}\n{result.stderr}"
                 )
+            return result.stdout + result.stderr
 
-        run("sentinel-import-otel", "--input", fixtures / "agent_trace.json",
-            "--output", work / "runs.jsonl", "--manifest", work / "manifest.json")
-        run("sentinel-eval", "--cases", fixtures / "eval_case.jsonl",
-            "--runs", work / "runs.jsonl", "--json-out", work / "valid.json",
-            "--report", work / "valid.md", "--min-score", "0.90")
+        run(
+            "sentinel-import-otel",
+            "--input",
+            fixtures / "agent_trace.json",
+            "--output",
+            work / "runs.jsonl",
+            "--manifest",
+            work / "manifest.json",
+        )
+        run(
+            "sentinel-eval",
+            "--cases",
+            fixtures / "eval_case.jsonl",
+            "--runs",
+            work / "runs.jsonl",
+            "--json-out",
+            work / "valid.json",
+            "--report",
+            work / "valid.md",
+            "--min-score",
+            "0.90",
+        )
+        valid = json.loads((work / "valid.json").read_text())
+        if valid["gate_passed"] is not True or valid["run_count"] != 1:
+            raise RuntimeError("Valid fixture did not produce a passing one-run report")
         runs = [json.loads(line) for line in (work / "runs.jsonl").read_text().splitlines()]
         if len(runs) != 1:
             raise RuntimeError("Expected exactly one run in the installation fixture")
-        runs[0]["actions"].append({"name": "secrets.read", "target": "synthetic",
-                                   "status": "executed", "latency_ms": 0, "cost_usd": 0})
+        runs[0]["actions"].append(
+            {
+                "name": "secrets.read",
+                "target": "synthetic",
+                "status": "executed",
+                "latency_ms": 0,
+                "cost_usd": 0,
+            }
+        )
         (work / "unsafe.jsonl").write_text(json.dumps(runs[0]) + "\n")
-        run("sentinel-eval", "--cases", fixtures / "eval_case.jsonl",
-            "--runs", work / "unsafe.jsonl", "--json-out", work / "unsafe.json",
-            "--report", work / "unsafe.md", expected=1)
+        run(
+            "sentinel-eval",
+            "--cases",
+            fixtures / "eval_case.jsonl",
+            "--runs",
+            work / "unsafe.jsonl",
+            "--json-out",
+            work / "unsafe.json",
+            "--report",
+            work / "unsafe.md",
+            expected=1,
+        )
+        unsafe = json.loads((work / "unsafe.json").read_text())
+        (result,) = unsafe["results"]
+        if (
+            unsafe["gate_passed"] is not False
+            or result["safety_passed"] is not False
+            or "forbidden action not denied: secrets.read" not in result["hard_failures"]
+        ):
+            raise RuntimeError("Forbidden action was not the recorded reason for rejection")
         (work / "invalid.json").write_text("{invalid")
-        run("sentinel-import-otel", "--input", work / "invalid.json",
-            "--output", work / "invalid-runs.jsonl",
-            "--manifest", work / "invalid-manifest.json", expected=2)
-        if (work / "invalid-runs.jsonl").exists():
-            raise RuntimeError("Invalid input created run output")
+        diagnostic = run(
+            "sentinel-import-otel",
+            "--input",
+            work / "invalid.json",
+            "--output",
+            work / "invalid-runs.jsonl",
+            "--manifest",
+            work / "invalid-manifest.json",
+            expected=2,
+        )
+        if "invalid JSON" not in diagnostic:
+            raise RuntimeError("Malformed input was rejected for an unexpected reason")
+        if any((work / name).exists() for name in ("invalid-runs.jsonl", "invalid-manifest.json")):
+            raise RuntimeError("Invalid input created run or manifest output")
     print(f"PASS: Sentinel {dist.version} installed commands; valid, unsafe, malformed cases")
     print("Offline synthetic checks only; not production or provider verification")
 
