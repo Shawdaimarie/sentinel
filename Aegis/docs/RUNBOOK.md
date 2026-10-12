@@ -107,6 +107,44 @@ Prefer forward-fixing authorization policy. If rollback is necessary:
 5. Document the incident and update evaluation cases if a missed scenario caused
    the rollback.
 
+## State-log recovery
+
+On startup, the file state store reads every JSONL record before becoming
+available. A missing or unsupported event type now stops startup with a
+line-specific error, such as `state log line 2: unsupported event type`.
+Previously, that record was silently skipped, so recovery could continue with
+an incomplete history of consumed capabilities or revocations. The error
+does not include the record's subject, capability ID, or other contents.
+
+The supported event types are `reserve_jti`, `reserve_rate_limit`, `revoke_jti`,
+and `revoke_subject`. Existing records written by these operations keep the
+same format; no state migration is required.
+
+If recovery fails:
+
+1. Keep the authorizer stopped and preserve the original file as evidence.
+2. Inspect the reported line locally with appropriate access. Compare the
+   producing version and its event format with the reader before changing code.
+3. Repair the producer/reader mismatch or recover the complete authoritative
+   state, including events after any backup. Deleting the line, clearing the
+   file, or restoring an older snapshot can lose consumed-capability and
+   revocation history. If that history cannot be established, keep access denied.
+4. Check the repaired copy with `-check-config` before starting the server.
+
+From the `Aegis` directory, reproduce the boundary with:
+
+```sh
+go test -run 'TestFileStateStore(RejectsUnknownEventsWithoutChangingEvidence|ReloadsEverySupportedEvent)$' -count=1 ./internal/aegis
+```
+
+The regression appends five kinds of unsupported record after a valid
+revocation and requires startup rejection without modifying the file. The
+compatibility test reloads all four supported event types and verifies that
+replay, revocation, and rate-limit denials remain effective. These are local
+synthetic tests. Event-type validation does not authenticate the file, detect
+every semantic alteration to a supported event, establish multi-process
+consistency, or prove a complete backup-restoration procedure.
+
 ## Escalation
 
 Escalate before re-enabling access if:

@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"os"
 	"path/filepath"
 	"sync"
@@ -267,10 +268,12 @@ func (f *FileStateStore) load() error {
 	}
 	defer file.Close()
 	scanner := bufio.NewScanner(file)
+	line := 0
 	for scanner.Scan() {
+		line++
 		var event stateEvent
 		if err := json.Unmarshal(scanner.Bytes(), &event); err != nil {
-			return err
+			return fmt.Errorf("state log line %d: %w", line, err)
 		}
 		switch event.Type {
 		case "reserve_jti":
@@ -284,6 +287,8 @@ func (f *FileStateStore) load() error {
 			}
 		case "revoke_subject":
 			f.memory.revokedSubjects[event.Subject] = event.Reason
+		default:
+			return fmt.Errorf("state log line %d: unsupported event type", line)
 		}
 	}
 	return scanner.Err()
