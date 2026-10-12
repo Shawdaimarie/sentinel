@@ -110,6 +110,10 @@ All notable changes to this project are documented here. The format follows
 
 ### Fixed
 
+- Aegis startup now rejects missing or unsupported state-log event types with
+  a line-specific error instead of silently skipping them. Recovery leaves the
+  original file unchanged; tests cover rejection and all four supported event
+  types, and the runbook explains how to preserve replay/revocation history.
 - Trace file imports reject raw inputs over 16 MiB before JSON parsing or
   writing evidence. Existing reports remain intact on rejection; larger exports
   must be split into complete-trace batches. This bounds file reads, not the
