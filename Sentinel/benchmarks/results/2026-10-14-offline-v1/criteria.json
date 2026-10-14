@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "workload_id": "offline-evaluation-v1",
+  "scope": "Synthetic local sentinel-eval CLI batches; not hosted-service or model capacity",
+  "dataset": {
+    "cases_file": "examples/eval_cases.jsonl",
+    "runs_file": "examples/eval_runs.jsonl",
+    "case_count": 6,
+    "repetitions": 20,
+    "runs_per_batch": 120,
+    "maximum_input_bytes": 1048576
+  },
+  "execution": {
+    "python": "3.12",
+    "warmup_batches": 3,
+    "stage_seconds": 30,
+    "soak_seconds": 300,
+    "minimum_samples_per_stage": 10,
+    "per_batch_timeout_seconds": 10,
+    "maximum_run_seconds": 900,
+    "expected_concurrency": 1,
+    "twice_expected_concurrency": 2,
+    "saturation_concurrency": [1, 2, 4, 8]
+  },
+  "acceptance": {
+    "expected": {"p95_seconds": 3.0, "p99_seconds": 5.0, "minimum_batches_per_second": 0.3},
+    "twice_expected": {"p95_seconds": 5.0, "p99_seconds": 8.0, "minimum_batches_per_second": 0.5},
+    "soak": {"p95_seconds": 5.0, "p99_seconds": 8.0, "minimum_batches_per_second": 0.5},
+    "maximum_unexpected_errors": 0,
+    "maximum_worker_peak_rss_mib": 512,
+    "maximum_sum_worker_peak_rss_mib": 4096,
+    "failure_repetitions_per_type": 5,
+    "failure_recovery_seconds": 10,
+    "required_failure_exit_code": 2,
+    "failure_preserves_existing_outputs": true
+  },
+  "budget": {
+    "maximum_workers": 8,
+    "maximum_incremental_paid_infrastructure_usd": 0,
+    "external_model_calls": 0,
+    "currency_cost_per_operation": null
+  }
+}

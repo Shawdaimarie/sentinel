@@ -1,0 +1,509 @@
+{
+  "schema_version": 1,
+  "started_at": "2026-10-14T20:22:09.733522+00:00",
+  "criteria_commit": "f9793cdd34ca7f7782abb3f699b42b0e04ab3f9e",
+  "criteria_sha256": "efff1a7954691b933e535b582cd94bd269c3a137914e47f7f004f4bc57e93c52",
+  "package_commit": "f9793cdd34ca7f7782abb3f699b42b0e04ab3f9e",
+  "wheel_sha256": "a677ec8b891f9bcd5d9a68680c516185680d2e04b558c4e4cc8c9a678e372897",
+  "runner_sha256": "e91cc19ce412e758070f24853d526b2b6f3032a4f35ca60c4f5224c1cbeadeee",
+  "environment": {
+    "platform": "macOS-26.6.2-arm64-arm-64bit",
+    "architecture": "arm64",
+    "logical_cpus": 6,
+    "available_memory": null,
+    "power_mode": null,
+    "competing_workload": "uncontrolled local desktop",
+    "python": "3.12.14",
+    "source": {
+      "archive_info": {
+        "hash": "sha256=a677ec8b891f9bcd5d9a68680c516185680d2e04b558c4e4cc8c9a678e372897",
+        "hashes": {
+          "sha256": "a677ec8b891f9bcd5d9a68680c516185680d2e04b558c4e4cc8c9a678e372897"
+        }
+      },
+      "url": "sentinel-0.6.0-py3-none-any.whl"
+    },
+    "dependencies": [
+      [
+        "PyYAML",
+        "6.0.3"
+      ],
+      [
+        "annotated-types",
+        "0.8.0"
+      ],
+      [
+        "anyio",
+        "4.15.1"
+      ],
+      [
+        "certifi",
+        "2026.7.22"
+      ],
+      [
+        "h11",
+        "0.16.0"
+      ],
+      [
+        "httpcore",
+        "1.0.9"
+      ],
+      [
+        "httpx",
+        "0.28.1"
+      ],
+      [
+        "idna",
+        "3.20"
+      ],
+      [
+        "pip",
+        "25.0.1"
+      ],
+      [
+        "pydantic",
+        "2.14.0"
+      ],
+      [
+        "pydantic_core",
+        "2.50.0"
+      ],
+      [
+        "sentinel",
+        "0.6.0"
+      ],
+      [
+        "typing-inspection",
+        "0.4.4"
+      ],
+      [
+        "typing_extensions",
+        "4.16.0"
+      ]
+    ]
+  },
+  "status": "PASS",
+  "stages": {
+    "expected": {
+      "attempts": 97,
+      "validated_batches": 97,
+      "unexpected_errors": 0,
+      "error_rate": 0.0,
+      "seconds": 30.113144625007408,
+      "concurrency": 1,
+      "p50_seconds": 0.13034891602001153,
+      "p95_seconds": 0.7085369580017868,
+      "p99_seconds": 2.704226750007365,
+      "batches_per_second": 3.221184675593346,
+      "maximum_worker_peak_rss_mib": 35.0,
+      "sum_worker_peak_rss_upper_bound_mib": 35.0,
+      "cpu_seconds": 11.652821,
+      "currency_cost_per_successful_operation": null,
+      "cpu_seconds_per_validated_batch": 0.12013217525773195,
+      "failures": [],
+      "status": "PASS",
+      "runs_per_second": 386.5421610712015,
+      "cpu_seconds_per_evaluated_run": 0.0010011014604810995
+    },
+    "twice_expected": {
+      "attempts": 198,
+      "validated_batches": 198,
+      "unexpected_errors": 0,
+      "error_rate": 0.0,
+      "seconds": 30.055861542001367,
+      "concurrency": 2,
+      "p50_seconds": 0.17400741600431502,
+      "p95_seconds": 0.437126167002134,
+      "p99_seconds": 1.2995349999982864,
+      "batches_per_second": 6.587733301981918,
+      "maximum_worker_peak_rss_mib": 35.15625,
+      "sum_worker_peak_rss_upper_bound_mib": 70.28125,
+      "cpu_seconds": 29.57629,
+      "currency_cost_per_successful_operation": null,
+      "cpu_seconds_per_validated_batch": 0.14937520202020202,
+      "failures": [],
+      "status": "PASS",
+      "runs_per_second": 790.5279962378302,
+      "cpu_seconds_per_evaluated_run": 0.0012447933501683502
+    },
+    "soak": {
+      "attempts": 2606,
+      "validated_batches": 2606,
+      "unexpected_errors": 0,
+      "error_rate": 0.0,
+      "seconds": 300.0962508749799,
+      "concurrency": 2,
+      "p50_seconds": 0.14205629099160433,
+      "p95_seconds": 0.276498499995796,
+      "p99_seconds": 0.5079142500180751,
+      "batches_per_second": 8.68388056299197,
+      "maximum_worker_peak_rss_mib": 35.296875,
+      "sum_worker_peak_rss_upper_bound_mib": 70.578125,
+      "cpu_seconds": 348.890043,
+      "currency_cost_per_successful_operation": null,
+      "cpu_seconds_per_validated_batch": 0.13387952532617037,
+      "failures": [],
+      "status": "PASS",
+      "runs_per_second": 1042.0656675590365,
+      "cpu_seconds_per_evaluated_run": 0.0011156627110514197
+    }
+  },
+  "currency_cost_per_successful_operation": null,
+  "increasing_load": [
+    {
+      "attempts": 151,
+      "validated_batches": 151,
+      "unexpected_errors": 0,
+      "error_rate": 0.0,
+      "seconds": 30.107110583980102,
+      "concurrency": 1,
+      "p50_seconds": 0.10622833299566992,
+      "p95_seconds": 0.2686052090139128,
+      "p99_seconds": 0.9672364580037538,
+      "batches_per_second": 5.015426491320181,
+      "maximum_worker_peak_rss_mib": 35.078125,
+      "sum_worker_peak_rss_upper_bound_mib": 35.078125,
+      "cpu_seconds": 16.272389,
+      "currency_cost_per_successful_operation": null,
+      "cpu_seconds_per_validated_batch": 0.1077641655629139,
+      "failures": [],
+      "status": "PASS",
+      "runs_per_second": 601.8511789584217,
+      "cpu_seconds_per_evaluated_run": 0.0008980347130242825
+    },
+    {
+      "attempts": 228,
+      "validated_batches": 228,
+      "unexpected_errors": 0,
+      "error_rate": 0.0,
+      "seconds": 30.147947541991016,
+      "concurrency": 2,
+      "p50_seconds": 0.14930445901700296,
+      "p95_seconds": 0.42047074998845346,
+      "p99_seconds": 0.6569844580080826,
+      "batches_per_second": 7.562703884980375,
+      "maximum_worker_peak_rss_mib": 35.21875,
+      "sum_worker_peak_rss_upper_bound_mib": 70.328125,
+      "cpu_seconds": 31.980729,
+      "currency_cost_per_successful_operation": null,
+      "cpu_seconds_per_validated_batch": 0.1402663552631579,
+      "failures": [],
+      "status": "PASS",
+      "runs_per_second": 907.524466197645,
+      "cpu_seconds_per_evaluated_run": 0.0011688862938596491
+    },
+    {
+      "attempts": 351,
+      "validated_batches": 351,
+      "unexpected_errors": 0,
+      "error_rate": 0.0,
+      "seconds": 30.350614916998893,
+      "concurrency": 4,
+      "p50_seconds": 0.23074529197765514,
+      "p95_seconds": 0.35240174998762086,
+      "p99_seconds": 0.5362696250085719,
+      "batches_per_second": 11.56483982152897,
+      "maximum_worker_peak_rss_mib": 35.296875,
+      "sum_worker_peak_rss_upper_bound_mib": 141.078125,
+      "cpu_seconds": 60.544143,
+      "currency_cost_per_successful_operation": null,
+      "cpu_seconds_per_validated_batch": 0.1724904358974359,
+      "failures": [],
+      "status": "PASS",
+      "runs_per_second": 1387.7807785834764,
+      "cpu_seconds_per_evaluated_run": 0.0014374202991452993
+    },
+    {
+      "attempts": 272,
+      "validated_batches": 272,
+      "unexpected_errors": 0,
+      "error_rate": 0.0,
+      "seconds": 31.286635208001826,
+      "concurrency": 8,
+      "p50_seconds": 0.5326075830089394,
+      "p95_seconds": 2.2957488330139313,
+      "p99_seconds": 4.192679458006751,
+      "batches_per_second": 8.693808017118878,
+      "maximum_worker_peak_rss_mib": 35.171875,
+      "sum_worker_peak_rss_upper_bound_mib": 280.328125,
+      "cpu_seconds": 53.197621999999996,
+      "currency_cost_per_successful_operation": null,
+      "cpu_seconds_per_validated_batch": 0.19557949264705882,
+      "failures": [],
+      "status": "PASS",
+      "runs_per_second": 1043.2569620542654,
+      "cpu_seconds_per_evaluated_run": 0.0016298291053921568
+    }
+  ],
+  "saturation_reached": false,
+  "failure_recovery": {
+    "status": "PASS",
+    "attempts": 20,
+    "expected_rejections": 10,
+    "unexpected_errors": 0,
+    "rows": [
+      {
+        "exit_code": 2,
+        "timed_out": false,
+        "seconds": 0.33577904099365696,
+        "cpu_seconds": 0.179052,
+        "peak_rss_mib": 31.921875,
+        "stage": "failure-recovery",
+        "operation": 3907,
+        "kind": "missing",
+        "outputs_preserved": true,
+        "ok": true,
+        "report_sha256": "62493288c79717e1f032548c115ecad6287aee43a820f749dc48e524bee2f5c7"
+      },
+      {
+        "exit_code": 0,
+        "timed_out": false,
+        "seconds": 0.5232022079871967,
+        "cpu_seconds": 0.17648899999999998,
+        "peak_rss_mib": 34.21875,
+        "stage": "failure-recovery",
+        "operation": 3909,
+        "kind": "valid",
+        "ok": true,
+        "report_sha256": "dbdcd0cd9605c7fec0297df1be436ec0fdd6f76fb01d2ebaf16efc04587fcc8e"
+      },
+      {
+        "exit_code": 2,
+        "timed_out": false,
+        "seconds": 0.14506333399913274,
+        "cpu_seconds": 0.131993,
+        "peak_rss_mib": 32.8125,
+        "stage": "failure-recovery",
+        "operation": 3911,
+        "kind": "missing",
+        "outputs_preserved": true,
+        "ok": true,
+        "report_sha256": "62493288c79717e1f032548c115ecad6287aee43a820f749dc48e524bee2f5c7"
+      },
+      {
+        "exit_code": 0,
+        "timed_out": false,
+        "seconds": 0.19328770900028758,
+        "cpu_seconds": 0.15498099999999998,
+        "peak_rss_mib": 34.71875,
+        "stage": "failure-recovery",
+        "operation": 3913,
+        "kind": "valid",
+        "ok": true,
+        "report_sha256": "dbf309217c586cb2920cf57687605855a0307a0fc6fe8f805a589dc938bff788"
+      },
+      {
+        "exit_code": 2,
+        "timed_out": false,
+        "seconds": 0.14522437498089857,
+        "cpu_seconds": 0.13024,
+        "peak_rss_mib": 33.1875,
+        "stage": "failure-recovery",
+        "operation": 3915,
+        "kind": "missing",
+        "outputs_preserved": true,
+        "ok": true,
+        "report_sha256": "62493288c79717e1f032548c115ecad6287aee43a820f749dc48e524bee2f5c7"
+      },
+      {
+        "exit_code": 0,
+        "timed_out": false,
+        "seconds": 0.1706819999963045,
+        "cpu_seconds": 0.14504999999999998,
+        "peak_rss_mib": 34.875,
+        "stage": "failure-recovery",
+        "operation": 3917,
+        "kind": "valid",
+        "ok": true,
+        "report_sha256": "dbf309217c586cb2920cf57687605855a0307a0fc6fe8f805a589dc938bff788"
+      },
+      {
+        "exit_code": 2,
+        "timed_out": false,
+        "seconds": 0.16325020798831247,
+        "cpu_seconds": 0.134004,
+        "peak_rss_mib": 33.046875,
+        "stage": "failure-recovery",
+        "operation": 3920,
+        "kind": "missing",
+        "outputs_preserved": true,
+        "ok": true,
+        "report_sha256": "62493288c79717e1f032548c115ecad6287aee43a820f749dc48e524bee2f5c7"
+      },
+      {
+        "exit_code": 0,
+        "timed_out": false,
+        "seconds": 0.15848349998123012,
+        "cpu_seconds": 0.13685799999999998,
+        "peak_rss_mib": 34.75,
+        "stage": "failure-recovery",
+        "operation": 3921,
+        "kind": "valid",
+        "ok": true,
+        "report_sha256": "669632b7fcd1e59b79c1073c243851dcfe73a8d3efd8c84c8dc54857224ba034"
+      },
+      {
+        "exit_code": 2,
+        "timed_out": false,
+        "seconds": 0.16417579201515764,
+        "cpu_seconds": 0.133884,
+        "peak_rss_mib": 33.0,
+        "stage": "failure-recovery",
+        "operation": 3924,
+        "kind": "missing",
+        "outputs_preserved": true,
+        "ok": true,
+        "report_sha256": "62493288c79717e1f032548c115ecad6287aee43a820f749dc48e524bee2f5c7"
+      },
+      {
+        "exit_code": 0,
+        "timed_out": false,
+        "seconds": 0.13333775001228787,
+        "cpu_seconds": 0.127568,
+        "peak_rss_mib": 34.53125,
+        "stage": "failure-recovery",
+        "operation": 3925,
+        "kind": "valid",
+        "ok": true,
+        "report_sha256": "669632b7fcd1e59b79c1073c243851dcfe73a8d3efd8c84c8dc54857224ba034"
+      },
+      {
+        "exit_code": 2,
+        "timed_out": false,
+        "seconds": 0.30029808401013725,
+        "cpu_seconds": 0.17463199999999998,
+        "peak_rss_mib": 31.984375,
+        "stage": "failure-recovery",
+        "operation": 3908,
+        "kind": "malformed",
+        "outputs_preserved": true,
+        "ok": true,
+        "report_sha256": "62493288c79717e1f032548c115ecad6287aee43a820f749dc48e524bee2f5c7"
+      },
+      {
+        "exit_code": 0,
+        "timed_out": false,
+        "seconds": 0.276563375024125,
+        "cpu_seconds": 0.16653099999999998,
+        "peak_rss_mib": 34.390625,
+        "stage": "failure-recovery",
+        "operation": 3910,
+        "kind": "valid",
+        "ok": true,
+        "report_sha256": "dbdcd0cd9605c7fec0297df1be436ec0fdd6f76fb01d2ebaf16efc04587fcc8e"
+      },
+      {
+        "exit_code": 2,
+        "timed_out": false,
+        "seconds": 0.14627562501118518,
+        "cpu_seconds": 0.13200699999999999,
+        "peak_rss_mib": 32.796875,
+        "stage": "failure-recovery",
+        "operation": 3912,
+        "kind": "malformed",
+        "outputs_preserved": true,
+        "ok": true,
+        "report_sha256": "62493288c79717e1f032548c115ecad6287aee43a820f749dc48e524bee2f5c7"
+      },
+      {
+        "exit_code": 0,
+        "timed_out": false,
+        "seconds": 0.1945508329954464,
+        "cpu_seconds": 0.150644,
+        "peak_rss_mib": 34.671875,
+        "stage": "failure-recovery",
+        "operation": 3914,
+        "kind": "valid",
+        "ok": true,
+        "report_sha256": "dbf309217c586cb2920cf57687605855a0307a0fc6fe8f805a589dc938bff788"
+      },
+      {
+        "exit_code": 2,
+        "timed_out": false,
+        "seconds": 0.1427056250104215,
+        "cpu_seconds": 0.127362,
+        "peak_rss_mib": 32.890625,
+        "stage": "failure-recovery",
+        "operation": 3916,
+        "kind": "malformed",
+        "outputs_preserved": true,
+        "ok": true,
+        "report_sha256": "62493288c79717e1f032548c115ecad6287aee43a820f749dc48e524bee2f5c7"
+      },
+      {
+        "exit_code": 0,
+        "timed_out": false,
+        "seconds": 0.1606605000270065,
+        "cpu_seconds": 0.138439,
+        "peak_rss_mib": 34.890625,
+        "stage": "failure-recovery",
+        "operation": 3918,
+        "kind": "valid",
+        "ok": true,
+        "report_sha256": "dbf309217c586cb2920cf57687605855a0307a0fc6fe8f805a589dc938bff788"
+      },
+      {
+        "exit_code": 2,
+        "timed_out": false,
+        "seconds": 0.16882745799375698,
+        "cpu_seconds": 0.13613399999999998,
+        "peak_rss_mib": 32.9375,
+        "stage": "failure-recovery",
+        "operation": 3919,
+        "kind": "malformed",
+        "outputs_preserved": true,
+        "ok": true,
+        "report_sha256": "62493288c79717e1f032548c115ecad6287aee43a820f749dc48e524bee2f5c7"
+      },
+      {
+        "exit_code": 0,
+        "timed_out": false,
+        "seconds": 0.15917370800161734,
+        "cpu_seconds": 0.136922,
+        "peak_rss_mib": 34.796875,
+        "stage": "failure-recovery",
+        "operation": 3922,
+        "kind": "valid",
+        "ok": true,
+        "report_sha256": "669632b7fcd1e59b79c1073c243851dcfe73a8d3efd8c84c8dc54857224ba034"
+      },
+      {
+        "exit_code": 2,
+        "timed_out": false,
+        "seconds": 0.17099679200327955,
+        "cpu_seconds": 0.132907,
+        "peak_rss_mib": 32.78125,
+        "stage": "failure-recovery",
+        "operation": 3923,
+        "kind": "malformed",
+        "outputs_preserved": true,
+        "ok": true,
+        "report_sha256": "62493288c79717e1f032548c115ecad6287aee43a820f749dc48e524bee2f5c7"
+      },
+      {
+        "exit_code": 0,
+        "timed_out": false,
+        "seconds": 0.13354429200990126,
+        "cpu_seconds": 0.12589699999999998,
+        "peak_rss_mib": 34.609375,
+        "stage": "failure-recovery",
+        "operation": 3926,
+        "kind": "valid",
+        "ok": true,
+        "report_sha256": "669632b7fcd1e59b79c1073c243851dcfe73a8d3efd8c84c8dc54857224ba034"
+      }
+    ]
+  },
+  "finished_at": "2026-10-14T20:30:16.704152+00:00",
+  "total_seconds": 486.8351588330115,
+  "operations_sha256": "341adaadc09ae4488476aed0146144576ed7db31d514cee8b3caa87ac4cbabc6",
+  "harness_peak_rss_mib": 22.9375,
+  "publication_note": "Only the local wheel URL was reduced to its basename; measured values and hashes are unchanged.",
+  "builder_versions": {
+    "python": "3.12.14",
+    "pip": "26.2.1",
+    "setuptools": "84.0.0",
+    "wheel": "0.48.0",
+    "build": "1.6.1"
+  }
+}
