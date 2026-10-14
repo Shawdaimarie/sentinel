@@ -90,3 +90,6 @@ language, identifier redaction, evidence presence, or structured state. More
 open-ended quality dimensions should add repeated trials, calibrated human
 review, and validated model-based grading only where its uncertainty is
 measured.
+
+Use [Capacity testing](CAPACITY_TESTING.md) to reproduce the installed-command
+performance experiment and inspect its bounded scope and raw evidence.
