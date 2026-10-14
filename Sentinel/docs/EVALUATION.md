@@ -73,6 +73,11 @@ claiming that unrelated samples are directly comparable.
 
 ## Reproducibility
 
+For evaluator runtime and resource measurements, use the separately versioned
+[offline performance acceptance protocol](PERFORMANCE_ACCEPTANCE.md). It fixes
+the workload and pass/fail limits before measurement and keeps evaluator timing
+separate from the latency values recorded inside agent traces.
+
 Every report includes SHA-256 fingerprints for the case and run files. The
 JSON report preserves the complete configuration and every metric detail. CI
 uploads both Markdown and JSON artifacts for review.
