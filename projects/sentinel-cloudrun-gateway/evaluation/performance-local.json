@@ -1,0 +1,70 @@
+{
+  "date_utc": "2026-11-05T01:58:23.867764+00:00",
+  "base_url": "http://127.0.0.1:24749",
+  "environment": "local Docker Compose synthetic",
+  "requests_per_route": 1000,
+  "concurrency": 10,
+  "p95_limit_ms": 100,
+  "routes": {
+    "health": {
+      "requests": 1000,
+      "statuses": {
+        "200": 1000
+      },
+      "p50_ms": 6.546,
+      "p95_ms": 14.642,
+      "max_ms": 43.462,
+      "elapsed_s": 0.773,
+      "throughput_rps": 1293.85
+    },
+    "auth_mode": {
+      "requests": 1000,
+      "statuses": {
+        "200": 1000
+      },
+      "p50_ms": 4.332,
+      "p95_ms": 7.541,
+      "max_ms": 33.832,
+      "elapsed_s": 0.485,
+      "throughput_rps": 2062.54
+    },
+    "tools": {
+      "requests": 1000,
+      "statuses": {
+        "200": 1000
+      },
+      "p50_ms": 5.124,
+      "p95_ms": 9.518,
+      "max_ms": 19.393,
+      "elapsed_s": 0.555,
+      "throughput_rps": 1802.59
+    },
+    "approval_queue": {
+      "requests": 1000,
+      "statuses": {
+        "200": 1000
+      },
+      "p50_ms": 6.726,
+      "p95_ms": 11.422,
+      "max_ms": 18.906,
+      "elapsed_s": 0.707,
+      "throughput_rps": 1413.7
+    },
+    "audit_verify": {
+      "requests": 1000,
+      "statuses": {
+        "200": 1000
+      },
+      "p50_ms": 7.072,
+      "p95_ms": 14.616,
+      "max_ms": 43.988,
+      "elapsed_s": 0.807,
+      "throughput_rps": 1238.67
+    }
+  },
+  "cost": "not applicable: local containers",
+  "inference": "not applicable: deterministic fixture; no model provider",
+  "elapsed_total_s": 3.331,
+  "aggregate_throughput_rps": 1501.05,
+  "acceptance_target": "1000 per route, concurrency 10, all HTTP 200, p95 <= 100ms"
+}

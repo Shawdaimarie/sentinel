@@ -1,0 +1,13 @@
+# EXAMPLE ONLY. All identifiers are synthetic; replace with verified existing resources.
+image = "example.invalid/sentinel@sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+runtime_environment = {}
+region = "us-east-1"
+cluster_arn = "arn:aws:ecs:us-east-1:123456789012:cluster/sentinel"
+private_subnet_ids = ["subnet-0123456789abcdef0"]
+gateway_security_group_ids = ["sg-0123456789abcdef0"]
+private_target_group_arn = "arn:aws:elasticloadbalancing:us-east-1:123456789012:targetgroup/sentinel/0123456789abcdef"
+ecr_repository_arn = "arn:aws:ecr:us-east-1:123456789012:repository/sentinel"
+database_secret_arn = "arn:aws:secretsmanager:us-east-1:123456789012:secret:database-abcdef"
+capability_secret_arn = "arn:aws:secretsmanager:us-east-1:123456789012:secret:capability-abcdef"
+secret_kms_key_arns = []
+artifact_bucket_name = "sentinel-test-only-evidence"

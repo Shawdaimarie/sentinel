@@ -1,0 +1,19 @@
+title = "SENTINEL secret scan"
+
+[extend]
+useDefault = true
+
+[[rules]]
+id = "generic-api-key"
+
+[[rules.allowlists]]
+description = "SHA-256 source hashes in timestamped performance evidence are metadata, not credentials."
+condition = "AND"
+paths = ['''(^|/)evaluation/artifacts/performance-[0-9]{8}T[0-9]{6}Z\.json$''']
+regexes = [
+  '''\s*"sentinel/api\.py": "[0-9a-f]{64}",?\s*$''',
+  '''\s*"sentinel/security\.py": "[0-9a-f]{64}",?\s*$''',
+  '''\s*"tools/load_benchmark\.py": "[0-9a-f]{64}",?\s*$''',
+  '''\s*"evaluation/PERFORMANCE_PROTOCOL\.md": "[0-9a-f]{64}",?\s*$'''
+]
+regexTarget = "line"

@@ -23,6 +23,8 @@ operational infrastructure. It combines:
 
 The implementation lives in [`Sentinel/`](Sentinel/).
 
+A separate [Cloud Run authorization gateway prototype](projects/sentinel-cloudrun-gateway/) provides a browser explorer, approval-gated tool execution, and a no-apply staging package. Its deployment status and evidence are explicitly bounded to local verification until a dedicated cloud project and staging authorization are supplied.
+
 The optional [PostgreSQL evaluation history](Sentinel/docs/EVALUATION_HISTORY.md)
 stores minimized reports, supports release/case/tag queries, and replays paired
 release comparisons with recorded cost and latency changes.
