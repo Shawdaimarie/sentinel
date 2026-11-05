@@ -1,0 +1,14 @@
+# EXAMPLE ONLY. All identifiers are synthetic; replace with verified existing resources.
+image = "example.invalid/sentinel@sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+runtime_environment = {}
+project_id = "sentinel-test-only"
+project_number = "123456789"
+region = "us-central1"
+network = "private-test"
+subnetwork = "private-test"
+database_secret_id = "database"
+database_secret_version = "1"
+capability_secret_id = "capability"
+capability_secret_version = "1"
+artifact_bucket_name = "sentinel-test-only-evidence"
+iap_members = ["user:reviewer@example.invalid"]

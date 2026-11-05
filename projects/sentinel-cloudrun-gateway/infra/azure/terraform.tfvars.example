@@ -1,0 +1,12 @@
+# EXAMPLE ONLY. All identifiers are synthetic; replace with verified existing resources.
+image = "example.invalid/sentinel@sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+runtime_environment = {}
+subscription_id = "11111111-1111-1111-1111-111111111111"
+resource_group_name = "sentinel-test"
+location = "eastus"
+container_app_environment_id = "/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/sentinel-test/providers/Microsoft.App/managedEnvironments/private"
+key_vault_id = "/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/sentinel-test/providers/Microsoft.KeyVault/vaults/sentinel"
+database_secret_url = "https://sentinel.vault.azure.net/secrets/database/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+capability_secret_url = "https://sentinel.vault.azure.net/secrets/capability/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+registry_server = "sentinel.azurecr.io"
+registry_id = "/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/sentinel-test/providers/Microsoft.ContainerRegistry/registries/sentinel"
