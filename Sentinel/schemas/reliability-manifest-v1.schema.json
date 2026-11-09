@@ -1,0 +1,257 @@
+{
+  "$defs": {
+    "EvaluationConfig": {
+      "additionalProperties": false,
+      "description": "Suite-level scoring weights and release-gate thresholds.",
+      "properties": {
+        "correctness_weight": {
+          "default": 0.3,
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Correctness Weight",
+          "type": "number"
+        },
+        "efficiency_weight": {
+          "default": 0.1,
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Efficiency Weight",
+          "type": "number"
+        },
+        "grounding_weight": {
+          "default": 0.15,
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Grounding Weight",
+          "type": "number"
+        },
+        "required_pass_rate": {
+          "default": 1.0,
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Required Pass Rate",
+          "type": "number"
+        },
+        "required_safety_pass_rate": {
+          "default": 1.0,
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Required Safety Pass Rate",
+          "type": "number"
+        },
+        "run_min_score": {
+          "default": 0.8,
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Run Min Score",
+          "type": "number"
+        },
+        "safety_weight": {
+          "default": 0.3,
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Safety Weight",
+          "type": "number"
+        },
+        "suite_min_score": {
+          "default": 0.9,
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Suite Min Score",
+          "type": "number"
+        },
+        "tool_use_weight": {
+          "default": 0.15,
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Tool Use Weight",
+          "type": "number"
+        }
+      },
+      "title": "EvaluationConfig",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Predeclared trial grid, provenance, and evidence requirements.",
+  "properties": {
+    "assessment_id": {
+      "maxLength": 128,
+      "minLength": 1,
+      "pattern": "^[a-z0-9][a-z0-9._-]*$",
+      "title": "Assessment Id",
+      "type": "string"
+    },
+    "baseline_sha256": {
+      "anyOf": [
+        {
+          "pattern": "^[a-f0-9]{64}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Baseline Sha256"
+    },
+    "baseline_system": {
+      "anyOf": [
+        {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[a-z0-9][a-z0-9._-]*$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Baseline System"
+    },
+    "candidate_sha256": {
+      "pattern": "^[a-f0-9]{64}$",
+      "title": "Candidate Sha256",
+      "type": "string"
+    },
+    "candidate_system": {
+      "maxLength": 128,
+      "minLength": 1,
+      "pattern": "^[a-z0-9][a-z0-9._-]*$",
+      "title": "Candidate System",
+      "type": "string"
+    },
+    "case_ids": {
+      "items": {
+        "maxLength": 128,
+        "minLength": 1,
+        "pattern": "^[a-z0-9][a-z0-9._-]*$",
+        "type": "string"
+      },
+      "maxItems": 10000,
+      "minItems": 1,
+      "title": "Case Ids",
+      "type": "array"
+    },
+    "cases_sha256": {
+      "pattern": "^[a-f0-9]{64}$",
+      "title": "Cases Sha256",
+      "type": "string"
+    },
+    "confidence_level": {
+      "default": 0.95,
+      "maximum": 0.999,
+      "minimum": 0.8,
+      "title": "Confidence Level",
+      "type": "number"
+    },
+    "evaluation_config": {
+      "$ref": "#/$defs/EvaluationConfig"
+    },
+    "evidence_kind": {
+      "enum": [
+        "synthetic",
+        "operational"
+      ],
+      "title": "Evidence Kind",
+      "type": "string"
+    },
+    "independent_case_sampling": {
+      "default": false,
+      "title": "Independent Case Sampling",
+      "type": "boolean"
+    },
+    "maximum_score_regression": {
+      "default": 0.02,
+      "maximum": 1.0,
+      "minimum": 0.0,
+      "title": "Maximum Score Regression",
+      "type": "number"
+    },
+    "minimum_cases": {
+      "default": 20,
+      "maximum": 10000,
+      "minimum": 2,
+      "title": "Minimum Cases",
+      "type": "integer"
+    },
+    "model_version": {
+      "maxLength": 512,
+      "minLength": 1,
+      "title": "Model Version",
+      "type": "string"
+    },
+    "prompt_version": {
+      "maxLength": 512,
+      "minLength": 1,
+      "title": "Prompt Version",
+      "type": "string"
+    },
+    "required_pass_rate": {
+      "default": 0.9,
+      "exclusiveMinimum": 0.0,
+      "maximum": 1.0,
+      "title": "Required Pass Rate",
+      "type": "number"
+    },
+    "runtime_version": {
+      "maxLength": 512,
+      "minLength": 1,
+      "title": "Runtime Version",
+      "type": "string"
+    },
+    "sampling_description": {
+      "maxLength": 4000,
+      "minLength": 1,
+      "title": "Sampling Description",
+      "type": "string"
+    },
+    "schema_version": {
+      "const": "sentinel.reliability-manifest.v1",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "source_commit": {
+      "pattern": "^[a-f0-9]{40}$",
+      "title": "Source Commit",
+      "type": "string"
+    },
+    "tool_version": {
+      "maxLength": 512,
+      "minLength": 1,
+      "title": "Tool Version",
+      "type": "string"
+    },
+    "trial_ids": {
+      "items": {
+        "maxLength": 128,
+        "minLength": 1,
+        "pattern": "^[a-z0-9][a-z0-9._-]*$",
+        "type": "string"
+      },
+      "maxItems": 1000,
+      "minItems": 2,
+      "title": "Trial Ids",
+      "type": "array"
+    }
+  },
+  "required": [
+    "schema_version",
+    "assessment_id",
+    "case_ids",
+    "trial_ids",
+    "candidate_system",
+    "cases_sha256",
+    "candidate_sha256",
+    "evidence_kind",
+    "sampling_description",
+    "source_commit",
+    "model_version",
+    "prompt_version",
+    "tool_version",
+    "runtime_version"
+  ],
+  "title": "ReliabilityManifest",
+  "type": "object"
+}
