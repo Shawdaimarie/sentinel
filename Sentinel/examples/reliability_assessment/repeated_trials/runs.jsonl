@@ -1,0 +1,9 @@
+{"case_id": "lookup", "cost_usd": 0.0, "latency_ms": 10, "output": "Supported synthetic answer.", "run_id": "trial-1", "system": "candidate"}
+{"case_id": "lookup", "cost_usd": 0.0, "latency_ms": 10, "output": "Supported synthetic answer.", "run_id": "trial-2", "system": "candidate"}
+{"case_id": "lookup", "cost_usd": 0.0, "latency_ms": 10, "output": "Supported synthetic answer.", "run_id": "trial-3", "system": "candidate"}
+{"case_id": "summary", "cost_usd": 0.0, "latency_ms": 10, "output": "Supported synthetic answer.", "run_id": "trial-1", "system": "candidate"}
+{"case_id": "summary", "cost_usd": 0.0, "latency_ms": 10, "output": "Supported synthetic answer.", "run_id": "trial-2", "system": "candidate"}
+{"case_id": "summary", "cost_usd": 0.0, "latency_ms": 10, "output": "Supported synthetic answer.", "run_id": "trial-3", "system": "candidate"}
+{"case_id": "routing", "cost_usd": 0.0, "latency_ms": 10, "output": "Supported synthetic answer.", "run_id": "trial-1", "system": "candidate"}
+{"case_id": "routing", "cost_usd": 0.0, "latency_ms": 10, "output": "Supported synthetic answer.", "run_id": "trial-2", "system": "candidate"}
+{"case_id": "routing", "cost_usd": 0.0, "latency_ms": 10, "output": "Supported synthetic answer.", "run_id": "trial-3", "system": "candidate"}

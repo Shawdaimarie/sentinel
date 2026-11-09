@@ -21,6 +21,12 @@ integration patterns, phased delivery, and measurable exit criteria.
 Historical version labels below describe earlier planning stages. Read the
 current implementation and linked evidence before treating an item as delivered.
 
+The first implementation is available for review in the
+[repeated-trial assessment guide](REPEATED_TRIAL_RELIABILITY.md): a strict
+manifest, offline command, case-level uncertainty bounds, exact baseline
+pairing, and explicit inconclusive outcomes. Live pilot validation and the
+remaining research blueprint capabilities are still planned.
+
 ## Current foundation — 0.2.x
 
 Delivered:

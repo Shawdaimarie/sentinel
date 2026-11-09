@@ -1,0 +1,28 @@
+{
+  "schema_version": "sentinel.reliability-manifest.v1",
+  "assessment_id": "synthetic-repeated-trials",
+  "case_ids": [
+    "lookup",
+    "summary",
+    "routing"
+  ],
+  "trial_ids": [
+    "trial-1",
+    "trial-2",
+    "trial-3"
+  ],
+  "candidate_system": "candidate",
+  "cases_sha256": "316ed75ad2742b45c17654a89b46c082f17f9a3458b96748ebf6793a36660b39",
+  "candidate_sha256": "eee483051bed85447f3a0b5f438b2c8726a2214d422a9f79f9e71f5af26b382b",
+  "evidence_kind": "synthetic",
+  "independent_case_sampling": false,
+  "sampling_description": "Three hand-authored cases with three identical successful fixtures each. Demonstrates inconclusive evidence, not measured model behavior.",
+  "source_commit": "7e26aced5e4700125f5d29c979526917fb454af6",
+  "model_version": "none; synthetic fixtures",
+  "prompt_version": "synthetic-v1",
+  "tool_version": "none; no tool execution",
+  "runtime_version": "offline stored observations",
+  "confidence_level": 0.95,
+  "required_pass_rate": 0.9,
+  "minimum_cases": 20
+}

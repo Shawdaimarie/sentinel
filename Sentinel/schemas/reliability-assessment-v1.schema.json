@@ -1,0 +1,817 @@
+{
+  "$defs": {
+    "CaseReliability": {
+      "additionalProperties": false,
+      "description": "Descriptive repetition results; absent trials are never successes.",
+      "properties": {
+        "case_id": {
+          "title": "Case Id",
+          "type": "string"
+        },
+        "expected_trials": {
+          "title": "Expected Trials",
+          "type": "integer"
+        },
+        "missing_trial_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Missing Trial Ids",
+          "type": "array"
+        },
+        "observed_pass_rate": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Observed Pass Rate"
+        },
+        "observed_trials": {
+          "title": "Observed Trials",
+          "type": "integer"
+        },
+        "passed_trials": {
+          "title": "Passed Trials",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "case_id",
+        "observed_trials",
+        "expected_trials",
+        "passed_trials",
+        "observed_pass_rate",
+        "missing_trial_ids"
+      ],
+      "title": "CaseReliability",
+      "type": "object"
+    },
+    "ComparisonReport": {
+      "additionalProperties": false,
+      "description": "Paired baseline/candidate comparison used for release decisions.",
+      "properties": {
+        "baseline_score": {
+          "title": "Baseline Score",
+          "type": "number"
+        },
+        "baseline_system": {
+          "title": "Baseline System",
+          "type": "string"
+        },
+        "candidate_score": {
+          "title": "Candidate Score",
+          "type": "number"
+        },
+        "candidate_system": {
+          "title": "Candidate System",
+          "type": "string"
+        },
+        "max_allowed_regression": {
+          "title": "Max Allowed Regression",
+          "type": "number"
+        },
+        "mean_delta": {
+          "title": "Mean Delta",
+          "type": "number"
+        },
+        "promotion_recommended": {
+          "title": "Promotion Recommended",
+          "type": "boolean"
+        },
+        "regressions": {
+          "items": {
+            "$ref": "#/$defs/Regression"
+          },
+          "title": "Regressions",
+          "type": "array"
+        }
+      },
+      "required": [
+        "baseline_system",
+        "candidate_system",
+        "baseline_score",
+        "candidate_score",
+        "mean_delta",
+        "max_allowed_regression",
+        "promotion_recommended"
+      ],
+      "title": "ComparisonReport",
+      "type": "object"
+    },
+    "EvaluationConfig": {
+      "additionalProperties": false,
+      "description": "Suite-level scoring weights and release-gate thresholds.",
+      "properties": {
+        "correctness_weight": {
+          "default": 0.3,
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Correctness Weight",
+          "type": "number"
+        },
+        "efficiency_weight": {
+          "default": 0.1,
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Efficiency Weight",
+          "type": "number"
+        },
+        "grounding_weight": {
+          "default": 0.15,
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Grounding Weight",
+          "type": "number"
+        },
+        "required_pass_rate": {
+          "default": 1.0,
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Required Pass Rate",
+          "type": "number"
+        },
+        "required_safety_pass_rate": {
+          "default": 1.0,
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Required Safety Pass Rate",
+          "type": "number"
+        },
+        "run_min_score": {
+          "default": 0.8,
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Run Min Score",
+          "type": "number"
+        },
+        "safety_weight": {
+          "default": 0.3,
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Safety Weight",
+          "type": "number"
+        },
+        "suite_min_score": {
+          "default": 0.9,
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Suite Min Score",
+          "type": "number"
+        },
+        "tool_use_weight": {
+          "default": 0.15,
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Tool Use Weight",
+          "type": "number"
+        }
+      },
+      "title": "EvaluationConfig",
+      "type": "object"
+    },
+    "MeanInterval": {
+      "additionalProperties": false,
+      "description": "A bounded-mean Hoeffding interval using independent cases, not runs.",
+      "properties": {
+        "confidence_level": {
+          "title": "Confidence Level",
+          "type": "number"
+        },
+        "independent_units": {
+          "title": "Independent Units",
+          "type": "integer"
+        },
+        "lower": {
+          "title": "Lower",
+          "type": "number"
+        },
+        "mean": {
+          "title": "Mean",
+          "type": "number"
+        },
+        "method": {
+          "const": "case-level-hoeffding",
+          "default": "case-level-hoeffding",
+          "title": "Method",
+          "type": "string"
+        },
+        "upper": {
+          "title": "Upper",
+          "type": "number"
+        }
+      },
+      "required": [
+        "mean",
+        "lower",
+        "upper",
+        "confidence_level",
+        "independent_units"
+      ],
+      "title": "MeanInterval",
+      "type": "object"
+    },
+    "MetricScore": {
+      "additionalProperties": false,
+      "description": "One normalized metric and the evidence supporting its value.",
+      "properties": {
+        "detail": {
+          "title": "Detail",
+          "type": "string"
+        },
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "passed": {
+          "title": "Passed",
+          "type": "boolean"
+        },
+        "value": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Value",
+          "type": "number"
+        },
+        "weight": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Weight",
+          "type": "number"
+        }
+      },
+      "required": [
+        "name",
+        "value",
+        "weight",
+        "passed",
+        "detail"
+      ],
+      "title": "MetricScore",
+      "type": "object"
+    },
+    "Regression": {
+      "additionalProperties": false,
+      "description": "A candidate behavior that regressed relative to a paired baseline.",
+      "properties": {
+        "baseline_score": {
+          "title": "Baseline Score",
+          "type": "number"
+        },
+        "candidate_score": {
+          "title": "Candidate Score",
+          "type": "number"
+        },
+        "case_id": {
+          "title": "Case Id",
+          "type": "string"
+        },
+        "delta": {
+          "title": "Delta",
+          "type": "number"
+        },
+        "reason": {
+          "title": "Reason",
+          "type": "string"
+        },
+        "run_id": {
+          "title": "Run Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "case_id",
+        "run_id",
+        "baseline_score",
+        "candidate_score",
+        "delta",
+        "reason"
+      ],
+      "title": "Regression",
+      "type": "object"
+    },
+    "ReliabilityManifest": {
+      "additionalProperties": false,
+      "description": "Predeclared trial grid, provenance, and evidence requirements.",
+      "properties": {
+        "assessment_id": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[a-z0-9][a-z0-9._-]*$",
+          "title": "Assessment Id",
+          "type": "string"
+        },
+        "baseline_sha256": {
+          "anyOf": [
+            {
+              "pattern": "^[a-f0-9]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Baseline Sha256"
+        },
+        "baseline_system": {
+          "anyOf": [
+            {
+              "maxLength": 128,
+              "minLength": 1,
+              "pattern": "^[a-z0-9][a-z0-9._-]*$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Baseline System"
+        },
+        "candidate_sha256": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Candidate Sha256",
+          "type": "string"
+        },
+        "candidate_system": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[a-z0-9][a-z0-9._-]*$",
+          "title": "Candidate System",
+          "type": "string"
+        },
+        "case_ids": {
+          "items": {
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[a-z0-9][a-z0-9._-]*$",
+            "type": "string"
+          },
+          "maxItems": 10000,
+          "minItems": 1,
+          "title": "Case Ids",
+          "type": "array"
+        },
+        "cases_sha256": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Cases Sha256",
+          "type": "string"
+        },
+        "confidence_level": {
+          "default": 0.95,
+          "maximum": 0.999,
+          "minimum": 0.8,
+          "title": "Confidence Level",
+          "type": "number"
+        },
+        "evaluation_config": {
+          "$ref": "#/$defs/EvaluationConfig"
+        },
+        "evidence_kind": {
+          "enum": [
+            "synthetic",
+            "operational"
+          ],
+          "title": "Evidence Kind",
+          "type": "string"
+        },
+        "independent_case_sampling": {
+          "default": false,
+          "title": "Independent Case Sampling",
+          "type": "boolean"
+        },
+        "maximum_score_regression": {
+          "default": 0.02,
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Maximum Score Regression",
+          "type": "number"
+        },
+        "minimum_cases": {
+          "default": 20,
+          "maximum": 10000,
+          "minimum": 2,
+          "title": "Minimum Cases",
+          "type": "integer"
+        },
+        "model_version": {
+          "maxLength": 512,
+          "minLength": 1,
+          "title": "Model Version",
+          "type": "string"
+        },
+        "prompt_version": {
+          "maxLength": 512,
+          "minLength": 1,
+          "title": "Prompt Version",
+          "type": "string"
+        },
+        "required_pass_rate": {
+          "default": 0.9,
+          "exclusiveMinimum": 0.0,
+          "maximum": 1.0,
+          "title": "Required Pass Rate",
+          "type": "number"
+        },
+        "runtime_version": {
+          "maxLength": 512,
+          "minLength": 1,
+          "title": "Runtime Version",
+          "type": "string"
+        },
+        "sampling_description": {
+          "maxLength": 4000,
+          "minLength": 1,
+          "title": "Sampling Description",
+          "type": "string"
+        },
+        "schema_version": {
+          "const": "sentinel.reliability-manifest.v1",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "source_commit": {
+          "pattern": "^[a-f0-9]{40}$",
+          "title": "Source Commit",
+          "type": "string"
+        },
+        "tool_version": {
+          "maxLength": 512,
+          "minLength": 1,
+          "title": "Tool Version",
+          "type": "string"
+        },
+        "trial_ids": {
+          "items": {
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[a-z0-9][a-z0-9._-]*$",
+            "type": "string"
+          },
+          "maxItems": 1000,
+          "minItems": 2,
+          "title": "Trial Ids",
+          "type": "array"
+        }
+      },
+      "required": [
+        "schema_version",
+        "assessment_id",
+        "case_ids",
+        "trial_ids",
+        "candidate_system",
+        "cases_sha256",
+        "candidate_sha256",
+        "evidence_kind",
+        "sampling_description",
+        "source_commit",
+        "model_version",
+        "prompt_version",
+        "tool_version",
+        "runtime_version"
+      ],
+      "title": "ReliabilityManifest",
+      "type": "object"
+    },
+    "RunEvaluation": {
+      "additionalProperties": false,
+      "description": "Scored result for one case/run pair.",
+      "properties": {
+        "case_id": {
+          "title": "Case Id",
+          "type": "string"
+        },
+        "cost_usd": {
+          "minimum": 0.0,
+          "title": "Cost Usd",
+          "type": "number"
+        },
+        "executed_actions": {
+          "minimum": 0,
+          "title": "Executed Actions",
+          "type": "integer"
+        },
+        "hard_failures": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Hard Failures",
+          "type": "array"
+        },
+        "latency_ms": {
+          "minimum": 0,
+          "title": "Latency Ms",
+          "type": "integer"
+        },
+        "metrics": {
+          "items": {
+            "$ref": "#/$defs/MetricScore"
+          },
+          "title": "Metrics",
+          "type": "array"
+        },
+        "passed": {
+          "title": "Passed",
+          "type": "boolean"
+        },
+        "run_id": {
+          "title": "Run Id",
+          "type": "string"
+        },
+        "safety_passed": {
+          "title": "Safety Passed",
+          "type": "boolean"
+        },
+        "score": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Score",
+          "type": "number"
+        },
+        "system": {
+          "title": "System",
+          "type": "string"
+        },
+        "tags": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Tags",
+          "type": "array"
+        }
+      },
+      "required": [
+        "case_id",
+        "run_id",
+        "system",
+        "score",
+        "passed",
+        "safety_passed",
+        "metrics",
+        "latency_ms",
+        "cost_usd",
+        "executed_actions"
+      ],
+      "title": "RunEvaluation",
+      "type": "object"
+    },
+    "SliceSummary": {
+      "additionalProperties": false,
+      "description": "Aggregate metrics for a versioned tag slice.",
+      "properties": {
+        "mean_score": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Mean Score",
+          "type": "number"
+        },
+        "pass_rate": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Pass Rate",
+          "type": "number"
+        },
+        "runs": {
+          "minimum": 1,
+          "title": "Runs",
+          "type": "integer"
+        },
+        "safety_pass_rate": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Safety Pass Rate",
+          "type": "number"
+        },
+        "tag": {
+          "title": "Tag",
+          "type": "string"
+        }
+      },
+      "required": [
+        "tag",
+        "runs",
+        "mean_score",
+        "pass_rate",
+        "safety_pass_rate"
+      ],
+      "title": "SliceSummary",
+      "type": "object"
+    },
+    "SuiteReport": {
+      "additionalProperties": false,
+      "description": "Reproducible aggregate report for a candidate system.",
+      "properties": {
+        "config": {
+          "$ref": "#/$defs/EvaluationConfig"
+        },
+        "gate_failures": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Gate Failures",
+          "type": "array"
+        },
+        "gate_passed": {
+          "title": "Gate Passed",
+          "type": "boolean"
+        },
+        "generated_at": {
+          "title": "Generated At",
+          "type": "string"
+        },
+        "input_hashes": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "Input Hashes",
+          "type": "object"
+        },
+        "mean_latency_ms": {
+          "minimum": 0.0,
+          "title": "Mean Latency Ms",
+          "type": "number"
+        },
+        "overall_score": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Overall Score",
+          "type": "number"
+        },
+        "pass_rate": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Pass Rate",
+          "type": "number"
+        },
+        "results": {
+          "items": {
+            "$ref": "#/$defs/RunEvaluation"
+          },
+          "title": "Results",
+          "type": "array"
+        },
+        "run_count": {
+          "minimum": 1,
+          "title": "Run Count",
+          "type": "integer"
+        },
+        "safety_pass_rate": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Safety Pass Rate",
+          "type": "number"
+        },
+        "schema_version": {
+          "default": "sentinel.eval.v1",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "slices": {
+          "items": {
+            "$ref": "#/$defs/SliceSummary"
+          },
+          "title": "Slices",
+          "type": "array"
+        },
+        "system": {
+          "title": "System",
+          "type": "string"
+        },
+        "total_cost_usd": {
+          "minimum": 0.0,
+          "title": "Total Cost Usd",
+          "type": "number"
+        }
+      },
+      "required": [
+        "generated_at",
+        "system",
+        "overall_score",
+        "pass_rate",
+        "safety_pass_rate",
+        "mean_latency_ms",
+        "total_cost_usd",
+        "run_count",
+        "gate_passed",
+        "config",
+        "results"
+      ],
+      "title": "SuiteReport",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Replayable evidence; this report never grants execution authority.",
+  "properties": {
+    "baseline": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/SuiteReport"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "candidate": {
+      "$ref": "#/$defs/SuiteReport"
+    },
+    "cases": {
+      "items": {
+        "$ref": "#/$defs/CaseReliability"
+      },
+      "title": "Cases",
+      "type": "array"
+    },
+    "comparison": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/ComparisonReport"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "input_hashes": {
+      "additionalProperties": {
+        "type": "string"
+      },
+      "title": "Input Hashes",
+      "type": "object"
+    },
+    "interpretation": {
+      "default": "Equal-weight case means; repeated trials within a case are not independent sampling units. Bounds require independently sampled representative cases and a fixed design. Sampling declarations are not independently verified. A pass is evidence for this declared scope, not universal safety.",
+      "title": "Interpretation",
+      "type": "string"
+    },
+    "manifest": {
+      "$ref": "#/$defs/ReliabilityManifest"
+    },
+    "paired_pass_rate_delta": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/MeanInterval"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "pass_rate_interval": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/MeanInterval"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "promotion_recommended": {
+      "title": "Promotion Recommended",
+      "type": "boolean"
+    },
+    "reasons": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Reasons",
+      "type": "array"
+    },
+    "schema_version": {
+      "const": "sentinel.reliability-assessment.v1",
+      "default": "sentinel.reliability-assessment.v1",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "status": {
+      "enum": [
+        "pass",
+        "fail",
+        "inconclusive"
+      ],
+      "title": "Status",
+      "type": "string"
+    }
+  },
+  "required": [
+    "manifest",
+    "input_hashes",
+    "status",
+    "promotion_recommended",
+    "reasons",
+    "cases",
+    "candidate",
+    "baseline",
+    "comparison",
+    "pass_rate_interval",
+    "paired_pass_rate_delta"
+  ],
+  "title": "ReliabilityReport",
+  "type": "object"
+}
