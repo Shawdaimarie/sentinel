@@ -4,6 +4,23 @@ This roadmap describes planned engineering work. Items are not implemented or
 production-ready until they are merged with tests, evaluation evidence,
 security review, and green CI.
 
+## Current next step — continuous reliability assessment
+
+The [research and longevity blueprint](RESEARCH_LONGEVITY_BLUEPRINT.md),
+reviewed through 8 November 2026, places Sentinel in AI reliability and
+assurance infrastructure. It extends the existing controls with repeated-trial
+statistics, explicit uncertainty, benchmark-integrity checks, and a bounded
+operational pilot before adding optional learned models.
+
+The first milestone is a versioned assessment manifest and reproducible
+reliability report around the existing evaluator. Missing or insufficient
+evidence must remain visible; aggregate scores cannot override hard failures.
+The blueprint includes university research, model/language selection,
+integration patterns, phased delivery, and measurable exit criteria.
+
+Historical version labels below describe earlier planning stages. Read the
+current implementation and linked evidence before treating an item as delivered.
+
 ## Current foundation — 0.2.x
 
 Delivered:
