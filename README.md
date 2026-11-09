@@ -23,6 +23,11 @@ operational infrastructure. It combines:
 
 The implementation lives in [`Sentinel/`](Sentinel/).
 
+The [research and longevity blueprint](Sentinel/docs/RESEARCH_LONGEVITY_BLUEPRINT.md)
+defines the next planned step: continuous reliability assessment, informed by
+university research reviewed through November 2026. It maps model families,
+languages, infrastructure, and automation to evidence-based adoption criteria.
+
 The optional [PostgreSQL evaluation history](Sentinel/docs/EVALUATION_HISTORY.md)
 stores minimized reports, supports release/case/tag queries, and replays paired
 release comparisons with recorded cost and latency changes.
