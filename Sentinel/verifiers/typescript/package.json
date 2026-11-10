@@ -6,5 +6,8 @@
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "test": "node dist/test.js"
+  },
+  "devDependencies": {
+    "typescript": "5.8.3"
   }
 }
