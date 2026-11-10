@@ -195,8 +195,8 @@ jobs:
       - name: Compile and verify with TypeScript implementation
         working-directory: Sentinel/verifiers/typescript
         run: |
-          npm install --global typescript@5.8.3
-          tsc -p tsconfig.json
+          npm ci
+          npm run build
           node dist/test.js
           node dist/verifier.js \
             --log ../../spec/vectors/unkeyed.jsonl
