@@ -1,0 +1,123 @@
+{
+  "version": "aegis.policy.v1",
+  "issuer": "https://issuer.aetherion.example",
+  "audience": "aegis-authorizer",
+  "default_max_ttl_seconds": 300,
+  "rules": [
+    {
+      "id": "deny-database-write",
+      "effect": "deny",
+      "subjects": [
+        "*"
+      ],
+      "tools": [
+        "mcp.database"
+      ],
+      "actions": [
+        "write"
+      ],
+      "resources": [
+        "*"
+      ],
+      "max_ttl_seconds": 60
+    },
+    {
+      "id": "deny-production-promotion",
+      "effect": "deny",
+      "subjects": [
+        "*"
+      ],
+      "tools": [
+        "mcp.deploy"
+      ],
+      "actions": [
+        "promote"
+      ],
+      "resources": [
+        "production/*"
+      ],
+      "max_ttl_seconds": 60
+    },
+    {
+      "id": "allow-source-review",
+      "effect": "allow",
+      "subjects": [
+        "spiffe://aetherion.example/ns/engineering/sa/code-agent"
+      ],
+      "spiffe_trust_domains": [
+        "aetherion.example"
+      ],
+      "tools": [
+        "mcp.repo"
+      ],
+      "actions": [
+        "read"
+      ],
+      "resources": [
+        "repos/*"
+      ],
+      "max_ttl_seconds": 120
+    },
+    {
+      "id": "allow-ci-tests",
+      "effect": "allow",
+      "subjects": [
+        "spiffe://aetherion.example/ns/engineering/sa/code-agent"
+      ],
+      "spiffe_trust_domains": [
+        "aetherion.example"
+      ],
+      "tools": [
+        "mcp.ci"
+      ],
+      "actions": [
+        "run"
+      ],
+      "resources": [
+        "tests/*"
+      ],
+      "max_ttl_seconds": 120
+    },
+    {
+      "id": "allow-readonly-database",
+      "effect": "allow",
+      "subjects": [
+        "spiffe://aetherion.example/ns/engineering/sa/code-agent"
+      ],
+      "spiffe_trust_domains": [
+        "aetherion.example"
+      ],
+      "tools": [
+        "mcp.database"
+      ],
+      "actions": [
+        "query"
+      ],
+      "resources": [
+        "staging/*"
+      ],
+      "max_ttl_seconds": 120
+    },
+    {
+      "id": "staging-promotion-requires-approval",
+      "effect": "allow",
+      "subjects": [
+        "spiffe://aetherion.example/ns/platform/sa/release-agent"
+      ],
+      "spiffe_trust_domains": [
+        "aetherion.example"
+      ],
+      "tools": [
+        "mcp.deploy"
+      ],
+      "actions": [
+        "promote"
+      ],
+      "resources": [
+        "staging/*"
+      ],
+      "require_approval": true,
+      "max_ttl_seconds": 60
+    }
+  ]
+}
