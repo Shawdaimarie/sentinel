@@ -1,0 +1,58 @@
+[
+  {
+    "id": "allow-source-review",
+    "subject": "spiffe://aetherion.example/ns/engineering/sa/code-agent",
+    "tool": "mcp.repo",
+    "action": "read",
+    "resource": "repos/backend-api",
+    "expected_decision": "allow"
+  },
+  {
+    "id": "allow-ci-tests",
+    "subject": "spiffe://aetherion.example/ns/engineering/sa/code-agent",
+    "tool": "mcp.ci",
+    "action": "run",
+    "resource": "tests/backend-api",
+    "expected_decision": "allow"
+  },
+  {
+    "id": "allow-staging-readonly-query",
+    "subject": "spiffe://aetherion.example/ns/engineering/sa/code-agent",
+    "tool": "mcp.database",
+    "action": "query",
+    "resource": "staging/schema",
+    "expected_decision": "allow"
+  },
+  {
+    "id": "deny-database-write",
+    "subject": "spiffe://aetherion.example/ns/engineering/sa/code-agent",
+    "tool": "mcp.database",
+    "action": "write",
+    "resource": "staging/schema",
+    "expected_decision": "deny"
+  },
+  {
+    "id": "deny-production-promotion",
+    "subject": "spiffe://aetherion.example/ns/platform/sa/release-agent",
+    "tool": "mcp.deploy",
+    "action": "promote",
+    "resource": "production/backend-api",
+    "expected_decision": "deny"
+  },
+  {
+    "id": "deny-unknown-workload",
+    "subject": "spiffe://aetherion.example/ns/engineering/sa/unknown-agent",
+    "tool": "mcp.repo",
+    "action": "read",
+    "resource": "repos/backend-api",
+    "expected_decision": "deny"
+  },
+  {
+    "id": "staging-promotion-policy-match-only",
+    "subject": "spiffe://aetherion.example/ns/platform/sa/release-agent",
+    "tool": "mcp.deploy",
+    "action": "promote",
+    "resource": "staging/backend-api",
+    "expected_decision": "allow"
+  }
+]
