@@ -1,0 +1,9 @@
+# Fictional Aetherion Technologies demo policy; no live access.
+version: 1
+defaults:
+  decision: deny
+agents:
+  code-agent:
+    purpose: Simulate a bounded AI-assisted software engineering review.
+    allowed_actions: [repo.read, tests.run, database.query, approval.request]
+    max_actions_per_run: 3

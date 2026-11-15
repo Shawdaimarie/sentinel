@@ -22,6 +22,14 @@ sentinel-eval \
   --comparison-json examples/reports/comparison.json
 ```
 
+## Fictional engineering-company workflow
+
+The [Aetherion Technologies demo](aetherion/README.md) exercises Sentinel's
+deny-by-default policy, local audit-chain verification, deterministic evaluation
+and synthetic OpenTelemetry trace normalization alongside a separate Aegis
+Go policy-matching fixture. Aetherion is fictional; this is not customer or
+production deployment evidence.
+
 ## Coding-agent review scorecard
 
 `code_review_scorecard_cases.json` covers safe, unsafe, incomplete,
