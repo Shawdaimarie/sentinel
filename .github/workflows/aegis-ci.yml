@@ -31,6 +31,8 @@ jobs:
         run: go test -run '^$' -bench=. -benchtime=100x ./...
       - name: Policy evaluation harness
         run: go run ./cmd/aegis-policy-eval --policy examples/policy.json --cases examples/policy_eval_cases.json
+      - name: Fictional Aetherion policy evaluation harness
+        run: go run ./cmd/aegis-policy-eval --policy ../Sentinel/examples/aetherion/aegis_policy.json --cases ../Sentinel/examples/aetherion/aegis_cases.json
       - name: Static build
         run: |
           mkdir -p bin
